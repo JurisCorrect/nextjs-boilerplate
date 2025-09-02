@@ -6,7 +6,29 @@ export default function Home() {
     <main>
       {/* Titre principal */}
       <section className="hero">
-        <h1 className="hero-title">JURISCORRECT</h1>
+        <h1 className="hero-title" style={{ display: 'inline-flex', alignItems: 'center' }}>
+          <span
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '12px',
+              lineHeight: 1,
+            }}
+          >
+            {/* Logo à la même hauteur que les lettres */}
+            <img
+              src="/logo-jurysconnect.svg"
+              alt="Logo Juriscorrect"
+              aria-hidden="true"
+              style={{
+                height: '1em',
+                width: '1em',
+                display: 'inline-block',
+              }}
+            />
+            JURISCORRECT
+          </span>
+        </h1>
       </section>
 
       {/* Encadré présentation outil */}
@@ -35,19 +57,19 @@ export default function Home() {
       </section>
 
       <footer className="footer">
-  <img src="/marie.jpg" alt="Marie" className="avatar" />
-  <p>
-    Doctorante en droit international pénal et professeur particulier depuis quatre ans, j’ai effectué un parcours universitaire rigoureux, 
-    validé mention bien à chaque étape. Après une licence à l’université de Créteil, j’ai obtenu deux masters : un master 1 et 2 de droit international et droit comparé à Nanterre, 
-    puis un master 1 et 2 de droit pénal et sciences criminelles à Toulouse. 
-    Au fil de mes années d’enseignement, j’ai constaté que le plus grand défi des étudiants en droit était la maîtrise de la méthodologie. 
-    C’est pourquoi j’ai créé JURISCORRECT : pour démocratiser l’accès à une correction de qualité et permettre à chaque étudiant de progresser efficacement. 
-    Il s’agit de ma correction basée sur mes critères et non pas ceux d’Internet. 
-    Avec quatre ans d’expérience et un taux de réussite de 100 % parmi mes élèves, je mets aujourd’hui mon expertise à votre service à travers cet outil. 
-    Pour un accompagnement personnalisé ou des cours particuliers, contactez-moi : 
-    <a href="mailto:marie.terki@icloud.com"><strong><u> marie.terki@icloud.com</u></strong></a>.
-  </p>
-</footer>
- </main>
-)
+        <img src="/marie.jpg" alt="Marie" className="avatar" />
+        <p>
+          Doctorante en droit international pénal et professeur particulier depuis quatre ans, j’ai effectué un parcours universitaire rigoureux, 
+          validé mention bien à chaque étape. Après une licence à l’université de Créteil, j’ai obtenu deux masters : un master 1 et 2 de droit international et droit comparé à Nanterre, 
+          puis un master 1 et 2 de droit pénal et sciences criminelles à Toulouse. 
+          Au fil de mes années d’enseignement, j’ai constaté que le plus grand défi des étudiants en droit était la maîtrise de la méthodologie. 
+          C’est pourquoi j’ai créé JURISCORRECT : pour démocratiser l’accès à une correction de qualité et permettre à chaque étudiant de progresser efficacement. 
+          Il s’agit de ma correction basée sur mes critères et non pas ceux d’Internet. 
+          Avec quatre ans d’expérience et un taux de réussite de 100 % parmi mes élèves, je mets aujourd’hui mon expertise à votre service à travers cet outil. 
+          Pour un accompagnement personnalisé ou des cours particuliers, contactez-moi : 
+          <a href="mailto:marie.terki@icloud.com"><strong><u> marie.terki@icloud.com</u></strong></a>.
+        </p>
+      </footer>
+    </main>
+  )
 }
