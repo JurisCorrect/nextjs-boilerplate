@@ -7,7 +7,7 @@ export default function CasPratiquePage() {
   const [copie, setCopie] = useState("")
   const [erreur, setErreur] = useState("")
   const [resultat, setResultat] = useState("")
-  const [isLoading, setIsLoading] = useState(false) // ⬅️ nouvel état pour le loader
+  const [isLoading, setIsLoading] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -20,12 +20,12 @@ export default function CasPratiquePage() {
 
     setErreur("")
     setResultat("")
-    setIsLoading(true) // ⬅️ on affiche le cercle
+    setIsLoading(true)
 
     try {
       const res = await fetch("/api/correct", {
         method: "POST",
-        headers: { "Content-Type": "application/json" }, // bien avec tiret
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           exercise_kind: "cas-pratique",
           matiere,
@@ -41,9 +41,9 @@ export default function CasPratiquePage() {
         return
       }
 
-      // Succès : on quitte la page, pas besoin de cacher le loader
-      window.location.href = `/correction/${data.correctionId}`
-    } catch (err) {
+      // ⬇️ Redirection vers la page d'affichage CAS PRATIQUE
+      window.location.href = `/cas-pratique/${data.correctionId}`
+    } catch (_err) {
       setIsLoading(false)
       setErreur("Impossible de contacter le serveur.")
     }
@@ -107,7 +107,6 @@ export default function CasPratiquePage() {
         </form>
       </section>
 
-      {/* Loader plein écran (affiché pendant l'envoi) */}
       {isLoading && (
         <div className="loader-overlay" role="status" aria-live="polite" aria-label="Envoi en cours">
           <div className="loader-ring" />
