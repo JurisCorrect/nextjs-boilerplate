@@ -7,16 +7,46 @@ export default function CasPratiquePage() {
   const [copie, setCopie] = useState("")
   const [erreur, setErreur] = useState("")
   const [resultat, setResultat] = useState("")
+  const [isLoading, setIsLoading] = useState(false) // ⬅️ nouvel état pour le loader
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
     if (!matiere.trim() || !sujet.trim() || !copie.trim()) {
       setErreur("⚠️ Merci de remplir les trois champs : matière, énoncé et copie complète.")
       setResultat("")
       return
     }
+
     setErreur("")
-    setResultat("✅ Merci ! Ta copie a bien été envoyée. La correction s’affichera ici (test).")
+    setResultat("")
+    setIsLoading(true) // ⬅️ on affiche le cercle
+
+    try {
+      const res = await fetch("/api/correct", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" }, // bien avec tiret
+        body: JSON.stringify({
+          exercise_kind: "cas-pratique",
+          matiere,
+          sujet,
+          copie
+        })
+      })
+      const data = await res.json()
+
+      if (!res.ok) {
+        setIsLoading(false)
+        setErreur(data.error || "Erreur serveur")
+        return
+      }
+
+      // Succès : on quitte la page, pas besoin de cacher le loader
+      window.location.href = `/correction/${data.correctionId}`
+    } catch (err) {
+      setIsLoading(false)
+      setErreur("Impossible de contacter le serveur.")
+    }
   }
 
   return (
@@ -32,7 +62,7 @@ export default function CasPratiquePage() {
               id="matiere"
               className="input"
               type="text"
-              placeholder="Ex. droit civil, droit pénal, droit des obligations…"
+              placeholder="ex. droit constitutionnel"
               value={matiere}
               onChange={(e) => setMatiere(e.target.value)}
               autoComplete="off"
@@ -76,6 +106,13 @@ export default function CasPratiquePage() {
           {resultat && <p className="msg-ok">{resultat}</p>}
         </form>
       </section>
+
+      {/* Loader plein écran (affiché pendant l'envoi) */}
+      {isLoading && (
+        <div className="loader-overlay" role="status" aria-live="polite" aria-label="Envoi en cours">
+          <div className="loader-ring" />
+        </div>
+      )}
     </main>
   )
 }
