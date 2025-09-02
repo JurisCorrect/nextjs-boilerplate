@@ -1,6 +1,8 @@
 import PaymentPanel from '../PaymentPanel'
 import { supabase } from '@/app/lib/supabase'
 
+export const dynamic = 'force-dynamic' // ← empêche la page d'être mise en cache statique
+
 type Props = { params: { id: string } }
 
 export default async function CorrectionPage({ params }: Props) {
@@ -23,9 +25,8 @@ export default async function CorrectionPage({ params }: Props) {
   const globalComment: string = result.globalComment || ''
 
   const len = body.length
-  const part = (ratio: number) => Math.floor(len * ratio)
+  const part = (r: number) => Math.floor(len * r)
 
-  // on montre : début (20%) + un extrait (10%) au milieu (sans le titre) ; le reste est flouté
   const start = body.slice(0, part(0.2))
   const middle = body.slice(part(0.45), part(0.55))
 
@@ -34,19 +35,22 @@ export default async function CorrectionPage({ params }: Props) {
     filter: 'blur(6px)',
     pointerEvents: 'none',
     userSelect: 'none',
+    position: 'relative',
+    zIndex: 1,
   }
 
-  // styles du carré rose (overlay centré)
+  // overlay rose centré (bien par-dessus)
   const overlayWrap: React.CSSProperties = {
     position: 'absolute',
     inset: 0 as any,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    pointerEvents: 'none', // laisse passer les clics ailleurs
+    pointerEvents: 'none',
+    zIndex: 30,
   }
   const pinkBox: React.CSSProperties = {
-    background: '#ec4899', // beau rose
+    background: '#ec4899', // rose visible
     color: '#fff',
     borderRadius: 14,
     padding: '16px 18px',
@@ -54,61 +58,58 @@ export default async function CorrectionPage({ params }: Props) {
     maxWidth: 420,
     width: '90%',
     textAlign: 'center',
-    pointerEvents: 'auto', // clics autorisés dans la box
-  }
-  const pinkTitle: React.CSSProperties = {
-    margin: '0 0 8px',
-    fontWeight: 900,
-    letterSpacing: '.3px',
-  }
-  const pinkText: React.CSSProperties = {
-    margin: '0 0 10px',
-    opacity: 0.95,
+    pointerEvents: 'auto',
   }
 
   return (
     <main className="page-wrap">
       <h1 className="page-title">CORRECTION</h1>
 
-      {/* On rend la section relative pour placer l’overlay centré */}
+      {/* Section relative pour l’overlay */}
       <section className="panel" style={{ position: 'relative' }}>
-        {/* Début visible */}
+        {/* DÉBUT visible */}
         <h3>Début</h3>
         <p style={justify}>{start}</p>
 
-        {/* Corps flouté (1ère partie) */}
+        {/* Corps flouté (1) */}
         <div style={blurBlock}>
           <p style={justify}>
             {body.slice(part(0.2), part(0.45))}
           </p>
         </div>
 
-        {/* Extrait du milieu : on laisse le contenu, mais on SUPPRIME le titre */}
+        {/* CONTENU visible au milieu — sans le titre */}
         <p style={justify}>{middle}</p>
 
-        {/* Corps flouté (2ème partie) */}
+        {/* Corps flouté (2) */}
         <div style={blurBlock}>
           <p style={justify}>
             {body.slice(part(0.55))}
           </p>
         </div>
 
-        {/* Commentaire global : on supprime la ligne visible (“sujet reçu…”) et on floute TOUT */}
+        {/* Commentaire global : tout flouté (on n’affiche plus la 1ère ligne “sujet reçu…”) */}
         <h3>Commentaire global</h3>
         <div style={blurBlock}>
-          <p style={justify}>
-            {globalComment}
-          </p>
+          <p style={justify}>{globalComment}</p>
         </div>
 
-        {/* Carré rose “Débloquer la correction” centré, posé PAR-DESSUS une zone floutée */}
+        {/* Carré rose centré */}
         <div style={overlayWrap} aria-hidden>
           <div style={pinkBox} aria-label="Débloquer la correction">
-            <h4 style={pinkTitle}>Débloquer la correction</h4>
-            <p style={pinkText}>Accédez à l’intégralité de votre copie corrigée.</p>
-            {/* Tu peux garder ton composant paiement ici */}
+            <div style={{ fontWeight: 900, marginBottom: 6, letterSpacing: '.3px' }}>
+              Débloquer la correction
+            </div>
+            <div style={{ opacity: 0.95, marginBottom: 10 }}>
+              Accédez à l’intégralité de votre copie corrigée.
+            </div>
             <PaymentPanel />
           </div>
+        </div>
+
+        {/* Marqueur temporaire pour vérifier que la page a bien été mise à jour */}
+        <div style={{ marginTop: 16, fontSize: 12, opacity: 0.6 }}>
+          — version: <strong>PINK-OVERLAY-v2</strong> —
         </div>
       </section>
     </main>
