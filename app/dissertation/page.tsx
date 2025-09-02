@@ -8,17 +8,29 @@ export default function DissertationPage() {
   const [erreur, setErreur] = useState("")
   const [resultat, setResultat] = useState("")
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!matiere.trim() || !sujet.trim() || !copie.trim()) {
-      setErreur("⚠️ Merci de remplir les trois champs : matière, sujet et copie complète.")
-      setResultat("")
-      return
-    }
-    setErreur("")
-    // (MVP) message de confirmation – on branchera l’API ensuite
-    setResultat("✅ Merci ! Ta copie a bien été envoyée. La correction s’affichera ici (test).")
+  const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault()
+  if (!matiere.trim() || !sujet.trim() || !copie.trim()) {
+    setErreur("⚠️ Merci de remplir les trois champs : matière, sujet et copie complète.")
+    setResultat("")
+    return
   }
+  setErreur("")
+  setResultat("⏳ Envoi en cours…")
+
+  const res = await fetch('/api/correct', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      exercise_kind: 'dissertation',
+      matiere, sujet, copie
+    })
+  })
+  const data = await res.json()
+  if (!res.ok) { setResultat(""); setErreur(data.error || "Erreur serveur"); return; }
+
+  window.location.href = `/correction/${data.correctionId}`
+}
 
   return (
     <main className="page-wrap">
