@@ -1,7 +1,8 @@
+// app/correction/[id]/page.tsx
 import PaymentPanel from '../PaymentPanel'
 import { supabase } from '@/app/lib/supabase'
 
-export const dynamic = 'force-dynamic' // ← empêche la page d'être mise en cache statique
+export const dynamic = 'force-dynamic' // pas de cache statique
 
 type Props = { params: { id: string } }
 
@@ -27,6 +28,7 @@ export default async function CorrectionPage({ params }: Props) {
   const len = body.length
   const part = (r: number) => Math.floor(len * r)
 
+  // visible : début (20%) + un paragraphe central (10%) — sans afficher "Extrait du milieu"
   const start = body.slice(0, part(0.2))
   const middle = body.slice(part(0.45), part(0.55))
 
@@ -39,7 +41,8 @@ export default async function CorrectionPage({ params }: Props) {
     zIndex: 1,
   }
 
-  // overlay rose centré (bien par-dessus)
+  // Carré bordeaux classe (surimpression centrée)
+  // Bleu de ta charte: #0f2a5f ; Bordeaux choisi: #7b1e3a
   const overlayWrap: React.CSSProperties = {
     position: 'absolute',
     inset: 0 as any,
@@ -49,25 +52,35 @@ export default async function CorrectionPage({ params }: Props) {
     pointerEvents: 'none',
     zIndex: 30,
   }
-  const pinkBox: React.CSSProperties = {
-    background: '#ec4899', // rose visible
+  const burgundyBox: React.CSSProperties = {
+    background: '#7b1e3a',
     color: '#fff',
-    borderRadius: 14,
+    borderRadius: 12,
     padding: '16px 18px',
-    boxShadow: '0 10px 30px rgba(236,72,153,.35)',
-    maxWidth: 420,
+    boxShadow: '0 10px 30px rgba(10,26,61,.25)', // ombre bleutée élégante
+    maxWidth: 380,
     width: '90%',
     textAlign: 'center',
     pointerEvents: 'auto',
+    border: '1px solid rgba(255,255,255,0.08)',
+  }
+  const burgundyTitle: React.CSSProperties = {
+    margin: '0 0 8px',
+    fontWeight: 900,
+    letterSpacing: '.3px',
+  }
+  const burgundyText: React.CSSProperties = {
+    margin: '0 0 10px',
+    opacity: 0.95,
   }
 
   return (
     <main className="page-wrap">
       <h1 className="page-title">CORRECTION</h1>
 
-      {/* Section relative pour l’overlay */}
+      {/* section relative pour placer l’overlay au centre */}
       <section className="panel" style={{ position: 'relative' }}>
-        {/* DÉBUT visible */}
+        {/* Début visible */}
         <h3>Début</h3>
         <p style={justify}>{start}</p>
 
@@ -78,7 +91,7 @@ export default async function CorrectionPage({ params }: Props) {
           </p>
         </div>
 
-        {/* CONTENU visible au milieu — sans le titre */}
+        {/* Paragraphe central visible (sans le titre) */}
         <p style={justify}>{middle}</p>
 
         {/* Corps flouté (2) */}
@@ -94,22 +107,13 @@ export default async function CorrectionPage({ params }: Props) {
           <p style={justify}>{globalComment}</p>
         </div>
 
-        {/* Carré rose centré */}
+        {/* Carré bordeaux “Débloquer la correction” centré */}
         <div style={overlayWrap} aria-hidden>
-          <div style={pinkBox} aria-label="Débloquer la correction">
-            <div style={{ fontWeight: 900, marginBottom: 6, letterSpacing: '.3px' }}>
-              Débloquer la correction
-            </div>
-            <div style={{ opacity: 0.95, marginBottom: 10 }}>
-              Accédez à l’intégralité de votre copie corrigée.
-            </div>
+          <div style={burgundyBox} aria-label="Débloquer la correction">
+            <div style={burgundyTitle}>Débloquer la correction</div>
+            <div style={burgundyText}>Accédez à l’intégralité de votre copie corrigée.</div>
             <PaymentPanel />
           </div>
-        </div>
-
-        {/* Marqueur temporaire pour vérifier que la page a bien été mise à jour */}
-        <div style={{ marginTop: 16, fontSize: 12, opacity: 0.6 }}>
-          — version: <strong>PINK-OVERLAY-v2</strong> —
         </div>
       </section>
     </main>
