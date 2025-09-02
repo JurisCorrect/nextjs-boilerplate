@@ -290,3 +290,8 @@ input, textarea, select, label, button {
   border:1px solid rgba(0,0,0,0.08); padding:12px 14px; border-radius:10px; background:#fff; cursor:pointer;
 }
 .btn-buy:hover{ box-shadow:0 3px 16px rgba(0,0,0,0.08); }
+.correction-content p,
+.correction-content li {
+  text-align: justify;
+  text-justify: inter-word;
+}
