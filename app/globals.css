@@ -284,3 +284,9 @@ input, textarea, select, label, button {
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
+.buy-grid{ display:grid; gap:12px; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); }
+.btn-buy{
+  display:flex; align-items:center; justify-content:space-between;
+  border:1px solid rgba(0,0,0,0.08); padding:12px 14px; border-radius:10px; background:#fff; cursor:pointer;
+}
+.btn-buy:hover{ box-shadow:0 3px 16px rgba(0,0,0,0.08); }
