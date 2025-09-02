@@ -7,16 +7,46 @@ export default function CommentairePage() {
   const [copie, setCopie] = useState("")
   const [erreur, setErreur] = useState("")
   const [resultat, setResultat] = useState("")
+  const [isLoading, setIsLoading] = useState(false) // ⬅️ état du loader
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
     if (!matiere.trim() || !sujet.trim() || !copie.trim()) {
       setErreur("⚠️ Merci de remplir les trois champs : matière, arrêt (texte) et copie complète.")
       setResultat("")
       return
     }
+
     setErreur("")
-    setResultat("✅ Merci ! Ta copie a bien été envoyée. La correction s’affichera ici (test).")
+    setResultat("")
+    setIsLoading(true) // ⬅️ affiche le loader
+
+    try {
+      const res = await fetch("/api/correct", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          exercise_kind: "commentaire",
+          matiere,
+          sujet,
+          copie
+        })
+      })
+      const data = await res.json()
+
+      if (!res.ok) {
+        setIsLoading(false)
+        setErreur(data.error || "Erreur serveur")
+        return
+      }
+
+      // Redirection vers la page correction
+      window.location.href = `/correction/${data.correctionId}`
+    } catch (err) {
+      setIsLoading(false)
+      setErreur("Impossible de contacter le serveur.")
+    }
   }
 
   return (
@@ -32,7 +62,7 @@ export default function CommentairePage() {
               id="matiere"
               className="input"
               type="text"
-              placeholder="Ex. droit administratif, droit civil, droit pénal…"
+              placeholder="ex. droit administratif"
               value={matiere}
               onChange={(e) => setMatiere(e.target.value)}
               autoComplete="off"
@@ -76,6 +106,13 @@ export default function CommentairePage() {
           {resultat && <p className="msg-ok">{resultat}</p>}
         </form>
       </section>
+
+      {/* Loader plein écran */}
+      {isLoading && (
+        <div className="loader-overlay" role="status" aria-live="polite" aria-label="Envoi en cours">
+          <div className="loader-ring" />
+        </div>
+      )}
     </main>
   )
 }
