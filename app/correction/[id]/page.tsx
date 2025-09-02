@@ -1,3 +1,4 @@
+import PaymentPanel from '../PaymentPanel'
 // app/correction/[id]/page.tsx
 import { supabase } from '@/app/lib/supabase'
 
