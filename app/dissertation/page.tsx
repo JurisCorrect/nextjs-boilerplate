@@ -24,7 +24,7 @@ export default function DissertationPage() {
     <main className="page-wrap">
       {/* Titre sur fond bleu marine (hérite du body) */}
       <h1 className="page-title">DISSERTATION JURIDIQUE 📚</h1>
-      <p className="helper">colle ton sujet et ta copie complète dans les champs ci-dessous</p>
+      <p className="helper">Colle ton sujet et ta copie complète dans les champs ci-dessous</p>
 
       {/* Carte blanche avec le formulaire */}
       <section className="panel">
@@ -35,7 +35,7 @@ export default function DissertationPage() {
               id="matiere"
               className="input"
               type="text"
-              placeholder="ex. droit constitutionnel, droit pénal, droit administratif…"
+              placeholder="Ex. droit constitutionnel, droit pénal, droit administratif…"
               value={matiere}
               onChange={(e) => setMatiere(e.target.value)}
               autoComplete="off"
@@ -47,7 +47,7 @@ export default function DissertationPage() {
             <textarea
               id="sujet"
               className="textarea"
-              placeholder="colle ici l’énoncé exact du sujet (obligatoire)"
+              placeholder="Colle ici l’énoncé exact du sujet (obligatoire)"
               rows={3}
               value={sujet}
               onChange={(e) => setSujet(e.target.value)}
@@ -59,7 +59,7 @@ export default function DissertationPage() {
             <textarea
               id="copie"
               className="textarea"
-              placeholder="colle ici l’intégralité de ta dissertation (introduction, développement, conclusion…)"
+              placeholder="Colle ici l’intégralité de ta dissertation"
               rows={12}
               value={copie}
               onChange={(e) => setCopie(e.target.value)}
