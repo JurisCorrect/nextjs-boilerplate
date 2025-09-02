@@ -1,0 +1,12 @@
+<!-- public/logo-jurysconnect.svg -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+     fill="none" stroke="currentColor" stroke-width="1.8"
+     stroke-linecap="round" stroke-linejoin="round">
+  <!-- Livre ouvert (université) -->
+  <path d="M3 8c2-1.5 5-1.5 7 0v8c-2-1.5-5-1.5-7 0V8z"/>
+  <path d="M21 8c-2-1.5-5-1.5-7 0v8c2-1.5 5-1.5 7 0V8z"/>
+  <path d="M12 8v8"/>
+  <!-- Plume (correction) -->
+  <path d="M12 9l2 2-2 6-2-6 2-2z"/>
+  <circle cx="12" cy="12.75" r=".75"/>
+</svg>
