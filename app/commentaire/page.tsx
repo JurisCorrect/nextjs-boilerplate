@@ -3,7 +3,7 @@ import { useState } from "react"
 
 export default function CommentairePage() {
   const [matiere, setMatiere] = useState("")
-  const [sujet, setSujet] = useState("")
+  const [sujet, setSujet] = useState("")          // ← on garde la valeur
   const [fichier, setFichier] = useState<File | null>(null)
   const [erreur, setErreur] = useState("")
   const [resultat, setResultat] = useState("")
@@ -22,7 +22,7 @@ export default function CommentairePage() {
     e.preventDefault()
 
     if (!matiere.trim() || !sujet.trim()) {
-      setErreur("⚠️ Merci de renseigner la matière et le sujet.")
+      setErreur("⚠️ Merci de renseigner la matière et le sujet (arrêt/extrait).")
       setResultat("")
       return
     }
@@ -37,10 +37,8 @@ export default function CommentairePage() {
     setIsLoading(true)
 
     try {
-      // 1) Upload & extraction du texte
       const copieExtraite = await uploadDocx(fichier)
 
-      // 2) Envoi à la correction (comme avant)
       const res = await fetch("/api/correct", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -59,7 +57,6 @@ export default function CommentairePage() {
         return
       }
 
-      // Redirection vers la page de correction/commentaire
       window.location.href = `/commentaire/${data.correctionId}`
     } catch (err: any) {
       setIsLoading(false)
@@ -88,15 +85,14 @@ export default function CommentairePage() {
           </div>
 
           <div className="field">
-            <label htmlFor="sujet">Sujet</label>
-            <input
+            <label htmlFor="sujet">Sujet (arrêt / extrait à commenter)</label>
+            <textarea
               id="sujet"
-              className="input"
-              type="text"
-              placeholder="Ex : Commentaire de l’arrêt Nicolo, CE 20/10/1989"
+              className="textarea"
+              placeholder="Mettre l'arrêt ou l'extrait de l'arrêt à commenter"
+              style={{ minHeight: "4cm" }}              // ← hauteur demandée
               value={sujet}
               onChange={(e) => setSujet(e.target.value)}
-              autoComplete="off"
             />
           </div>
 
