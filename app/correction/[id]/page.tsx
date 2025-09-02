@@ -56,6 +56,15 @@ export default async function CorrectionPage({ params }: Props) {
             {globalComment.split('\n').slice(1).join('\n')}
           </p>
         </div>
+        <hr style={{ margin:'16px 0' }} />
+<h3>Exemples de commentaires</h3>
+<ul>
+  <li>✅ Bonne identification du problème juridique dès l’introduction.</li>
+  <li>⚠️ Transition à renforcer entre I et II (annonce de plan trop concise).</li>
+  <li>❌ Jurisprudence citée sans date : ajoutez la référence complète.</li>
+</ul>
+
+<PaymentPanel />
       </section>
     </main>
   )
