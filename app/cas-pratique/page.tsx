@@ -4,16 +4,30 @@ import { useState } from "react"
 export default function CasPratiquePage() {
   const [matiere, setMatiere] = useState("")
   const [sujet, setSujet] = useState("")
-  const [copie, setCopie] = useState("")
+  const [fichier, setFichier] = useState<File | null>(null)
   const [erreur, setErreur] = useState("")
   const [resultat, setResultat] = useState("")
   const [isLoading, setIsLoading] = useState(false)
 
+  async function uploadDocx(file: File): Promise<string> {
+    const form = new FormData()
+    form.append("file", file)
+    const res = await fetch("/api/upload", { method: "POST", body: form })
+    const data = await res.json()
+    if (!res.ok) throw new Error(data?.error || "Upload .docx échoué")
+    return data.text as string
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!matiere.trim() || !sujet.trim() || !copie.trim()) {
-      setErreur("⚠️ Merci de remplir les trois champs : matière, énoncé et copie complète.")
+    if (!matiere.trim() || !sujet.trim()) {
+      setErreur("⚠️ Merci de renseigner la matière et le sujet.")
+      setResultat("")
+      return
+    }
+    if (!fichier) {
+      setErreur("⚠️ Merci de déposer votre document Word (.docx).")
       setResultat("")
       return
     }
@@ -23,6 +37,10 @@ export default function CasPratiquePage() {
     setIsLoading(true)
 
     try {
+      // 1) Upload & extraction du texte
+      const copieExtraite = await uploadDocx(fichier)
+
+      // 2) Envoi à la correction
       const res = await fetch("/api/correct", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -30,8 +48,8 @@ export default function CasPratiquePage() {
           exercise_kind: "cas-pratique",
           matiere,
           sujet,
-          copie
-        })
+          copie: copieExtraite,
+        }),
       })
       const data = await res.json()
 
@@ -41,18 +59,17 @@ export default function CasPratiquePage() {
         return
       }
 
-      // ⬇️ Redirection vers la page d'affichage CAS PRATIQUE
       window.location.href = `/cas-pratique/${data.correctionId}`
-    } catch (_err) {
+    } catch (err: any) {
       setIsLoading(false)
-      setErreur("Impossible de contacter le serveur.")
+      setErreur(err.message || "Impossible de traiter le fichier.")
     }
   }
 
   return (
     <main className="page-wrap">
       <h1 className="page-title">CAS PRATIQUE 📝</h1>
-      <p className="helper">Colle l’énoncé et ta résolution complète dans les champs ci-dessous</p>
+      <p className="helper">Indique la matière et le sujet, puis dépose ton document Word (.docx)</p>
 
       <section className="panel">
         <form onSubmit={handleSubmit} className="form" noValidate>
@@ -70,34 +87,34 @@ export default function CasPratiquePage() {
           </div>
 
           <div className="field">
-            <label htmlFor="sujet">Énoncé du cas</label>
-            <textarea
+            <label htmlFor="sujet">Sujet</label>
+            <input
               id="sujet"
-              className="textarea"
-              placeholder="Colle ici l’énoncé exact du cas pratique"
-              rows={6}
+              className="input"
+              type="text"
+              placeholder="Ex : Responsabilité pénale — faits X"
               value={sujet}
               onChange={(e) => setSujet(e.target.value)}
+              autoComplete="off"
             />
           </div>
 
           <div className="field">
-            <label htmlFor="copie">Ta copie (résolution complète)</label>
-            <textarea
-              id="copie"
-              className="textarea"
-              placeholder="Colle ici ta résolution (qualification, règles applicables, majeure/mineure, conclusion)"
-              rows={12}
-              value={copie}
-              onChange={(e) => setCopie(e.target.value)}
+            <label htmlFor="docx">Déposer le document Word (.docx)</label>
+            <input
+              id="docx"
+              className="input"
+              type="file"
+              accept=".docx"
+              onChange={(e) => setFichier(e.target.files?.[0] ?? null)}
             />
+            <p className="intro" style={{ marginTop: 6 }}>
+              Formats acceptés : .docx (Word récent). Le contenu sera extrait automatiquement.
+            </p>
           </div>
 
           <div className="actions">
             <button type="submit" className="btn-send" aria-label="Envoyer pour correction">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path d="M4 12h13M12 5l7 7-7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
               ENVOI POUR CORRECTION
             </button>
           </div>
