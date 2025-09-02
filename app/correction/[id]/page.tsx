@@ -1,7 +1,4 @@
-import BlurredCorrection from '@/components/BlurredCorrection'
-import BuyButtons from '@/components/BuyButtons'
 import PaymentPanel from '../PaymentPanel'
-// app/correction/[id]/page.tsx
 import { supabase } from '@/app/lib/supabase'
 
 type Props = { params: { id: string } }
@@ -25,48 +22,71 @@ export default async function CorrectionPage({ params }: Props) {
   const body: string = result.normalizedBody || ''
   const globalComment: string = result.globalComment || ''
 
-  // on ne montre que des morceaux (début + milieu), le reste flouté
-  const start = body.slice(0, Math.floor(body.length * 0.2))
-  const middle = body.slice(Math.floor(body.length * 0.45), Math.floor(body.length * 0.55))
+  // Sécurise si le texte est très court
+  const len = body.length
+  const part = (ratio: number) => Math.floor(len * ratio)
+
+  // on montre : début (20%) + un extrait au milieu (10%)
+  const start = body.slice(0, part(0.2))
+  const middle = body.slice(part(0.45), part(0.55))
+
+  // styles simples et centralisés
+  const justify: React.CSSProperties = { whiteSpace: 'pre-wrap', textAlign: 'justify' }
+  const blurBlock: React.CSSProperties = {
+    filter: 'blur(6px)',
+    pointerEvents: 'none',
+    userSelect: 'none',
+  }
 
   return (
     <main className="page-wrap">
       <h1 className="page-title">CORRECTION</h1>
+
       <section className="panel">
+        {/* DÉBUT visible */}
         <h3>Début</h3>
-        <p style={{ whiteSpace:'pre-wrap', textAlign:'justify' }}>{start}</p>
+        <p style={justify}>{start}</p>
 
-        <div style={{ filter:'blur(6px)' }}>
-          <p style={{ whiteSpace:'pre-wrap', textAlign:'justify' }}>
-            {body.slice(Math.floor(body.length*0.2), Math.floor(body.length*0.45))}
+        {/* Corps flouté (1ère partie) */}
+        <div style={blurBlock}>
+          <p style={justify}>
+            {body.slice(part(0.2), part(0.45))}
           </p>
         </div>
 
+        {/* Extrait du milieu visible */}
         <h3>Extrait du milieu</h3>
-        <p style={{ whiteSpace:'pre-wrap', textAlign:'justify' }}>{middle}</p>
+        <p style={justify}>{middle}</p>
 
-        <div style={{ filter:'blur(6px)' }}>
-          <p style={{ whiteSpace:'pre-wrap', textAlign:'justify' }}>
-            {body.slice(Math.floor(body.length*0.55))}
+        {/* Corps flouté (2ème partie) */}
+        <div style={blurBlock}>
+          <p style={justify}>
+            {body.slice(part(0.55))}
           </p>
         </div>
 
+        {/* Commentaire global : 1ère ligne visible, reste flouté */}
         <h3>Commentaire global</h3>
-        <p style={{ textAlign:'justify' }}>{globalComment.split('\n')[0]}</p>
-        <div style={{ filter:'blur(6px)' }}>
-          <p style={{ whiteSpace:'pre-wrap', textAlign:'justify' }}>
+        <p style={{ textAlign: 'justify' }}>
+          {globalComment.split('\n')[0] || ''}
+        </p>
+        <div style={blurBlock}>
+          <p style={justify}>
             {globalComment.split('\n').slice(1).join('\n')}
           </p>
         </div>
-        <hr style={{ margin:'16px 0' }} />
-<h3>Exemples de commentaires</h3>
-<ul>
-  <li>✅ Bonne identification du problème juridique dès l’introduction.</li>
-  <li>⚠️ Transition à renforcer entre I et II (annonce de plan trop concise).</li>
-  <li>❌ Jurisprudence citée sans date : ajoutez la référence complète.</li>
-</ul>
 
-<PaymentPanel />
+        <hr style={{ margin: '16px 0' }} />
+
+        <h3>Exemples de commentaires</h3>
+        <ul style={{ textAlign: 'justify' }}>
+          <li>✅ Bonne identification du problème juridique dès l’introduction.</li>
+          <li>⚠️ Transition à renforcer entre I et II (annonce de plan trop concise).</li>
+          <li>❌ Jurisprudence citée sans date : ajoute la référence complète.</li>
+        </ul>
+
+        {/* Panneau de paiement (toujours visible, non flouté) */}
+        <PaymentPanel />
       </section>
     </main>
   )
