@@ -314,3 +314,7 @@ user-select: none;
 .correction-content {
   white-space: pre-wrap;
 }
+/* Logo à la même hauteur que le texte du titre */
+.hero-title { display: inline-flex; align-items: center; }
+.brand { display: inline-flex; align-items: center; gap: 12px; }
+.brand-icon { height: 1em; width: 1em; display: inline-block; }
