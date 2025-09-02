@@ -50,7 +50,7 @@ export default function DissertationPage() {
             <label htmlFor="matiere">Matière</label>
             <input
               id="matiere" className="input" type="text"
-              placeholder="ex. droit constitutionnel"
+              placeholder="Ex : Droit constitutionnel"
               value={matiere} onChange={(e) => setMatiere(e.target.value)} autoComplete="off"
             />
           </div>
