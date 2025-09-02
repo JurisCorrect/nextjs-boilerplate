@@ -62,7 +62,7 @@ export default function CasPratiquePage() {
               id="matiere"
               className="input"
               type="text"
-              placeholder="ex. droit constitutionnel"
+              placeholder="Ex : Droit pénal"
               value={matiere}
               onChange={(e) => setMatiere(e.target.value)}
               autoComplete="off"
