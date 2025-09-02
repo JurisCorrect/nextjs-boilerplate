@@ -13,7 +13,7 @@ export default async function CorrectionPage({ params }: Props) {
   if (error || !data) {
     return (
       <main className="page-wrap">
-        <p>❌ Erreur : correction introuvable.</p>
+        <p style={{ textAlign: 'justify' }}>❌ Erreur : correction introuvable.</p>
       </main>
     )
   }
@@ -31,27 +31,27 @@ export default async function CorrectionPage({ params }: Props) {
       <h1 className="page-title">CORRECTION</h1>
       <section className="panel">
         <h3>Début</h3>
-        <p style={{ whiteSpace:'pre-wrap' }}>{start}</p>
+        <p style={{ whiteSpace:'pre-wrap', textAlign:'justify' }}>{start}</p>
 
         <div style={{ filter:'blur(6px)' }}>
-          <p style={{ whiteSpace:'pre-wrap' }}>
+          <p style={{ whiteSpace:'pre-wrap', textAlign:'justify' }}>
             {body.slice(Math.floor(body.length*0.2), Math.floor(body.length*0.45))}
           </p>
         </div>
 
         <h3>Extrait du milieu</h3>
-        <p style={{ whiteSpace:'pre-wrap' }}>{middle}</p>
+        <p style={{ whiteSpace:'pre-wrap', textAlign:'justify' }}>{middle}</p>
 
         <div style={{ filter:'blur(6px)' }}>
-          <p style={{ whiteSpace:'pre-wrap' }}>
+          <p style={{ whiteSpace:'pre-wrap', textAlign:'justify' }}>
             {body.slice(Math.floor(body.length*0.55))}
           </p>
         </div>
 
         <h3>Commentaire global</h3>
-        <p>{globalComment.split('\n')[0]}</p>
+        <p style={{ textAlign:'justify' }}>{globalComment.split('\n')[0]}</p>
         <div style={{ filter:'blur(6px)' }}>
-          <p style={{ whiteSpace:'pre-wrap' }}>
+          <p style={{ whiteSpace:'pre-wrap', textAlign:'justify' }}>
             {globalComment.split('\n').slice(1).join('\n')}
           </p>
         </div>
