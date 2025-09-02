@@ -295,3 +295,66 @@ input, textarea, select, label, button {
   text-align: justify;
   text-justify: inter-word;
 }
+/* ----- Correction : texte justifié même sous blur ----- */
+const [error, setError] = useState<string | null>(null)
+
+
+async function buy(pack: Pack) {
+try {
+setError(null)
+setLoading(pack)
+const res = await fetch('/api/checkout', {
+method: 'POST',
+headers: { 'Content-Type': 'application/json' },
+body: JSON.stringify({ pack, userId }),
+})
+const data = await res.json()
+if (!res.ok) throw new Error(data?.error || 'Erreur inconnue')
+if (data?.url) window.location.href = data.url
+else throw new Error('URL de paiement introuvable')
+} catch (e: any) {
+setError(e.message)
+} finally {
+setLoading(null)
+}
+}
+
+
+return (
+<div className="flex flex-col items-center gap-2">
+{!userId && (
+<p className="text-sm text-red-600">
+Connecte-toi pour acheter un pack (temporaire : tu peux tester avec un userId factice).
+</p>
+)}
+
+
+<div className="flex flex-wrap items-center justify-center gap-2">
+<button
+onClick={() => buy('pack5')}
+disabled={loading !== null}
+className="rounded-xl bg-black px-4 py-2 text-white shadow"
+>
+{loading === 'pack5' ? 'Chargement…' : 'Pack 5 corrections'}
+</button>
+<button
+onClick={() => buy('pack10')}
+disabled={loading !== null}
+className="rounded-xl bg-black px-4 py-2 text-white shadow"
+>
+{loading === 'pack10' ? 'Chargement…' : 'Pack 10 corrections'}
+</button>
+<button
+onClick={() => buy('monthly')}
+disabled={loading !== null}
+className="rounded-xl bg-black px-4 py-2 text-white shadow"
+>
+{loading === 'monthly' ? 'Chargement…' : 'Illimité mensuel'}
+</button>
+</div>
+
+
+{error && <p className="text-sm text-red-600">{error}</p>}
+</div>
+)
+}
