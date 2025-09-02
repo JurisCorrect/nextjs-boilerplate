@@ -4,25 +4,43 @@ import { useState } from "react"
 export default function CommentairePage() {
   const [matiere, setMatiere] = useState("")
   const [sujet, setSujet] = useState("")
-  const [copie, setCopie] = useState("")
+  const [fichier, setFichier] = useState<File | null>(null)
   const [erreur, setErreur] = useState("")
   const [resultat, setResultat] = useState("")
-  const [isLoading, setIsLoading] = useState(false) // ⬅️ état du loader
+  const [isLoading, setIsLoading] = useState(false)
+
+  async function uploadDocx(file: File): Promise<string> {
+    const form = new FormData()
+    form.append("file", file)
+    const res = await fetch("/api/upload", { method: "POST", body: form })
+    const data = await res.json()
+    if (!res.ok) throw new Error(data?.error || "Upload .docx échoué")
+    return data.text as string
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!matiere.trim() || !sujet.trim() || !copie.trim()) {
-      setErreur("⚠️ Merci de remplir les trois champs : matière, arrêt (texte) et copie complète.")
+    if (!matiere.trim() || !sujet.trim()) {
+      setErreur("⚠️ Merci de renseigner la matière et le sujet.")
+      setResultat("")
+      return
+    }
+    if (!fichier) {
+      setErreur("⚠️ Merci de déposer votre document Word (.docx).")
       setResultat("")
       return
     }
 
     setErreur("")
     setResultat("")
-    setIsLoading(true) // ⬅️ affiche le loader
+    setIsLoading(true)
 
     try {
+      // 1) Upload & extraction du texte
+      const copieExtraite = await uploadDocx(fichier)
+
+      // 2) Envoi à la correction (comme avant)
       const res = await fetch("/api/correct", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -30,8 +48,8 @@ export default function CommentairePage() {
           exercise_kind: "commentaire",
           matiere,
           sujet,
-          copie
-        })
+          copie: copieExtraite,
+        }),
       })
       const data = await res.json()
 
@@ -41,18 +59,18 @@ export default function CommentairePage() {
         return
       }
 
-      // Redirection vers la page correction
-      window.location.href = `/correction/${data.correctionId}`
-    } catch (err) {
+      // Redirection vers la page de correction/commentaire
+      window.location.href = `/commentaire/${data.correctionId}`
+    } catch (err: any) {
       setIsLoading(false)
-      setErreur("Impossible de contacter le serveur.")
+      setErreur(err.message || "Impossible de traiter le fichier.")
     }
   }
 
   return (
     <main className="page-wrap">
       <h1 className="page-title">COMMENTAIRE D'ARRÊT / FICHE D'ARRÊT ⚖️</h1>
-      <p className="helper">Colle l’arrêt (texte intégral) et ta copie complète dans les champs ci-dessous</p>
+      <p className="helper">Indique la matière et le sujet, puis dépose ton document Word (.docx)</p>
 
       <section className="panel">
         <form onSubmit={handleSubmit} className="form" noValidate>
@@ -70,34 +88,34 @@ export default function CommentairePage() {
           </div>
 
           <div className="field">
-            <label htmlFor="sujet">Arrêt (texte intégral)</label>
-            <textarea
+            <label htmlFor="sujet">Sujet</label>
+            <input
               id="sujet"
-              className="textarea"
-              placeholder="Colle ici le texte intégral de l’arrêt (ou l’extrait fourni par l’enseignant)"
-              rows={6}
+              className="input"
+              type="text"
+              placeholder="Ex : Commentaire de l’arrêt Nicolo, CE 20/10/1989"
               value={sujet}
               onChange={(e) => setSujet(e.target.value)}
+              autoComplete="off"
             />
           </div>
 
           <div className="field">
-            <label htmlFor="copie">Ta copie (commentaire ou fiche)</label>
-            <textarea
-              id="copie"
-              className="textarea"
-              placeholder="Colle ici ton commentaire d’arrêt (ou ta fiche d’arrêt) complet(e)"
-              rows={12}
-              value={copie}
-              onChange={(e) => setCopie(e.target.value)}
+            <label htmlFor="docx">Déposer le document Word (.docx)</label>
+            <input
+              id="docx"
+              className="input"
+              type="file"
+              accept=".docx"
+              onChange={(e) => setFichier(e.target.files?.[0] ?? null)}
             />
+            <p className="intro" style={{ marginTop: 6 }}>
+              Formats acceptés : .docx (Word récent). Le contenu sera extrait automatiquement.
+            </p>
           </div>
 
           <div className="actions">
             <button type="submit" className="btn-send" aria-label="Envoyer pour correction">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path d="M4 12h13M12 5l7 7-7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
               ENVOI POUR CORRECTION
             </button>
           </div>
@@ -107,7 +125,6 @@ export default function CommentairePage() {
         </form>
       </section>
 
-      {/* Loader plein écran */}
       {isLoading && (
         <div className="loader-overlay" role="status" aria-live="polite" aria-label="Envoi en cours">
           <div className="loader-ring" />
