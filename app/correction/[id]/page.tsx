@@ -1,12 +1,61 @@
 // app/correction/[id]/page.tsx
-export default function CorrectionPage({ params }: { params: { id: string } }) {
+import { supabase } from '@/app/lib/supabase'
+
+type Props = { params: { id: string } }
+
+export default async function CorrectionPage({ params }: Props) {
+  const { data, error } = await supabase
+    .from('corrections')
+    .select('result_json')
+    .eq('id', params.id)
+    .single()
+
+  if (error || !data) {
+    return (
+      <main className="page-wrap">
+        <p>❌ Erreur : correction introuvable.</p>
+      </main>
+    )
+  }
+
+  const result = data.result_json as any
+  const body: string = result.normalizedBody || ''
+  const globalComment: string = result.globalComment || ''
+
+  // on ne montre que des morceaux (début + milieu), le reste flouté
+  const start = body.slice(0, Math.floor(body.length * 0.2))
+  const middle = body.slice(Math.floor(body.length * 0.45), Math.floor(body.length * 0.55))
+
   return (
     <main className="page-wrap">
       <h1 className="page-title">CORRECTION</h1>
       <section className="panel">
-        <p><strong>ID :</strong> {params.id}</p>
-        <p>Page trouvée ✅</p>
+        <h3>Début</h3>
+        <p style={{ whiteSpace:'pre-wrap' }}>{start}</p>
+
+        <div style={{ filter:'blur(6px)' }}>
+          <p style={{ whiteSpace:'pre-wrap' }}>
+            {body.slice(Math.floor(body.length*0.2), Math.floor(body.length*0.45))}
+          </p>
+        </div>
+
+        <h3>Extrait du milieu</h3>
+        <p style={{ whiteSpace:'pre-wrap' }}>{middle}</p>
+
+        <div style={{ filter:'blur(6px)' }}>
+          <p style={{ whiteSpace:'pre-wrap' }}>
+            {body.slice(Math.floor(body.length*0.55))}
+          </p>
+        </div>
+
+        <h3>Commentaire global</h3>
+        <p>{globalComment.split('\n')[0]}</p>
+        <div style={{ filter:'blur(6px)' }}>
+          <p style={{ whiteSpace:'pre-wrap' }}>
+            {globalComment.split('\n').slice(1).join('\n')}
+          </p>
+        </div>
       </section>
     </main>
-  );
+  )
 }
