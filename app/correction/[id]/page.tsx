@@ -1,3 +1,5 @@
+import BlurredCorrection from '@/components/BlurredCorrection'
+import BuyButtons from '@/components/BuyButtons'
 import PaymentPanel from '../PaymentPanel'
 // app/correction/[id]/page.tsx
 import { supabase } from '@/app/lib/supabase'
