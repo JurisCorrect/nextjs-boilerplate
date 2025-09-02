@@ -3,7 +3,7 @@ import { useState } from "react"
 
 export default function CasPratiquePage() {
   const [matiere, setMatiere] = useState("")
-  const [sujet, setSujet] = useState("")
+  const [sujet, setSujet] = useState("")          // ← on garde la valeur
   const [fichier, setFichier] = useState<File | null>(null)
   const [erreur, setErreur] = useState("")
   const [resultat, setResultat] = useState("")
@@ -22,7 +22,7 @@ export default function CasPratiquePage() {
     e.preventDefault()
 
     if (!matiere.trim() || !sujet.trim()) {
-      setErreur("⚠️ Merci de renseigner la matière et le sujet.")
+      setErreur("⚠️ Merci de renseigner la matière et l’énoncé du cas pratique.")
       setResultat("")
       return
     }
@@ -37,10 +37,8 @@ export default function CasPratiquePage() {
     setIsLoading(true)
 
     try {
-      // 1) Upload & extraction du texte
       const copieExtraite = await uploadDocx(fichier)
 
-      // 2) Envoi à la correction
       const res = await fetch("/api/correct", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -69,7 +67,7 @@ export default function CasPratiquePage() {
   return (
     <main className="page-wrap">
       <h1 className="page-title">CAS PRATIQUE 📝</h1>
-      <p className="helper">Indique la matière et le sujet, puis dépose ton document Word (.docx)</p>
+      <p className="helper">Indique la matière et l’énoncé, puis dépose ton document Word (.docx)</p>
 
       <section className="panel">
         <form onSubmit={handleSubmit} className="form" noValidate>
@@ -87,15 +85,14 @@ export default function CasPratiquePage() {
           </div>
 
           <div className="field">
-            <label htmlFor="sujet">Sujet</label>
-            <input
+            <label htmlFor="sujet">Énoncé du cas pratique</label>
+            <textarea
               id="sujet"
-              className="input"
-              type="text"
-              placeholder="Ex : Responsabilité pénale — faits X"
+              className="textarea"
+              placeholder="Énoncé du cas pratique"
+              style={{ minHeight: "4cm" }}              // ← hauteur demandée
               value={sujet}
               onChange={(e) => setSujet(e.target.value)}
-              autoComplete="off"
             />
           </div>
 
