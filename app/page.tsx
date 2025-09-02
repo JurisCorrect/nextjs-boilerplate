@@ -48,3 +48,6 @@ export default function Home() {
     <a href="mailto:marie.terki@icloud.com"><strong><u> marie.terki@icloud.com</u></strong></a>.
   </p>
 </footer>
+ </main>
+)
+}
