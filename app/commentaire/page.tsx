@@ -62,7 +62,7 @@ export default function CommentairePage() {
               id="matiere"
               className="input"
               type="text"
-              placeholder="ex. droit administratif"
+              placeholder="Ex : Droit administratif"
               value={matiere}
               onChange={(e) => setMatiere(e.target.value)}
               autoComplete="off"
