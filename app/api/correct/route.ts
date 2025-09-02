@@ -1,6 +1,6 @@
 // app/api/correct/route.ts
 import { NextResponse } from 'next/server'
-import { supabase } from '@/app/lib/supabase'
+import { supabase } from '../../lib/supabase'
 
 type Body = {
   exercise_kind: 'dissertation'|'commentaire'|'cas-pratique'
