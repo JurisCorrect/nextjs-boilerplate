@@ -1,13 +1,13 @@
 // app/correction/[id]/page.tsx
 import PaymentPanel from "../PaymentPanel"
-import { supabase } from "@/app/lib/supabase"
+import { supabaseAdmin } from "@/app/lib/supabase-admin" // ⬅️ remplace l'ancien import
 
 export const dynamic = "force-dynamic"
 
 type Props = { params: { id: string } }
 
 export default async function CorrectionPage({ params }: Props) {
-  const { data, error } = await supabase
+  const { data, error } = await supabaseAdmin            // ⬅️ utilise le client admin
     .from("corrections")
     .select("result_json")
     .eq("id", params.id)
