@@ -1,6 +1,6 @@
 // app/api/correct/route.ts
 import { NextResponse } from "next/server"
-import { supabase } from "@/app/lib/supabase"
+import { supabaseAdmin } from "@/app/lib/supabase-admin"
 
 export const runtime = "nodejs"
 
@@ -15,18 +15,10 @@ export async function POST(req: Request) {
   try {
     const { exercise_kind, matiere, sujet, copie }: Body = await req.json()
 
-    // validations claires (communes aux 3 exercices)
-    if (!matiere?.trim()) {
-      return NextResponse.json({ error: "Merci d’indiquer la matière." }, { status: 400 })
-    }
-    if (!sujet?.trim()) {
-      return NextResponse.json({ error: "Merci d’indiquer le sujet." }, { status: 400 })
-    }
-    if (!copie?.trim()) {
-      return NextResponse.json({ error: "Merci de verser le document Word (.docx)." }, { status: 400 })
-    }
+    if (!matiere?.trim()) return NextResponse.json({ error: "Merci d’indiquer la matière." }, { status: 400 })
+    if (!sujet?.trim())   return NextResponse.json({ error: "Merci d’indiquer le sujet." }, { status: 400 })
+    if (!copie?.trim())   return NextResponse.json({ error: "Merci de verser le document Word (.docx)." }, { status: 400 })
 
-    // Contenu minimal pour l’aperçu (ta page /correction/[id] lit normalizedBody et globalComment)
     const result_json = {
       normalizedBody: copie,
       globalComment: `Sujet reçu : ${sujet}\n\nCommentaires détaillés en cours de génération...`,
@@ -34,8 +26,7 @@ export async function POST(req: Request) {
       matiere,
     }
 
-    // Insert en DB et on récupère l'ID tout de suite
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from("corrections")
       .insert({ result_json })
       .select("id")
@@ -44,18 +35,14 @@ export async function POST(req: Request) {
     if (error || !data?.id) {
       console.error("Supabase insert error:", error)
       return NextResponse.json(
-        { error: "Impossible d’enregistrer la correction (DB)." },
+        { error: "Impossible d’enregistrer la correction (DB).", details: error?.message || null },
         { status: 500 }
       )
     }
 
-    // *** POINT CRUCIAL *** : on renvoie TOUJOURS { correctionId }
     return NextResponse.json({ correctionId: data.id })
   } catch (e: any) {
     console.error("API /api/correct error:", e)
-    return NextResponse.json(
-      { error: "Requête invalide ou serveur indisponible." },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: "Requête invalide ou serveur indisponible." }, { status: 500 })
   }
 }
