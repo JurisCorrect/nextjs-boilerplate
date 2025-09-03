@@ -13,7 +13,6 @@ export async function POST(req: Request) {
       exercise_kind?: string; matiere?: string; sujet?: string; copie?: string
     }
 
-    // 1) créer la submission
     const subIns = await supabase
       .from('submissions')
       .insert({
@@ -33,7 +32,6 @@ export async function POST(req: Request) {
       )
     }
 
-    // 2) créer la correction liée
     const result_json = {
       normalizedBody: (copie ?? '').trim() || 'Contenu du document déposé.',
       globalComment: `Sujet reçu : ${sujet ?? ''}\n\nDébloquez la correction complète avec l’abonnement.`,
@@ -57,7 +55,11 @@ export async function POST(req: Request) {
       )
     }
 
-    return NextResponse.json({ correctionId: corrIns.data.id })
+    // 💡 renvoyer les 2 IDs
+    return NextResponse.json({
+      correctionId: corrIns.data.id,
+      submissionId: subIns.data.id
+    })
   } catch (error: any) {
     console.error('API /api/correct error:', error)
     return NextResponse.json(
