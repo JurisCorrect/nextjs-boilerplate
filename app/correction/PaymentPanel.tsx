@@ -3,7 +3,7 @@ import { useState } from "react"
 
 type PackId = "pack5" | "pack10" | "monthly"
 
-// 👉 Tarifs demandés
+// Tarifs demandés
 const PACKS: { id: PackId; title: string; price: string; note?: string }[] = [
   { id: "pack5",  title: "Pack 5 corrections",  price: "5 €",  note: "débloque 5 copies" },
   { id: "pack10", title: "Pack 10 corrections", price: "8 €",  note: "débloque 10 copies" },
@@ -26,8 +26,7 @@ export default function PaymentPanel() {
       const data = await res.json()
       if (!res.ok) throw new Error(data?.error || "Erreur paiement")
       if (!data?.url) throw new Error("URL de paiement introuvable")
-      // 👉 Redirection vers la plateforme de paiement (Stripe Checkout)
-      window.location.href = data.url
+      window.location.href = data.url // redirection vers Stripe Checkout
     } catch (e: any) {
       setError(e.message || "Erreur inconnue")
     } finally {
@@ -37,16 +36,9 @@ export default function PaymentPanel() {
 
   return (
     <div
-      aria-label="Débloquer la correction"
+      aria-label="Choisir une offre"
       style={{ display: "grid", gap: 10, minWidth: 280 }}
     >
-      <div style={{ fontWeight: 900, textAlign: "center", marginBottom: 4 }}>
-        Débloquer la correction
-      </div>
-      <div style={{ fontSize: 13, opacity: 0.9, textAlign: "center", marginBottom: 8 }}>
-        Merci d’avoir regardé cette vidéo ! Choisis une offre pour accéder à l’intégralité.
-      </div>
-
       {PACKS.map((p) => (
         <button
           key={p.id}
