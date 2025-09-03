@@ -9,7 +9,6 @@ export default function DissertationPage() {
   const [resultat, setResultat] = useState("")
   const [isLoading, setIsLoading] = useState(false)
 
-  // Envoie le .docx à /api/upload et récupère le texte extrait
   async function uploadDocx(file: File): Promise<string> {
     const form = new FormData()
     form.append("file", file)
@@ -60,7 +59,7 @@ export default function DissertationPage() {
         return
       }
 
-      // 3) Redirection robuste vers la page d’affichage qui EXISTE déjà : /correction/[id]
+      // 3) RÉ-UTILISER la page qui existe déjà : /correction/[id]
       const id =
         data?.correctionId ??
         data?.id ??
@@ -72,6 +71,8 @@ export default function DissertationPage() {
         return
       }
 
+      // DEBUG TEMPORAIRE (tu peux le retirer après test)
+      console.log("🔗 Redirect to:", `/correction/${id}`)
       window.location.href = `/correction/${encodeURIComponent(id)}`
     } catch (err: any) {
       setIsLoading(false)
