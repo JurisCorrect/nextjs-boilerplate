@@ -3,13 +3,12 @@ import { useState } from "react"
 
 export default function DissertationPage() {
   const [matiere, setMatiere] = useState("")
-  const [sujet, setS sujet] = useState("") as any // temp to avoid accidental paste issues
+  const [sujet, setSujet] = useState("")
   const [fichier, setFichier] = useState<File | null>(null)
   const [erreur, setErreur] = useState("")
   const [resultat, setResultat] = useState("")
   const [isLoading, setIsLoading] = useState(false)
 
-  // ---- helper : upload .docx et récupérer le texte ----
   async function uploadDocx(file: File): Promise<string> {
     const form = new FormData()
     form.append("file", file)
@@ -19,7 +18,6 @@ export default function DissertationPage() {
     return data.text as string
   }
 
-  // ---- helper : trouver l'ID quel que soit le nom renvoyé par l'API ----
   function pickId(data: any): string | undefined {
     return (
       data?.correctionId ??
@@ -34,7 +32,7 @@ export default function DissertationPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    // ✅ messages précis
+    // Messages précis et communs
     if (!matiere.trim()) { setErreur("Merci d’indiquer la matière."); setResultat(""); return }
     if (!sujet.trim())   { setErreur("Merci d’indiquer le sujet.");   setResultat(""); return }
     if (!fichier)        { setErreur("Merci de verser le document Word (.docx)."); setResultat(""); return }
@@ -44,10 +42,8 @@ export default function DissertationPage() {
     setIsLoading(true)
 
     try {
-      // 1) Upload & extraction du texte de la copie
       const copieExtraite = await uploadDocx(fichier)
 
-      // 2) Appel de l’API de correction
       const res = await fetch("/api/correct", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -66,7 +62,6 @@ export default function DissertationPage() {
         return
       }
 
-      // 3) Redirection vers la page d’affichage commune : /correction/[id]
       const id = pickId(data)
       if (!id || `${id}`.trim() === "") {
         setIsLoading(false)
@@ -77,6 +72,7 @@ export default function DissertationPage() {
         return
       }
 
+      // Redirection vers la page d’affichage commune
       window.location.href = `/correction/${encodeURIComponent(id)}`
     } catch (err: any) {
       setIsLoading(false)
