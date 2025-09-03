@@ -1,15 +1,19 @@
 // app/correction/[id]/page.tsx
 import PaymentPanel from "../PaymentPanel"
-import { getSupabaseAdmin } from "@/app/lib/supabase-admin"
+import { createClient } from '@supabase/supabase-js'
+
+// Client Supabase direct avec vos vraies valeurs
+const supabase = createClient(
+  'https://pbefzeeizgwdlkmduflt.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBiZWZ6ZWVpemd3ZGxrbWR1Zmx0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY4MjM2MDcsImV4cCI6MjA3MjM5OTYwN30.c4wn7MavFev-TecXUEjz6OBeQz8MGPXSIIARUYVvmc4'
+)
 
 export const dynamic = "force-dynamic"
 
 type Props = { params: { id: string } }
 
 export default async function CorrectionPage({ params }: Props) {
-  const supabaseAdmin = getSupabaseAdmin()
-
-  const { data, error } = await supabaseAdmin
+  const { data, error } = await supabase
     .from("corrections")
     .select("result_json")
     .eq("id", params.id)
@@ -92,7 +96,7 @@ export default async function CorrectionPage({ params }: Props) {
               Débloquer la correction
             </div>
             <div style={{ opacity: 0.95, marginBottom: 10 }}>
-              Accédez à l’intégralité de votre copie corrigée.
+              Accédez à l'intégralité de votre copie corrigée.
             </div>
             <PaymentPanel />
           </div>
