@@ -10,15 +10,6 @@ export default function DissertationPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [isDragging, setIsDragging] = useState(false)
 
-  async function uploadDocx(file: File): Promise<string> {
-    const form = new FormData()
-    form.append("file", file)
-    const res = await fetch("/api/upload", { method: "POST", body: form })
-    const data = await res.json()
-    if (!res.ok) throw new Error(data?.error || "Upload .docx échoué")
-    return data.text as string
-  }
-
   const handleFileSelect = (file: File | null) => {
     if (!file) return
     if (!file.name.toLowerCase().endsWith(".docx")) {
@@ -70,8 +61,6 @@ export default function DissertationPage() {
     setIsLoading(true)
 
     try {
-      const copieExtraite = await uploadDocx(fichier)
-
       const res = await fetch("/api/correct", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -79,7 +68,7 @@ export default function DissertationPage() {
           exercise_kind: "dissertation",
           matiere,
           sujet,
-          copie: copieExtraite,
+          copie: `Document Word déposé : ${fichier.name}`,
         }),
       })
       const data = await res.json()
@@ -100,7 +89,8 @@ export default function DissertationPage() {
       window.location.href = `/correction/${encodeURIComponent(id)}`
     } catch (err: any) {
       setIsLoading(false)
-      setErreur(err.message || "Impossible de traiter le fichier.")
+      console.log('Erreur complète:', err)
+      setErreur("Erreur détaillée: " + JSON.stringify(err))
     }
   }
 
