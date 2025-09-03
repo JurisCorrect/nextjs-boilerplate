@@ -79,7 +79,7 @@ export default function CasPratiquePage() {
         return
       }
 
-      const id = data?.correctionId ?? data?.id ?? data?.result?.id
+      const id = data?.submissionId || data?.correctionId || data?.id || data?.result?.id
       if (!id) {
         setIsLoading(false)
         setErreur("Réponse serveur invalide : ID de correction manquant.")
