@@ -77,7 +77,7 @@ export default function DissertationPage() {
         return
       }
 
-      // ✅ priorité submissionId, sinon correctionId (et fallback éventuels)
+      // ✅ même logique que les autres pages : priorité submissionId, puis correctionId
       const id = data?.submissionId || data?.correctionId || data?.id || data?.result?.id
       if (!id) {
         setIsLoading(false)
