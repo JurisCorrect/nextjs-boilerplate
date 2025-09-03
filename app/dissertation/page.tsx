@@ -21,13 +21,19 @@ export default function DissertationPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!matiere.trim() || !sujet.trim()) {
-      setErreur("⚠️ Merci de renseigner la matière et le sujet.")
+    // ✅ messages précis et communs
+    if (!matiere.trim()) {
+      setErreur("Merci d’indiquer la matière.")
+      setResultat("")
+      return
+    }
+    if (!sujet.trim()) {
+      setErreur("Merci d’indiquer le sujet.")
       setResultat("")
       return
     }
     if (!fichier) {
-      setErreur("⚠️ Merci de déposer votre document Word (.docx).")
+      setErreur("Merci de verser le document Word (.docx).")
       setResultat("")
       return
     }
@@ -37,10 +43,8 @@ export default function DissertationPage() {
     setIsLoading(true)
 
     try {
-      // 1) Upload & extraction du texte
       const copieExtraite = await uploadDocx(fichier)
 
-      // 2) Envoi à la correction
       const res = await fetch("/api/correct", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -59,20 +63,12 @@ export default function DissertationPage() {
         return
       }
 
-      // 3) RÉ-UTILISER la page qui existe déjà : /correction/[id]
-      const id =
-        data?.correctionId ??
-        data?.id ??
-        data?.result?.id
-
+      const id = data?.correctionId ?? data?.id ?? data?.result?.id
       if (!id) {
         setIsLoading(false)
         setErreur("Réponse serveur invalide : ID de correction manquant.")
         return
       }
-
-      // DEBUG TEMPORAIRE (tu peux le retirer après test)
-      console.log("🔗 Redirect to:", `/correction/${id}`)
       window.location.href = `/correction/${encodeURIComponent(id)}`
     } catch (err: any) {
       setIsLoading(false)
