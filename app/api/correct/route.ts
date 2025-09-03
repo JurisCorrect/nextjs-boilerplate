@@ -1,6 +1,7 @@
 // app/api/correct/route.ts
 import { NextResponse } from "next/server"
 import { supabaseAdmin } from "@/app/lib/supabase-admin"
+import { supabase } from "@/app/lib/supabase" // ← import du client public (utile si tu veux l'utiliser plus tard côté API)
 
 export const runtime = "nodejs"
 
@@ -8,7 +9,7 @@ type Body = {
   exercise_kind?: "dissertation" | "commentaire" | "cas-pratique"
   matiere?: string
   sujet?: string
-  copie?: string
+  copie?: string 
 }
 
 export async function POST(req: Request) {
@@ -26,6 +27,7 @@ export async function POST(req: Request) {
       matiere,
     }
 
+    // ⚠️ Insert via Service Role (bypass RLS)
     const { data, error } = await supabaseAdmin
       .from("corrections")
       .insert({ result_json })
@@ -35,7 +37,7 @@ export async function POST(req: Request) {
     if (error || !data?.id) {
       console.error("Supabase insert error:", error)
       return NextResponse.json(
-        { error: "Impossible d’enregistrer la correction (DB).", details: error?.message || null },
+        { error: "Impossible d’enregistrer la correction (DB).", details: (error as any)?.message || null },
         { status: 500 }
       )
     }
