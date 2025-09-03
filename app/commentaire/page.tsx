@@ -3,7 +3,7 @@ import { useState } from "react"
 
 export default function CommentairePage() {
   const [matiere, setMatiere] = useState("")
-  const [sujet, setSujet] = useState("")          // ← on garde la valeur
+  const [sujet, setSujet] = useState("")
   const [fichier, setFichier] = useState<File | null>(null)
   const [erreur, setErreur] = useState("")
   const [resultat, setResultat] = useState("")
@@ -21,13 +21,18 @@ export default function CommentairePage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!matiere.trim() || !sujet.trim()) {
-      setErreur("⚠️ Merci de renseigner la matière et le sujet (arrêt/extrait).")
+    if (!matiere.trim()) {
+      setErreur("Merci d’indiquer la matière.")
+      setResultat("")
+      return
+    }
+    if (!sujet.trim()) {
+      setErreur("Merci d’indiquer le sujet.")
       setResultat("")
       return
     }
     if (!fichier) {
-      setErreur("⚠️ Merci de déposer votre document Word (.docx).")
+      setErreur("Merci de verser le document Word (.docx).")
       setResultat("")
       return
     }
@@ -57,7 +62,13 @@ export default function CommentairePage() {
         return
       }
 
-      window.location.href = `/commentaire/${data.correctionId}`
+      const id = data?.correctionId ?? data?.id ?? data?.result?.id
+      if (!id) {
+        setIsLoading(false)
+        setErreur("Réponse serveur invalide : ID de correction manquant.")
+        return
+      }
+      window.location.href = `/correction/${encodeURIComponent(id)}`
     } catch (err: any) {
       setIsLoading(false)
       setErreur(err.message || "Impossible de traiter le fichier.")
@@ -90,7 +101,7 @@ export default function CommentairePage() {
               id="sujet"
               className="textarea"
               placeholder="Mettre l'arrêt ou l'extrait de l'arrêt à commenter"
-              style={{ minHeight: "4cm" }}              // ← hauteur demandée
+              style={{ minHeight: "4cm" }}
               value={sujet}
               onChange={(e) => setSujet(e.target.value)}
             />
