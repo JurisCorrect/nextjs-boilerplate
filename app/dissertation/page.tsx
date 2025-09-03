@@ -18,33 +18,35 @@ export default function DissertationPage() {
     return data.text as string
   }
 
+  // --- trouve l'ID quel que soit le nom utilisé par l'API ---
+  function pickId(data: any): string | undefined {
+    return (
+      data?.correctionId ??
+      data?.correction_id ??
+      data?.id ??
+      data?.result?.id ??
+      data?.correction?.id ??
+      data?.data?.id
+    )
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    // ✅ messages précis et communs
-    if (!matiere.trim()) {
-      setErreur("Merci d’indiquer la matière.")
-      setResultat("")
-      return
-    }
-    if (!sujet.trim()) {
-      setErreur("Merci d’indiquer le sujet.")
-      setResultat("")
-      return
-    }
-    if (!fichier) {
-      setErreur("Merci de verser le document Word (.docx).")
-      setResultat("")
-      return
-    }
+    // ✅ messages précis
+    if (!matiere.trim()) { setErreur("Merci d’indiquer la matière."); setResultat(""); return }
+    if (!sujet.trim())   { setErreur("Merci d’indiquer le sujet."); setResultat(""); return }
+    if (!fichier)        { setErreur("Merci de verser le document Word (.docx)."); setResultat(""); return }
 
     setErreur("")
     setResultat("")
     setIsLoading(true)
 
     try {
+      // 1) Upload + extraction du texte
       const copieExtraite = await uploadDocx(fichier)
 
+      // 2) Appel API correction
       const res = await fetch("/api/correct", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -57,18 +59,24 @@ export default function DissertationPage() {
       })
       const data = await res.json()
 
+      // petit log utile en cas de souci
+      console.log("[/api/correct] response:", data)
+
       if (!res.ok) {
         setIsLoading(false)
-        setErreur(data.error || "Erreur serveur")
+        setErreur(data?.error || "Erreur serveur")
         return
       }
 
-      const id = data?.correctionId ?? data?.id ?? data?.result?.id
+      // 3) Redirection vers la page d’affichage qui EXISTE déjà : /correction/[id]
+      const id = pickId(data)
       if (!id) {
         setIsLoading(false)
-        setErreur("Réponse serveur invalide : ID de correction manquant.")
+        setErreur("Réponse serveur invalide : ID de correction manquant.\n" +
+                  "Détails (technique) : " + JSON.stringify(data, null, 2))
         return
       }
+
       window.location.href = `/correction/${encodeURIComponent(id)}`
     } catch (err: any) {
       setIsLoading(false)
@@ -129,7 +137,9 @@ export default function DissertationPage() {
             </button>
           </div>
 
-          {erreur && <p className="msg-error">{erreur}</p>}
+          {erreur && (
+            <p className="msg-error" style={{ whiteSpace: "pre-wrap" }}>{erreur}</p>
+          )}
           {resultat && <p className="msg-ok">{resultat}</p>}
         </form>
       </section>
