@@ -8,7 +8,9 @@ export default function DissertationPage() {
   const [erreur, setErreur] = useState("")
   const [resultat, setResultat] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  const [debug, setDebug] = useState("") // s'affiche seulement si ça coince
 
+  // 1) Upload .docx → texte
   async function uploadDocx(file: File): Promise<string> {
     const form = new FormData()
     form.append("file", file)
@@ -18,32 +20,64 @@ export default function DissertationPage() {
     return data.text as string
   }
 
-  function pickId(data: any): string | undefined {
-    return (
+  // 2) Extraction ultra-robuste de l'ID
+  function pickIdLoose(data: any): string | undefined {
+    // chemins connus
+    const direct =
       data?.correctionId ??
       data?.correction_id ??
       data?.id ??
       data?.result?.id ??
       data?.correction?.id ??
       data?.data?.id
-    )
+    if (isValidId(direct)) return String(direct)
+
+    // recherche récursive d'une valeur ressemblant à un ID (UUID/slug) dans l'objet
+    const seen = new Set<any>()
+    function scan(obj: any): string | undefined {
+      if (!obj || typeof obj !== "object" || seen.has(obj)) return
+      seen.add(obj)
+      for (const k of Object.keys(obj)) {
+        const v = (obj as any)[k]
+        if (typeof v === "string" && isValidId(v)) return v
+        if (typeof v === "object") {
+          const r = scan(v)
+          if (r) return r
+        }
+      }
+      return
+    }
+    return scan(data)
   }
 
+  function isValidId(v: any): boolean {
+    if (!v) return false
+    const s = String(v).trim()
+    // UUID (supabase) ou identifiant alphanumérique assez long
+    const uuidRe = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/
+    const slugRe = /^[A-Za-z0-9_\-]{10,}$/ // fallback (ex: ids non-uuid)
+    return uuidRe.test(s) || slugRe.test(s)
+  }
+
+  // 3) Submit
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    // Messages précis et communs
+    // messages précis et communs
     if (!matiere.trim()) { setErreur("Merci d’indiquer la matière."); setResultat(""); return }
     if (!sujet.trim())   { setErreur("Merci d’indiquer le sujet.");   setResultat(""); return }
     if (!fichier)        { setErreur("Merci de verser le document Word (.docx)."); setResultat(""); return }
 
     setErreur("")
     setResultat("")
+    setDebug("")
     setIsLoading(true)
 
     try {
+      // 1) extraction texte depuis le .docx
       const copieExtraite = await uploadDocx(fichier)
 
+      // 2) appel correction
       const res = await fetch("/api/correct", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -55,24 +89,22 @@ export default function DissertationPage() {
         }),
       })
       const data = await res.json()
-
       if (!res.ok) {
         setIsLoading(false)
         setErreur(data?.error || "Erreur serveur")
         return
       }
 
-      const id = pickId(data)
-      if (!id || `${id}`.trim() === "") {
+      // 3) récup ID béton
+      const id = pickIdLoose(data)
+      if (!id) {
         setIsLoading(false)
-        setErreur(
-          "Réponse serveur invalide : ID de correction manquant.\n" +
-          "Détails : " + JSON.stringify(data, null, 2)
-        )
+        setErreur("Réponse serveur invalide : ID de correction manquant.")
+        setDebug(JSON.stringify(data, null, 2)) // on affiche la réponse brute pour voir la vraie clé
         return
       }
 
-      // Redirection vers la page d’affichage commune
+      // 4) redirection vers la page DÉJÀ FONCTIONNELLE
       window.location.href = `/correction/${encodeURIComponent(id)}`
     } catch (err: any) {
       setIsLoading(false)
@@ -135,6 +167,16 @@ export default function DissertationPage() {
 
           {erreur && <p className="msg-error" style={{ whiteSpace: "pre-wrap" }}>{erreur}</p>}
           {resultat && <p className="msg-ok">{resultat}</p>}
+
+          {/* S'affiche uniquement si l'ID manque : on voit la réponse brute du serveur */}
+          {debug && (
+            <pre style={{
+              marginTop: 14, padding: 12, background: "#0f172a", color: "#e5e7eb",
+              borderRadius: 8, overflowX: "auto", fontSize: 12
+            }}>
+{debug}
+            </pre>
+          )}
         </form>
       </section>
 
