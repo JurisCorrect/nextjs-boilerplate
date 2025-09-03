@@ -1,48 +1,61 @@
 // app/api/correct/route.ts
-import { NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { NextResponse } from "next/server"
+import { supabase } from "@/app/lib/supabase"
 
-// Connexion Supabase directe
-const supabase = createClient(
-  'https://pbefzeeizgwdlkmduflt.supabase.co',
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBiZWZ6ZWVpemd3ZGxrbWR1Zmx0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY4MjM2MDcsImV4cCI6MjA3MjM5OTYwN30.c4wn7MavFev-TecXUEjz6OBeQz8MGPXSIIARUYVvmc4'
-)
+export const runtime = "nodejs"
 
 type Body = {
-  exercise_kind: 'dissertation'|'commentaire'|'cas-pratique'
-  matiere: string
-  sujet: string
-  copie: string
+  exercise_kind?: "dissertation" | "commentaire" | "cas-pratique"
+  matiere?: string
+  sujet?: string
+  copie?: string
 }
 
 export async function POST(req: Request) {
-  const data = (await req.json()) as Body
-  const { exercise_kind, matiere, sujet, copie } = data
-  
-  if (!exercise_kind || !matiere?.trim() || !sujet?.trim() || !copie?.trim()) {
-    return NextResponse.json({ error: 'Champs manquants' }, { status: 400 })
-  }
-  
-  // Générer un ID simple pour la correction
-  const correctionId = Date.now().toString() + Math.random().toString(36).substr(2, 9)
-  
-  // Créer une correction factice (comme avant)
-  const mockCorrection = {
-    id: correctionId,
-    normalizedBody: copie,
-    globalComment: `Sujet reçu : ${sujet.slice(0,120)}${sujet.length>120?'…':''}\n➤ Méthodologie : soignez structure et transitions.\n➤ Fond : citez vos références.`,
-  }
-  
-  // Sauvegarder dans Supabase (optionnel, ne bloque pas si ça échoue)
   try {
-    await supabase.from('corrections').insert({
-      id: correctionId,
-      result_json: mockCorrection
-    })
-  } catch (e) {
-    // Continue même si la sauvegarde échoue
-    console.log('Supabase save failed, continuing...')
+    const { exercise_kind, matiere, sujet, copie }: Body = await req.json()
+
+    // validations claires (communes aux 3 exercices)
+    if (!matiere?.trim()) {
+      return NextResponse.json({ error: "Merci d’indiquer la matière." }, { status: 400 })
+    }
+    if (!sujet?.trim()) {
+      return NextResponse.json({ error: "Merci d’indiquer le sujet." }, { status: 400 })
+    }
+    if (!copie?.trim()) {
+      return NextResponse.json({ error: "Merci de verser le document Word (.docx)." }, { status: 400 })
+    }
+
+    // Contenu minimal pour l’aperçu (ta page /correction/[id] lit normalizedBody et globalComment)
+    const result_json = {
+      normalizedBody: copie,
+      globalComment: `Sujet reçu : ${sujet}\n\nCommentaires détaillés en cours de génération...`,
+      kind: exercise_kind ?? "dissertation",
+      matiere,
+    }
+
+    // Insert en DB et on récupère l'ID tout de suite
+    const { data, error } = await supabase
+      .from("corrections")
+      .insert({ result_json })
+      .select("id")
+      .single()
+
+    if (error || !data?.id) {
+      console.error("Supabase insert error:", error)
+      return NextResponse.json(
+        { error: "Impossible d’enregistrer la correction (DB)." },
+        { status: 500 }
+      )
+    }
+
+    // *** POINT CRUCIAL *** : on renvoie TOUJOURS { correctionId }
+    return NextResponse.json({ correctionId: data.id })
+  } catch (e: any) {
+    console.error("API /api/correct error:", e)
+    return NextResponse.json(
+      { error: "Requête invalide ou serveur indisponible." },
+      { status: 500 }
+    )
   }
-  
-  return NextResponse.json({ correctionId: correctionId })
 }
