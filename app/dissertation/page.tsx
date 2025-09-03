@@ -1,135 +1,104 @@
-"use client"
-import { useState } from "react"
+import { supabase } from '@/app/lib/supabase'
+import PaymentPanel from '../../correction/PaymentPanel'
 
-export default function DissertationPage() {
-  const [matiere, setMatiere] = useState("")
-  const [sujet, setSujet] = useState("")
-  const [fichier, setFichier] = useState<File | null>(null)
-  const [erreur, setErreur] = useState("")
-  const [resultat, setResultat] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
+export const dynamic = 'force-dynamic'
 
-  async function uploadDocx(file: File): Promise<string> {
-    const form = new FormData()
-    form.append("file", file)
-    const res = await fetch("/api/upload", { method: "POST", body: form })
-    const data = await res.json()
-    if (!res.ok) throw new Error(data?.error || "Upload .docx échoué")
-    return data.text as string
+type Props = { params: { id: string } }
+
+export default async function DissertationViewPage({ params }: Props) {
+  const { data, error } = await supabase
+    .from('corrections') // ← ta table
+    .select('result_json')
+    .eq('id', params.id)
+    .single()
+
+  if (error || !data) {
+    return (
+      <main className="page-wrap">
+        <p style={{ textAlign: 'justify' }}>❌ Erreur : correction introuvable.</p>
+      </main>
+    )
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const result = data.result_json as any
+  const body: string = result.normalizedBody || ''
+  const globalComment: string = result.globalComment || ''
 
-    if (!matiere.trim() || !sujet.trim()) {
-      setErreur("⚠️ Merci de renseigner la matière et le sujet.")
-      setResultat("")
-      return
-    }
-    if (!fichier) {
-      setErreur("⚠️ Merci de déposer votre document Word (.docx).")
-      setResultat("")
-      return
-    }
+  const len = body.length
+  const part = (r: number) => Math.floor(len * r)
 
-    setErreur("")
-    setResultat("")
-    setIsLoading(true)
+  const start = body.slice(0, part(0.2))
+  const middle = body.slice(part(0.45), part(0.55))
 
-    try {
-      // 1) Upload & extraction du texte
-      const copieExtraite = await uploadDocx(fichier)
+  const justify: React.CSSProperties = { whiteSpace: 'pre-wrap', textAlign: 'justify' }
+  const blurBlock: React.CSSProperties = {
+    filter: 'blur(6px)',
+    pointerEvents: 'none',
+    userSelect: 'none',
+    position: 'relative',
+    zIndex: 1,
+  }
 
-      // 2) Envoi à la correction
-      const res = await fetch("/api/correct", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          exercise_kind: "dissertation",
-          matiere,
-          sujet,
-          copie: copieExtraite,
-        }),
-      })
-      const data = await res.json()
-
-      if (!res.ok) {
-        setIsLoading(false)
-        setErreur(data.error || "Erreur serveur")
-        return
-      }
-
-      // Redirection vers la page d'affichage dissertation
-      window.location.href = `/dissertation/${data.correctionId}`
-    } catch (err: any) {
-      setIsLoading(false)
-      setErreur(err.message || "Impossible de traiter le fichier.")
-    }
+  // Overlay bordeaux centré
+  const overlayWrap: React.CSSProperties = {
+    position: 'absolute',
+    inset: 0 as any,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    pointerEvents: 'none',
+    zIndex: 30,
+  }
+  const burgundyBox: React.CSSProperties = {
+    background: '#7b1e3a',
+    color: '#fff',
+    borderRadius: 12,
+    padding: '16px 18px',
+    boxShadow: '0 10px 30px rgba(10,26,61,.25)',
+    maxWidth: 380,
+    width: '90%',
+    textAlign: 'center',
+    pointerEvents: 'auto',
+    border: '1px solid rgba(255,255,255,0.08)',
   }
 
   return (
     <main className="page-wrap">
-      <h1 className="page-title">DISSERTATION 🖋️</h1>
-      <p className="helper">Indique la matière et le sujet, puis dépose ton document Word (.docx)</p>
+      <h1 className="page-title">CORRECTION — DISSERTATION</h1>
 
-      <section className="panel">
-        <form onSubmit={handleSubmit} className="form" noValidate>
-          <div className="field">
-            <label htmlFor="matiere">Matière</label>
-            <input
-              id="matiere"
-              className="input"
-              type="text"
-              placeholder="Ex : Droit constitutionnel"
-              value={matiere}
-              onChange={(e) => setMatiere(e.target.value)}
-              autoComplete="off"
-            />
-          </div>
+      {/* position:relative pour l’overlay */}
+      <section className="panel" style={{ position: 'relative' }}>
+        <h3>Début</h3>
+        <p style={justify}>{start}</p>
 
-          <div className="field">
-            <label htmlFor="sujet">Sujet</label>
-            <input
-              id="sujet"
-              className="input"
-              type="text"
-              placeholder="Ex : La séparation des pouvoirs"
-              value={sujet}
-              onChange={(e) => setSujet(e.target.value)}
-              autoComplete="off"
-            />
-          </div>
-
-          <div className="field">
-            <label htmlFor="docx">Déposer le document Word (.docx)</label>
-            <input
-              id="docx"
-              className="input"
-              type="file"
-              accept=".docx"
-              onChange={(e) => setFichier(e.target.files?.[0] ?? null)}
-            />
-            <p className="intro" style={{ marginTop: 6 }}>
-              Formats acceptés : .docx (Word récent). Le contenu sera extrait automatiquement.
-            </p>
-          </div>
-
-          <div className="actions">
-            <button type="submit" className="btn-send" aria-label="Envoyer pour correction">
-              ENVOI POUR CORRECTION
-            </button>
-          </div>
-
-          {erreur && <p className="msg-error">{erreur}</p>}
-          {resultat && <p className="msg-ok">{resultat}</p>}
-        </form>
-      </section>
-
-      {isLoading && (
-        <div className="loader-overlay" role="status" aria-live="polite" aria-label="Envoi en cours">
-          <div className="loader-ring" />
+        <div style={blurBlock}>
+          <p style={justify}>{body.slice(part(0.2), part(0.45))}</p>
         </div>
-      )}
+
+        <p style={justify}>{middle}</p>
+
+        <div style={blurBlock}>
+          <p style={justify}>{body.slice(part(0.55))}</p>
+        </div>
+
+        <h3>Commentaire global</h3>
+        <div style={blurBlock}>
+          <p style={justify}>{globalComment}</p>
+        </div>
+
+        {/* Carré bordeaux + paiement */}
+        <div style={overlayWrap} aria-hidden>
+          <div style={burgundyBox} aria-label="Débloquer la correction">
+            <div style={{ fontWeight: 900, marginBottom: 6, letterSpacing: '.3px' }}>
+              Débloquer la correction
+            </div>
+            <div style={{ opacity: 0.95, marginBottom: 10 }}>
+              Accédez à l’intégralité de votre copie corrigée.
+            </div>
+            <PaymentPanel />
+          </div>
+        </div>
+      </section>
     </main>
   )
 }
