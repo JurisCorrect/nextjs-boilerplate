@@ -9,10 +9,10 @@ export async function POST(req: Request) {
     return NextResponse.json({ 
       correctionId: "test-" + Date.now() 
     })
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error:', error)
     return NextResponse.json({ 
-      error: 'API Error: ' + error.message 
+      error: 'API Error: ' + (error?.message || String(error))
     }, { status: 500 })
   }
 }
