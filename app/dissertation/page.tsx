@@ -68,7 +68,6 @@ export default function DissertationPage() {
         setErreur("Réponse serveur invalide : ID de correction manquant.")
         return
       }
-      // ⚠️ CORRECTION ICI: ajout des backticks pour template string
       window.location.href = `/correction/${encodeURIComponent(id)}`
     } catch (err: any) {
       setIsLoading(false)
@@ -109,19 +108,37 @@ export default function DissertationPage() {
             />
           </div>
 
+          {/* ===== Uploader moderne (.docx) ===== */}
           <div className="field">
-            <label htmlFor="docx">Déposer le document Word (.docx)</label>
-            <input
-              id="docx"
-              className="input"
-              type="file"
-              accept=".docx"
-              onChange={(e) => setFichier(e.target.files?.[0] ?? null)}
-            />
-            <p className="intro" style={{ marginTop: 6 }}>
-              Formats acceptés : .docx (Word récent). Le contenu sera extrait automatiquement.
-            </p>
+            <label>Déposer le document Word (.docx)</label>
+
+            <div className="uploader">
+              <input
+                id="docx-dissertation"
+                className="uploader-input"
+                type="file"
+                accept=".docx"
+                onChange={(e) => setFichier(e.target.files?.[0] ?? null)}
+              />
+
+              <label htmlFor="docx-dissertation" className="uploader-box">
+                {/* Icône Word minimaliste */}
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" aria-hidden="true">
+                  <rect x="28" y="20" width="72" height="88" rx="8" ry="8" fill="none" stroke="#bfc7e6" strokeWidth="6"/>
+                  <path d="M72 20v22a6 6 0 0 0 6 6h22" fill="none" stroke="#bfc7e6" strokeWidth="6"/>
+                  <rect x="42" y="52" width="44" height="34" rx="4" fill="#2b5bd7"/>
+                  <text x="64" y="75" textAnchor="middle" fontFamily="ui-sans-serif, system-ui, -apple-system" fontWeight="800" fontSize="20" fill="#fff">W</text>
+                </svg>
+
+                <span className="uploader-btn">Téléchargez votre document ici</span>
+              </label>
+
+              {fichier && <p className="uploader-filename">{fichier.name}</p>}
+
+              <p className="uploader-note">Vos écrits restent confidentiels</p>
+            </div>
           </div>
+          {/* ===== fin uploader ===== */}
 
           <div className="actions">
             <button type="submit" className="btn-send" aria-label="Envoyer pour correction">
