@@ -1,11 +1,11 @@
 // app/correction/[id]/page.tsx
 import PaymentPanel from "../PaymentPanel"
-import { createClient } from '@supabase/supabase-js'
+import { createClient } from "@supabase/supabase-js"
 
-// Client Supabase direct avec vos vraies valeurs
+// Client Supabase direct
 const supabase = createClient(
-  'https://pbefzeeizgwdlkmduflt.supabase.co',
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBiZWZ6ZWVpemd3ZGxrbWR1Zmx0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY4MjM2MDcsImV4cCI6MjA3MjM5OTYwN30.c4wn7MavFev-TecXUEjz6OBeQz8MGPXSIIARUYVvmc4'
+  "https://pbefzeeizgwdlkmduflt.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBiZWZ6ZWVpemd3ZGxrbWR1Zmx0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY4MjM2MDcsImV4cCI6MjA3MjM5OTYwN30.c4wn7MavFev-TecXUEjz6OBeQz8MGPXSIIARUYVvmc4"
 )
 
 export const dynamic = "force-dynamic"
@@ -13,11 +13,29 @@ export const dynamic = "force-dynamic"
 type Props = { params: { id: string } }
 
 export default async function CorrectionPage({ params }: Props) {
-  const { data, error } = await supabase
+  const theId = params.id
+
+  // 1) Essai: l'id est un id de correction
+  let { data, error } = await supabase
     .from("corrections")
-    .select("result_json")
-    .eq("id", params.id)
+    .select("id, submission_id, result_json")
+    .eq("id", theId)
     .single()
+
+  // 2) Fallback: l'id est peut-être un id de submission
+  if (error || !data) {
+    const bySubmission = await supabase
+      .from("corrections")
+      .select("id, submission_id, result_json")
+      .eq("submission_id", theId)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle()
+    if (!bySubmission.error && bySubmission.data) {
+      data = bySubmission.data
+      error = null as any
+    }
+  }
 
   if (error || !data) {
     return (
@@ -27,7 +45,7 @@ export default async function CorrectionPage({ params }: Props) {
     )
   }
 
-  const result = data.result_json as any
+  const result = (data as any).result_json || {}
   const body: string = result?.normalizedBody || ""
   const globalComment: string = result?.globalComment || ""
 
