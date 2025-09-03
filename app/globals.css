@@ -321,65 +321,71 @@ input, textarea, select, label, button {
   white-space: pre-wrap;
 }
 
-/* ==== Uploader moderne (.docx) - commun aux 3 pages ==== */
-.uploader { text-align: center; margin: 18px 0 8px; }
-.uploader-input {
-  /* on cache l'input natif mais on garde l'accessibilité via <label for> */
-  position: absolute !important;
-  left: -9999px !important;
+/* ==== Uploader .docx moderne : centré + drag&drop + bouton beige ==== */
+.uploader { 
+  display: flex; 
+  justify-content: center; 
+  margin: 24px 0; 
 }
+
+.uploader-input { 
+  position: absolute !important; 
+  left: -9999px !important; 
+}
+
 .uploader-box {
-  display: inline-grid;
-  place-items: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   gap: 16px;
-  padding: 16px 12px;
+  padding: 32px 24px;
+  width: min(480px, 100%);
+  border-radius: 16px;
+  border: 2px dashed #cbd5e1;
+  background: #f9fafb;
+  transition: all 0.2s ease;
   cursor: pointer;
-  user-select: none;
-  border-radius: 12px;
-  transition: transform .06s ease, box-shadow .2s ease;
+  text-align: center;
 }
-.uploader-box:hover { transform: translateY(-1px); }
-.uploader-box:active { transform: translateY(0); }
 
-/* Icône Word (SVG inline dans le HTML) */
-.uploader-box svg { width: 100px; height: 100px; }
+.uploader-box:hover { 
+  transform: translateY(-2px); 
+  box-shadow: 0 8px 24px rgba(0,0,0,0.1); 
+  border-color: #94a3b8;
+}
 
-/* Bouton orange */
+.uploader-box.is-dragging { 
+  border-color: #0f2a5f; 
+  background: #f0f4ff; 
+  transform: scale(1.02);
+}
+
+.uploader-icon svg { 
+  width: 64px; 
+  height: 64px; 
+  display: block; 
+}
+
 .uploader-btn {
   display: inline-block;
-  background: #ff5a1f;
-  color: #fff;
-  padding: 14px 22px;
+  background: #f5f5dc; /* beige */
+  color: #4a4a4a;
+  padding: 12px 20px;
   border-radius: 10px;
-  font-weight: 800;
-  letter-spacing: .2px;
-  box-shadow: 0 8px 20px rgba(255, 90, 31, .35);
-}
-.uploader-btn:hover { background: #e24f1c; box-shadow: 0 10px 24px rgba(255,90,31,.45); }
-
-/* Nom du fichier sélectionné */
-.uploader-filename {
-  margin-top: 10px;
-  font-weight: 600;
-  color: #0f2a5f; /* ton bleu marque */
+  font-weight: 700;
+  font-size: 14px;
+  border: 1px solid #e0e0e0;
+  transition: all 0.2s ease;
 }
 
-/* Ligne "Vos écrits restent confidentiels" */
-.uploader-note {
-  margin-top: 12px;
-  color: #8ba0c6;
-  font-weight: 600;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
+.uploader-btn:hover { 
+  background: #f0f0dc; 
+  transform: translateY(-1px);
 }
-.uploader-note::before{
-  content:"";
-  width: 16px; height: 16px;
-  display: inline-block;
-  background-repeat: no-repeat;
-  background-size: contain;
-  background-position: center;
-  /* petit bouclier */
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238ba0c6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'/></svg>");
+
+.uploader-filename { 
+  margin-top: 8px; 
+  font-weight: 600; 
+  color: #0f2a5f; 
+  font-size: 14px;
 }
