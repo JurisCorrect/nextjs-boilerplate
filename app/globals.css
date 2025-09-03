@@ -318,3 +318,21 @@ user-select: none;
 .hero-title { display: inline-flex; align-items: center; }
 .brand { display: inline-flex; align-items: center; gap: 12px; }
 .brand-icon { height: 1em; width: 1em; display: inline-block; }
+/* === Loupe blanche à gauche du titre JURISCORRECT (aucune modif HTML) === */
+.hero-title {
+  display: inline-flex;
+  align-items: center;
+  color: #fff;              /* la loupe prend cette couleur (currentColor) */
+}
+.hero-title::before {
+  content: "";
+  display: inline-block;
+  width: 1em;               /* même taille que la hauteur du texte */
+  height: 1em;
+  margin-right: 12px;
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center;
+  /* SVG loupe en blanc encodé directement en data URI */
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='10.5' cy='10.5' r='6.5'/><path d='M15 15l5 5'/></svg>");
+}
