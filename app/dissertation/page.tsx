@@ -35,7 +35,7 @@ export default function DissertationPage() {
         throw new Error(data?.detail || data?.error || "Erreur inconnue API")
       }
 
-      const id = data?.correctionId
+      const id = data?.submissionId || data?.correctionId
       if (!id) throw new Error("ID de correction manquant")
 
       window.location.href = `/correction/${encodeURIComponent(id)}`
