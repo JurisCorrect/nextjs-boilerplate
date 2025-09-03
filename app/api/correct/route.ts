@@ -1,7 +1,6 @@
 // app/api/correct/route.ts
 import { NextResponse } from "next/server"
-import { supabaseAdmin } from "@/app/lib/supabase-admin"
-import { supabase } from "@/app/lib/supabase" // ← import du client public (utile si tu veux l'utiliser plus tard côté API)
+import { getSupabaseAdmin } from "@/app/lib/supabase-admin"
 
 export const runtime = "nodejs"
 
@@ -9,7 +8,7 @@ type Body = {
   exercise_kind?: "dissertation" | "commentaire" | "cas-pratique"
   matiere?: string
   sujet?: string
-  copie?: string 
+  copie?: string
 }
 
 export async function POST(req: Request) {
@@ -27,7 +26,8 @@ export async function POST(req: Request) {
       matiere,
     }
 
-    // ⚠️ Insert via Service Role (bypass RLS)
+    const supabaseAdmin = getSupabaseAdmin()
+
     const { data, error } = await supabaseAdmin
       .from("corrections")
       .insert({ result_json })
