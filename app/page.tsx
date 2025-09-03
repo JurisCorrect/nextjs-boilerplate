@@ -6,28 +6,20 @@ export default function Home() {
     <main>
       {/* Titre principal */}
       <section className="hero">
-        <h1 className="hero-title" style={{ display: 'inline-flex', alignItems: 'center' }}>
-          <span
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '12px',
-              lineHeight: 1,
-            }}
+        <h1
+          className="hero-title"
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '12px', lineHeight: 1 }}
+        >
+          {/* Loupe blanche (suit la couleur du texte grâce à currentColor) */}
+          <svg
+            xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+            fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+            style={{ width: '1em', height: '1em', display: 'inline-block' }} aria-hidden="true"
           >
-            {/* Logo à la même hauteur que les lettres */}
-            <img
-              src="/logo-jurysconnect.svg"
-              alt="Logo Juriscorrect"
-              aria-hidden="true"
-              style={{
-                height: '1em',
-                width: '1em',
-                display: 'inline-block',
-              }}
-            />
-            JURISCORRECT
-          </span>
+            <circle cx="10.5" cy="10.5" r="6.5" />
+            <path d="M15 15l5 5" />
+          </svg>
+          JURISCORRECT
         </h1>
       </section>
 
