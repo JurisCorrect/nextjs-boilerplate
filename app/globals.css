@@ -204,7 +204,7 @@ body {
   display: block; font-weight: 700; margin-bottom: 6px; color: #0a1a3d;
 }
 
-/* Les champs remplissent l’espace intérieur de la carte, avec marges internes symétriques */
+/* Les champs remplissent l'espace intérieur de la carte, avec marges internes symétriques */
 .input, .textarea {
   width: 100%;
   display: block;
@@ -321,38 +321,10 @@ input, textarea, select, label, button {
   white-space: pre-wrap;
 }
 
-/* =========================================================
-   LOGO : Loupe blanche à gauche du titre (et on cache l'ancien)
-   ========================================================= */
-.hero-title {
-  display: inline-flex;
-  align-items: center;
-  gap: 12px;
-  color: #fff; /* la loupe prend cette couleur (currentColor) */
-}
-
-/* Cache tout ancien <img> dans le titre (ancien logo) */
-.hero-title img {
-  display: none !important;
-}
-
-/* Loupe blanche en pseudo-élément (aucune modif HTML nécessaire) */
-.hero-title::before {
-  content: "";
-  display: inline-block;
-  width: 1em;     /* même taille que la hauteur du texte */
-  height: 1em;
-  margin-right: 0; /* gap gère l'espace */
-  background-repeat: no-repeat;
-  background-size: contain;
-  background-position: center;
-  /* SVG loupe blanc encodé en data URI */
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='10.5' cy='10.5' r='6.5'/><path d='M15 15l5 5'/></svg>");
-}
 /* ==== Uploader moderne (.docx) - commun aux 3 pages ==== */
 .uploader { text-align: center; margin: 18px 0 8px; }
 .uploader-input {
-  /* on cache l’input natif mais on garde l’accessibilité via <label for> */
+  /* on cache l'input natif mais on garde l'accessibilité via <label for> */
   position: absolute !important;
   left: -9999px !important;
 }
@@ -392,7 +364,7 @@ input, textarea, select, label, button {
   color: #0f2a5f; /* ton bleu marque */
 }
 
-/* Ligne “Vos écrits restent confidentiels” */
+/* Ligne "Vos écrits restent confidentiels" */
 .uploader-note {
   margin-top: 12px;
   color: #8ba0c6;
