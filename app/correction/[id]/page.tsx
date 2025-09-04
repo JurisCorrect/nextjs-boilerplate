@@ -2,7 +2,6 @@
 import PaymentPanel from "../PaymentPanel"
 import { createClient } from "@supabase/supabase-js"
 
-// Client Supabase direct
 const supabase = createClient(
   "https://pbefzeeizgwdlkmduflt.supabase.co",
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBiZWZ6ZWVpemd3ZGxrbWR1Zmx0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY4MjM2MDcsImV4cCI6MjA3MjM5OTYwN30.c4wn7MavFev-TecXUEjz6OBeQz8MGPXSIIARUYVvmc4"
@@ -15,14 +14,12 @@ type Props = { params: { id: string } }
 export default async function CorrectionPage({ params }: Props) {
   const theId = params.id
 
-  // 1) Essai: l'id est un id de correction
   let { data, error } = await supabase
     .from("corrections")
     .select("id, submission_id, result_json")
     .eq("id", theId)
     .single()
 
-  // 2) Fallback: l'id est peut-être un id de submission
   if (error || !data) {
     const bySubmission = await supabase
       .from("corrections")
@@ -49,13 +46,14 @@ export default async function CorrectionPage({ params }: Props) {
   const body: string = result?.normalizedBody || ""
   const globalComment: string = result?.globalComment || ""
 
-  // 👉 Fallback prix si la DB n'en fournit pas
+  // Fallback prix si la DB n'en fournit pas
   const pricing: Array<{ label: string; price: string }> =
     Array.isArray(result?.pricing) && result.pricing.length
       ? result.pricing
       : [
-          { label: "Correction de ce document", price: "3€" },
-          { label: "10 corrections",           price: "8€" }, // ← 8€
+          { label: "Correction unique",        price: "3€" },
+          { label: "Pack 5 corrections",       price: "5€" },
+          { label: "Pack 10 corrections",      price: "8€" },
           { label: "Illimité (mensuel)",       price: "13€ / mois" },
         ]
 
