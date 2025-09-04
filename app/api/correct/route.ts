@@ -20,16 +20,22 @@ export async function POST(req: Request) {
       filename?: string
     }
 
-    // 1) Si on a reçu un .docx en base64, on l’extrait
+    // 1) Si on a reçu un .docx en base64, on l'extrait
     let extracted = ""
     if (body.base64Docx) {
-      const buf = Buffer.from(body.base64Docx, "base64")
-      const { value } = await mammoth.extractRawText({ buffer: buf })
+      // Convertir base64 vers ArrayBuffer pour Vercel
+      const binaryString = atob(body.base64Docx)
+      const arrayBuffer = new ArrayBuffer(binaryString.length)
+      const uint8Array = new Uint8Array(arrayBuffer)
+      for (let i = 0; i < binaryString.length; i++) {
+        uint8Array[i] = binaryString.charCodeAt(i)
+      }
+      const { value } = await mammoth.extractRawText({ arrayBuffer })
       extracted = (value || "").trim()
     }
 
     const normalizedBody =
-      (extracted || body.copie || "").trim() || "Document reçu, en attente d’extraction."
+      (extracted || body.copie || "").trim() || "Document reçu, en attente d'extraction."
 
     // 2) Créer la submission
     const subIns = await supabase
@@ -54,8 +60,9 @@ export async function POST(req: Request) {
     // 3) Créer la correction liée (texte justifié + forfaits)
     const result_json = {
       normalizedBody,
-      globalComment: `Sujet reçu : ${body.sujet ?? ""}\n\nDébloquez la correction complète avec l’abonnement.`,
+      globalComment: `Sujet reçu : ${body.sujet ?? ""}\n\nDébloquez la correction complète avec l'abonnement.`,
       pricing: [
+        { label: "Correction de ce document", price: "3€" },
         { label: "5 corrections", price: "5€ / mois" },
         { label: "10 corrections", price: "8€ / mois" }
       ]
@@ -80,6 +87,7 @@ export async function POST(req: Request) {
       correctionId: corrIns.data.id,
       submissionId: subIns.data.id
     })
+
   } catch (error: any) {
     console.error("API /api/correct error:", error)
     return NextResponse.json(
