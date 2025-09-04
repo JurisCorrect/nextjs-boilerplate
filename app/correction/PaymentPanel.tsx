@@ -3,16 +3,15 @@
 import { useState } from "react"
 
 type PackId = "single" | "pack10" | "monthly"
-
 type PricingProp = { label: string; price: string } // ce que la page passe
 
 // 👉 Toggle central : quand on branchera Stripe, passe à true
 const ENABLE_CHECKOUT = false
 
-// Fallback interne (si aucune prop `pricing` n'est fournie)
+// ✅ Fallback interne (si aucune prop `pricing` n'est fournie)
 const PACKS_DEFAULT: { id: PackId; title: string; price: string; note?: string }[] = [
   { id: "single",  title: "Correction de ce document", price: "3 €",  note: "paiement unique" },
-  { id: "pack10",  title: "10 corrections",            price: "5 €",  note: "débloque 10 copies" },
+  { id: "pack10",  title: "10 corrections",            price: "8 €",  note: "débloque 10 copies" }, // ← 8 €
   { id: "monthly", title: "Illimité mensuel",          price: "13 €/mois", note: "annulable à tout moment" },
 ]
 
@@ -35,7 +34,7 @@ export default function PaymentPanel({ pricing }: { pricing?: PricingProp[] }) {
         const note =
           id === "single"  ? "paiement unique" :
           id === "pack10"  ? "débloque 10 copies" :
-          /* monthly */       "annulable à tout moment"
+                             "annulable à tout moment"
         return { id, title: p.label, price: p.price, note }
       })
     : PACKS_DEFAULT
