@@ -1,13 +1,17 @@
+// app/correction/PaymentPanel.tsx
 "use client"
 import { useState } from "react"
 
-type PackId = "pack5" | "pack10" | "monthly"
+type PackId = "single" | "pack10" | "monthly"
 
-// Tarifs demandés
+// 👉 Toggle central : quand on branchera Stripe, passe à true
+const ENABLE_CHECKOUT = false
+
+// ✅ Tes nouveaux tarifs
 const PACKS: { id: PackId; title: string; price: string; note?: string }[] = [
-  { id: "pack5",  title: "Pack 5 corrections",  price: "5 €",  note: "débloque 5 copies" },
-  { id: "pack10", title: "Pack 10 corrections", price: "8 €",  note: "débloque 10 copies" },
-  { id: "monthly",title: "Illimité mensuel",    price: "13 €/mois", note: "annulable à tout moment" },
+  { id: "single",  title: "Correction de ce document", price: "3 €",  note: "paiement unique" },
+  { id: "pack10",  title: "10 corrections",            price: "5 €",  note: "débloque 10 copies" },
+  { id: "monthly", title: "Illimité mensuel",          price: "13 €/mois", note: "annulable à tout moment" },
 ]
 
 export default function PaymentPanel() {
@@ -17,18 +21,25 @@ export default function PaymentPanel() {
   async function buy(pack: PackId) {
     try {
       setError(null)
+
+      // Pour l’instant, pas de paiement actif
+      if (!ENABLE_CHECKOUT) {
+        setError("Paiement bientôt disponible")
+        return
+      }
+
       setLoading(pack)
       const res = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ pack }) // userId optionnel : l’API accepte 'guest'
+        body: JSON.stringify({ pack }), // plus tard: "single" | "pack10" | "monthly"
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data?.error || "Erreur paiement")
       if (!data?.url) throw new Error("URL de paiement introuvable")
-      window.location.href = data.url // redirection vers Stripe Checkout
+      window.location.href = data.url
     } catch (e: any) {
-      setError(e.message || "Erreur inconnue")
+      setError(e?.message || "Erreur inconnue")
     } finally {
       setLoading(null)
     }
@@ -43,7 +54,7 @@ export default function PaymentPanel() {
         <button
           key={p.id}
           onClick={() => buy(p.id)}
-          disabled={!!loading}
+          disabled={!!loading || !ENABLE_CHECKOUT}
           aria-label={`Choisir ${p.title}`}
           style={{
             display: "flex",
@@ -52,12 +63,14 @@ export default function PaymentPanel() {
             gap: 12,
             border: "1px solid rgba(0,0,0,0.08)",
             borderRadius: 12,
-            background: loading === p.id ? "#6b1a33" : "#7b1e3a", // bordeaux
+            background: (loading === p.id) ? "#6b1a33" : "#7b1e3a",
+            opacity: (!ENABLE_CHECKOUT ? 0.85 : 1),
             color: "#fff",
             padding: "12px 14px",
-            cursor: loading ? "not-allowed" : "pointer",
+            cursor: (!ENABLE_CHECKOUT || loading) ? "not-allowed" : "pointer",
             boxShadow: "0 6px 18px rgba(10,26,61,.22)",
           }}
+          title={!ENABLE_CHECKOUT ? "Paiement bientôt disponible" : undefined}
         >
           <div style={{ textAlign: "left" }}>
             <div style={{ fontWeight: 800 }}>{p.title}</div>
