@@ -37,6 +37,15 @@ export default function DissertationPage() {
     handleFileSelect(file)
   }
 
+  async function uploadDocx(file: File): Promise<string> {
+    const form = new FormData()
+    form.append("file", file)
+    const res = await fetch("/api/upload", { method: "POST", body: form })
+    const data = await res.json()
+    if (!res.ok) throw new Error(data?.error || "Erreur d'extraction du document")
+    return data.text as string
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
@@ -61,6 +70,9 @@ export default function DissertationPage() {
     setIsLoading(true)
 
     try {
+      // Extraction du contenu du document Word
+      const copieExtraite = await uploadDocx(fichier)
+
       const res = await fetch("/api/correct", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -68,7 +80,7 @@ export default function DissertationPage() {
           exercise_kind: "dissertation",
           matiere,
           sujet,
-          copie: `Document Word déposé : ${fichier.name}`,
+          copie: copieExtraite,
         }),
       })
       const data = await res.json()
