@@ -59,7 +59,7 @@ export default function DissertationPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          exercise_kind: "dissertation",
+          exercise_kind: "commentaire",
           matiere,
           sujet,
           base64Docx,
