@@ -2,24 +2,25 @@
 "use client"
 import { useState } from "react"
 
-type PackId = "single" | "pack10" | "monthly"
-type PricingProp = { label: string; price: string } // ce que la page passe
+type PackId = "single" | "pack5" | "pack10" | "monthly"
+type PricingProp = { label: string; price: string }
 
-// 👉 Toggle central : quand on branchera Stripe, passe à true
 const ENABLE_CHECKOUT = false
 
-// ✅ Fallback interne (si aucune prop `pricing` n'est fournie)
+// Fallback interne si la page ne passe rien
 const PACKS_DEFAULT: { id: PackId; title: string; price: string; note?: string }[] = [
-  { id: "single",  title: "Correction de ce document", price: "3 €",  note: "paiement unique" },
-  { id: "pack10",  title: "10 corrections",            price: "8 €",  note: "débloque 10 copies" }, // ← 8 €
-  { id: "monthly", title: "Illimité mensuel",          price: "13 €/mois", note: "annulable à tout moment" },
+  { id: "single",  title: "Correction unique",    price: "3 €",  note: "paiement unique" },
+  { id: "pack5",   title: "Pack 5 corrections",   price: "5 €",  note: "débloque 5 copies" },
+  { id: "pack10",  title: "Pack 10 corrections",  price: "8 €",  note: "débloque 10 copies" },
+  { id: "monthly", title: "Illimité mensuel",     price: "13 €/mois", note: "annulable à tout moment" },
 ]
 
-// Déduit un id de pack en fonction du libellé (utile si `pricing` ne fournit pas d'id)
+// Déduire l'id depuis le label si la page ne fournit pas d'id
 function inferIdFromLabel(label: string): PackId {
   const l = label.toLowerCase()
   if (l.includes("illimité")) return "monthly"
   if (l.includes("10")) return "pack10"
+  if (l.includes("5"))  return "pack5"
   return "single"
 }
 
@@ -27,12 +28,12 @@ export default function PaymentPanel({ pricing }: { pricing?: PricingProp[] }) {
   const [loading, setLoading] = useState<PackId | null>(null)
   const [error, setError] = useState<string | null>(null)
 
-  // Si `pricing` est fourni par la page, on le convertit au format interne ; sinon on prend le fallback
   const PACKS = Array.isArray(pricing) && pricing.length
     ? pricing.map(p => {
         const id = inferIdFromLabel(p.label)
         const note =
           id === "single"  ? "paiement unique" :
+          id === "pack5"   ? "débloque 5 copies" :
           id === "pack10"  ? "débloque 10 copies" :
                              "annulable à tout moment"
         return { id, title: p.label, price: p.price, note }
@@ -42,18 +43,15 @@ export default function PaymentPanel({ pricing }: { pricing?: PricingProp[] }) {
   async function buy(pack: PackId) {
     try {
       setError(null)
-
-      // Pour l’instant, pas de paiement actif
       if (!ENABLE_CHECKOUT) {
         setError("Paiement bientôt disponible")
         return
       }
-
       setLoading(pack)
       const res = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ pack }), // "single" | "pack10" | "monthly"
+        body: JSON.stringify({ pack }),
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data?.error || "Erreur paiement")
