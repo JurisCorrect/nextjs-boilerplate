@@ -37,15 +37,6 @@ export default function DissertationPage() {
     handleFileSelect(file)
   }
 
-  async function uploadDocx(file: File): Promise<string> {
-    const form = new FormData()
-    form.append("file", file)
-    const res = await fetch("/api/upload", { method: "POST", body: form })
-    const data = await res.json()
-    if (!res.ok) throw new Error(data?.error || "Erreur d'extraction du document")
-    return data.text as string
-  }
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
@@ -70,8 +61,13 @@ export default function DissertationPage() {
     setIsLoading(true)
 
     try {
-      // Extraction du contenu du document Word
-      const copieExtraite = await uploadDocx(fichier)
+      const toBase64 = (file: File) => new Promise<string>((resolve, reject) => {
+        const r = new FileReader()
+        r.onload = () => { const s = String(r.result || ""); resolve(s.split(",")[1] || "") }
+        r.onerror = reject
+        r.readAsDataURL(file)
+      })
+      const base64Docx = await toBase64(fichier)
 
       const res = await fetch("/api/correct", {
         method: "POST",
@@ -80,7 +76,9 @@ export default function DissertationPage() {
           exercise_kind: "dissertation",
           matiere,
           sujet,
-          copie: copieExtraite,
+          base64Docx,
+          filename: fichier.name,
+          copie: `Document Word déposé : ${fichier.name}`,
         }),
       })
       const data = await res.json()
@@ -91,7 +89,7 @@ export default function DissertationPage() {
         return
       }
 
-      const id = data?.correctionId ?? data?.id ?? data?.result?.id
+      const id = data?.submissionId || data?.correctionId || data?.id || data?.result?.id
       if (!id) {
         setIsLoading(false)
         setErreur("Réponse serveur invalide : ID de correction manquant.")
@@ -102,7 +100,7 @@ export default function DissertationPage() {
     } catch (err: any) {
       setIsLoading(false)
       console.log('Erreur complète:', err)
-      setErreur("Erreur détaillée: " + JSON.stringify(err))
+      setErreur("Erreur détaillée: " + (err?.message || String(err)))
     }
   }
 
