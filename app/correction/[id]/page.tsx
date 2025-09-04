@@ -49,6 +49,16 @@ export default async function CorrectionPage({ params }: Props) {
   const body: string = result?.normalizedBody || ""
   const globalComment: string = result?.globalComment || ""
 
+  // 👉 NEW: on récupère les prix de la DB si présents, sinon on force tes nouveaux tarifs
+  const pricing: Array<{ label: string; price: string }> =
+    Array.isArray(result?.pricing) && result.pricing.length
+      ? result.pricing
+      : [
+          { label: "Correction de ce document", price: "3€" },
+          { label: "10 corrections",           price: "5€" },
+          { label: "Illimité (mensuel)",       price: "13€ / mois" },
+        ]
+
   const len = body.length
   const part = (r: number) => Math.floor(len * r)
   const start = body.slice(0, part(0.2))
@@ -116,7 +126,8 @@ export default async function CorrectionPage({ params }: Props) {
             <div style={{ opacity: 0.95, marginBottom: 10 }}>
               Accédez à l'intégralité de votre copie corrigée.
             </div>
-            <PaymentPanel />
+            {/* 👉 NEW: on passe les prix au composant */}
+            <PaymentPanel pricing={pricing} />
           </div>
         </div>
       </section>
