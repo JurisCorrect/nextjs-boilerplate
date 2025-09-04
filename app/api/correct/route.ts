@@ -1,7 +1,6 @@
 // app/api/correct/route.ts
 import { NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
-import mammoth from "mammoth"
 
 const supabase = createClient(
   "https://pbefzeeizgwdlkmduflt.supabase.co",
@@ -14,30 +13,13 @@ export async function POST(req: Request) {
       exercise_kind?: string
       matiere?: string
       sujet?: string
-      // soit on envoie "copie" en clair, soit on envoie le .docx en base64
       copie?: string
       base64Docx?: string
       filename?: string
     }
 
-    // 1) Si on a reçu un .docx en base64, on l'extrait
-    let extracted = ""
-    if (body.base64Docx) {
-      // Convertir base64 vers ArrayBuffer pour Vercel
-      const binaryString = atob(body.base64Docx)
-      const arrayBuffer = new ArrayBuffer(binaryString.length)
-      const uint8Array = new Uint8Array(arrayBuffer)
-      for (let i = 0; i < binaryString.length; i++) {
-        uint8Array[i] = binaryString.charCodeAt(i)
-      }
-      const { value } = await mammoth.extractRawText({ arrayBuffer })
-      extracted = (value || "").trim()
-    }
+    const normalizedBody = body.copie || "Document reçu, en attente d'extraction."
 
-    const normalizedBody =
-      (extracted || body.copie || "").trim() || "Document reçu, en attente d'extraction."
-
-    // 2) Créer la submission
     const subIns = await supabase
       .from("submissions")
       .insert({
@@ -50,14 +32,12 @@ export async function POST(req: Request) {
       .single()
 
     if (subIns.error || !subIns.data) {
-      console.error("SUBMISSION ERROR:", subIns.error)
       return NextResponse.json(
-        { error: "submissions insert failed", detail: subIns.error?.message ?? subIns.error },
+        { error: "submissions insert failed" },
         { status: 500 }
       )
     }
 
-    // 3) Créer la correction liée (texte justifié + forfaits)
     const result_json = {
       normalizedBody,
       globalComment: `Sujet reçu : ${body.sujet ?? ""}\n\nDébloquez la correction complète avec l'abonnement.`,
@@ -75,21 +55,18 @@ export async function POST(req: Request) {
       .single()
 
     if (corrIns.error || !corrIns.data) {
-      console.error("CORRECTION ERROR:", corrIns.error)
       return NextResponse.json(
-        { error: "corrections insert failed", detail: corrIns.error?.message ?? corrIns.error },
+        { error: "corrections insert failed" },
         { status: 500 }
       )
     }
 
-    // on renvoie les 2 IDs (pour être compatibles avec ta page)
     return NextResponse.json({
       correctionId: corrIns.data.id,
       submissionId: subIns.data.id
     })
 
   } catch (error: any) {
-    console.error("API /api/correct error:", error)
     return NextResponse.json(
       { error: error?.message || String(error) },
       { status: 500 }
