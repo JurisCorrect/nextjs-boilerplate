@@ -12,24 +12,12 @@ export default function DissertationPage() {
 
   const handleFileSelect = (file: File | null) => {
     if (!file) return
-    if (!file.name.toLowerCase().endsWith(".docx")) {
-      setErreur("Merci de déposer un fichier .docx.")
-      return
-    }
-    setErreur("")
-    setFichier(file)
+    if (!file.name.toLowerCase().endsWith(".docx")) { setErreur("Merci de déposer un fichier .docx."); return }
+    setErreur(""); setFichier(file)
   }
 
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault()
-    setIsDragging(true)
-  }
-
-  const handleDragLeave = (e: React.DragEvent) => {
-    e.preventDefault()
-    setIsDragging(false)
-  }
-
+  const handleDragOver = (e: React.DragEvent) => { e.preventDefault(); setIsDragging(true) }
+  const handleDragLeave = (e: React.DragEvent) => { e.preventDefault(); setIsDragging(false) }
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault()
     setIsDragging(false)
@@ -59,7 +47,7 @@ export default function DissertationPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          exercise_kind: "commentaire",
+          exercise_kind: "dissertation",
           matiere,
           sujet,
           base64Docx,
@@ -96,9 +84,9 @@ export default function DissertationPage() {
           </div>
 
           <div className="field">
-            <label htmlFor="sujet">Sujet</label>
-            <input id="sujet" className="input" type="text" placeholder="Ex : La séparation des pouvoirs"
-                   value={sujet} onChange={(e) => setSujet(e.target.value)} autoComplete="off" />
+            <label htmlFor="sujet">Sujet (arrêt / extrait à commenter)</label>
+            <textarea id="sujet" className="textarea" placeholder="Ex : La séparation des pouvoirs"
+                      style={{ minHeight: "4cm" }} value={sujet} onChange={(e) => setSujet(e.target.value)} />
           </div>
 
           <div className="field">
