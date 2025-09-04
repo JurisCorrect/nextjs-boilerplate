@@ -24,7 +24,7 @@ export async function POST(req: Request) {
     const uint8Array = new Uint8Array(buffer)
 
     // Extraction du texte avec mammoth
-    const result = await mammoth.extractRawText({ buffer: uint8Array })
+    const result = await mammoth.extractRawText({ arrayBuffer: uint8Array.buffer })
     
     if (!result.value || result.value.trim().length === 0) {
       return NextResponse.json({ 
