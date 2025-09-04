@@ -100,7 +100,20 @@ export default function DissertationPage() {
     } catch (err: any) {
       setIsLoading(false)
       console.log('Erreur complète:', err)
-      setErreur("Erreur détaillée: " + (err?.message || String(err)))
+      console.log('Type d\'erreur:', typeof err)
+      console.log('Message d\'erreur:', err?.message)
+      console.log('Stack trace:', err?.stack)
+      
+      let errorMessage = "Erreur inconnue"
+      if (err?.message) {
+        errorMessage = err.message
+      } else if (typeof err === 'string') {
+        errorMessage = err
+      } else if (err?.toString && typeof err.toString === 'function') {
+        errorMessage = err.toString()
+      }
+      
+      setErreur(`Erreur détaillée: ${errorMessage}`)
     }
   }
 
