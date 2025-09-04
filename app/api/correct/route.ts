@@ -63,8 +63,8 @@ export async function POST(req: Request) {
       globalComment: `Sujet reçu : ${body.sujet ?? ""}\n\nDébloquez la correction complète avec l'abonnement.`,
       pricing: [
         { label: "Correction de ce document", price: "3€" },
-        { label: "5 corrections", price: "5€ / mois" },
-        { label: "10 corrections", price: "8€ / mois" }
+        { label: "5 corrections", price: "8€" },
+        { label: "Illimité", price: "13€ / mois" }
       ]
     }
 
