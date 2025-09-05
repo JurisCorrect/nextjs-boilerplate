@@ -12,12 +12,8 @@ export default function CasPratiquePage() {
 
   const handleFileSelect = (file: File | null) => {
     if (!file) return
-    if (!file.name.toLowerCase().endsWith(".docx")) {
-      setErreur("Merci de déposer un fichier .docx.")
-      return
-    }
-    setErreur("")
-    setFichier(file)
+    if (!file.name.toLowerCase().endsWith(".docx")) { setErreur("Merci de déposer un fichier .docx."); return }
+    setErreur(""); setFichier(file)
   }
 
   const handleDragOver = (e: React.DragEvent) => { e.preventDefault(); setIsDragging(true) }
@@ -33,19 +29,15 @@ export default function CasPratiquePage() {
     e.preventDefault()
 
     if (!matiere.trim()) { setErreur("Merci d'indiquer la matière."); setResultat(""); return }
-    if (!sujet.trim())   { setErreur("Merci d'indiquer le sujet.");   setResultat(""); return }
+    if (!sujet.trim())   { setErreur("Merci d'indiquer l'énoncé du cas pratique.");   setResultat(""); return }
     if (!fichier)        { setErreur("Merci de verser le document Word (.docx)."); setResultat(""); return }
 
     setErreur(""); setResultat(""); setIsLoading(true)
 
     try {
-      // convertir le fichier en base64 (sans l’entête data:)
       const toBase64 = (file: File) => new Promise<string>((resolve, reject) => {
         const r = new FileReader()
-        r.onload = () => {
-          const s = String(r.result || "")
-          resolve(s.split(",")[1] || "")
-        }
+        r.onload = () => { const s = String(r.result || ""); resolve(s.split(",")[1] || "") }
         r.onerror = reject
         r.readAsDataURL(file)
       })
@@ -60,7 +52,6 @@ export default function CasPratiquePage() {
           sujet,
           base64Docx,
           filename: fichier.name,
-          // fallback si jamais l'extraction échoue
           copie: `Document Word déposé : ${fichier.name}`,
         }),
       })
@@ -94,16 +85,16 @@ export default function CasPratiquePage() {
 
           <div className="field">
             <label htmlFor="sujet">Énoncé du cas pratique</label>
-            <textarea id="sujet" className="textarea" placeholder="Énoncé du cas pratique"
+            <textarea id="sujet" className="textarea" placeholder="Colle ici ton cas pratique"
                       style={{ minHeight: "4cm" }} value={sujet} onChange={(e) => setSujet(e.target.value)} />
           </div>
 
           <div className="field">
             <label>Déposer le document Word (.docx)</label>
             <div className="uploader">
-              <input id="docx-cas" className="uploader-input" type="file" accept=".docx"
+              <input id="docx-cas-pratique" className="uploader-input" type="file" accept=".docx"
                      onChange={(e) => handleFileSelect(e.target.files?.[0] ?? null)} />
-              <label htmlFor="docx-cas" className={`uploader-box ${isDragging ? "is-dragging" : ""}`}
+              <label htmlFor="docx-cas-pratique" className={`uploader-box ${isDragging ? "is-dragging" : ""}`}
                      onDragOver={handleDragOver} onDragLeave={handleDragLeave} onDrop={handleDrop}>
                 <div className="uploader-icon">
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
