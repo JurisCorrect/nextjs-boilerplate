@@ -666,3 +666,64 @@ body{
   border: 2px solid rgba(255,255,255,.8);
   box-shadow: 0 8px 24px rgba(0,0,0,.35);
 }
+/* ====== NAV / TOP BAR ====== */
+.nav { position: sticky; top: 0; z-index: 50; }
+.nav-blur { backdrop-filter: blur(8px); background: rgba(18,18,26,.35); border-bottom: 1px solid var(--card-border); }
+.nav-inner{ display:flex; align-items:center; justify-content:space-between; gap:16px; }
+.brand{ font-weight:900; letter-spacing:.6px; display:flex; align-items:center; }
+
+/* li/links alignés */
+.nav-links{ display:flex; align-items:center; gap: 12px; }
+.nav-link{
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--card-border);
+  background: rgba(255,255,255,.04);
+  color: #fff; text-decoration: none; font-weight: 700;
+  transition: transform .18s ease, border-color .18s ease, opacity .18s ease;
+}
+.nav-link:hover{ transform: translateY(-1px); border-color: rgba(255,255,255,.22); }
+.nav-link:active{ transform: translateY(0); opacity: .92; }
+
+/* bouton login Bordeaux */
+.btn-login{
+  padding: 10px 16px;
+  border-radius: 14px;
+  font-weight: 800; color:#fff; text-decoration:none;
+  background: linear-gradient(180deg, var(--brand) 0%, var(--brand-2) 100%);
+  box-shadow: 0 12px 30px rgba(123,30,58,.35);
+  transition: transform .18s, opacity .18s;
+}
+.btn-login:hover{ transform: translateY(-1px); }
+.btn-login:active{ transform: translateY(0); opacity:.95; }
+
+/* ====== HERO / PRESENTATION ====== */
+.hero{ display:flex; align-items:center; justify-content:center; padding: clamp(22px, 4vw, 40px) 16px 8px; }
+.hero-title{ font-weight:900; letter-spacing:.4px; font-size: clamp(28px, 5vw, 56px); }
+
+/* carte “glass” et présentation centrée */
+.card-glass{
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  backdrop-filter: blur(8px);
+  border-radius: 18px;
+  box-shadow: var(--shadow);
+}
+.presentation{
+  max-width: 900px;
+  margin: 16px auto 26px;   /* <-- centre bien la carte */
+  padding: clamp(14px, 2.2vw, 22px);
+  line-height: 1.7;
+  color: var(--muted);
+}
+
+/* Titres de section (Tarifs) */
+.section-title{
+  text-align: center;
+  font-size: clamp(22px, 3.6vw, 30px);
+  font-weight: 900;
+  margin: 0 0 6px;
+}
+
+/* Ancrages qui ne passent pas sous la nav sticky */
+#tarifs, #avis { scroll-margin-top: 90px; }
