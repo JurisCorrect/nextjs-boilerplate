@@ -870,3 +870,24 @@ body{
 .blur-target{ filter: blur(5px); pointer-events:none; user-select:none; }
 
 #tarifs, #avis{ scroll-margin-top: 90px; }
+/* Force un centrage parfait quelle que soit l'héritage précédent */
+.center-wrap { 
+  display: flex; 
+  justify-content: center; 
+}
+
+/* Les blocs à l'intérieur occupent une largeur raisonnable et restent centrés */
+.center-wrap > .presentation,
+.center-wrap > .footer {
+  width: min(980px, 100%);
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+/* Présentation: largeur max + centrage durci */
+.presentation{
+  max-width: 900px;
+  width: min(900px, 100%);
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
