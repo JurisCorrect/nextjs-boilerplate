@@ -189,6 +189,66 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* ===== POUR ALLER PLUS LOIN ===== */}
+      <section className="container" style={{ marginBottom: 40 }}>
+        <div
+          className="card-glass"
+          style={{
+            maxWidth: 980,
+            margin: "0 auto",
+            padding: "clamp(16px, 2.4vw, 24px)",
+          }}
+        >
+          <h3 style={{
+            color: "#fff",
+            fontSize: "1.2rem",
+            fontWeight: 800,
+            marginBottom: 16,
+            marginTop: 0
+          }}>
+            <span
+              style={{
+                display: "inline-block",
+                verticalAlign: "baseline",
+                marginRight: 10,
+                padding: "4px 10px",
+                borderRadius: 8,
+                fontWeight: 900,
+                fontSize: "0.95rem",
+                letterSpacing: ".2px",
+                whiteSpace: "nowrap",
+                color: "#fff",
+                background: "linear-gradient(180deg, var(--brand) 0%, var(--brand-2) 100%)",
+                boxShadow: "0 8px 20px rgba(123,30,58,.35)",
+              }}
+            >
+              Pour aller plus loin...
+            </span>
+          </h3>
+          <p style={{ 
+            color: "var(--muted)", 
+            lineHeight: 1.7, 
+            margin: 0, 
+            textAlign: "justify" 
+          }}>
+            Au-delà de l'outil JURISCORRECT, je propose également un accompagnement personnalisé sous forme de cours particuliers. 
+            Ces sessions permettent un suivi individualisé, des explications détaillées de la méthodologie juridique et un 
+            entraînement adapté à vos besoins spécifiques. Que vous souhaitiez préparer un examen, améliorer vos techniques 
+            de dissertation ou perfectionner vos commentaires d'arrêt, je vous accompagne dans votre progression avec une 
+            pédagogie éprouvée et des résultats concrets.
+            <br /><br />
+            Pour toute demande d'information ou pour planifier un accompagnement personnalisé, contactez-moi directement : 
+            <a href="mailto:marie.terki@icloud.com" style={{
+              color: "var(--brand)",
+              textDecoration: "none",
+              fontWeight: 700
+            }}>
+              <strong>marie.terki@icloud.com</strong>
+            </a>
+          </p>
+        </div>
+      </section>
     </main>
   )
 }
