@@ -920,3 +920,55 @@ body{
 
 /* au cas où d’anciens styles trainent : neutralise l’ancien footer */
 .footer.card-glass { margin: 0 !important; padding: 0 !important; border: 0 !important; }
+/* === Bio (dernière section) : texte + photo à droite === */
+.bio-wrap{
+  display: grid;
+  grid-template-columns: 1fr min(220px, 28vw); /* texte | photo à droite */
+  gap: clamp(14px, 2vw, 24px);
+  align-items: start;
+}
+
+.bio-text{
+  margin: 0;
+  line-height: 1.7;
+  text-align: justify;
+  text-justify: inter-word;
+  color: var(--muted); /* reste dans l’esthétique bordeaux */
+}
+
+/* "Qui suis-je ?" sur la même ligne que le début du paragraphe */
+.kicker{
+  display: inline-block;
+  vertical-align: baseline;
+  margin-right: 10px;
+  padding: 2px 8px;
+  border-radius: 8px;
+  font-weight: 900;
+  font-size: 0.95rem;
+  letter-spacing: .2px;
+  white-space: nowrap;
+  color: #fff;
+  background: linear-gradient(180deg, var(--brand) 0%, var(--brand-2) 100%);
+  box-shadow: 0 8px 20px rgba(123,30,58,.35);
+}
+
+/* Avatar déplacé à droite */
+.bio-photo{
+  display: grid;
+  place-items: start end; /* colle la photo à droite */
+}
+
+.bio-avatar{
+  width: min(180px, 28vw);
+  height: min(180px, 28vw);
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(255,255,255,.7);
+  box-shadow: 0 8px 24px rgba(0,0,0,.35);
+}
+
+/* Responsive : on empile et on centre la photo */
+@media (max-width: 760px){
+  .bio-wrap{ grid-template-columns: 1fr; }
+  .bio-photo{ place-items: center; margin-top: 10px; }
+}
