@@ -431,3 +431,106 @@ body{
 .nav{ display:flex; align-items:center; justify-content:space-between; padding:12px 0; position:sticky; top:0; z-index:50; }
 .nav-blur{ backdrop-filter: blur(8px); background: rgba(18,18,26,.35); border-bottom:1px solid var(--card-border); }
 .brand{ font-weight:900; letter-spacing:.6px; }
+/* ====== Thème Bordeaux moderne ====== */
+:root{
+  --bg:#12121A;              /* fond nuit */
+  --bg-2:#0D0D16;
+  --text:#ffffff;
+  --muted:rgba(255,255,255,.88);
+
+  --brand:#7B1E3A;           /* bordeaux */
+  --brand-2:#9B274A;         /* bordeaux + clair */
+  --card:rgba(255,255,255,.06);
+  --card-border:rgba(255,255,255,.12);
+  --shadow:0 18px 50px rgba(10,10,16,.35);
+}
+
+/* Fond premium */
+body{
+  color:var(--text);
+  background:
+    radial-gradient(1200px 800px at 10% -10%, #1a1f33 0%, transparent 55%),
+    radial-gradient(900px 600px at 95% 0%, #1d2340 0%, transparent 50%),
+    linear-gradient(180deg, var(--bg) 0%, var(--bg-2) 100%);
+  min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+
+/* Hero */
+.hero{
+  display:flex; align-items:center; justify-content:center;
+  padding: clamp(22px, 4vw, 40px) 16px 8px;
+}
+.hero-title{
+  font-weight:900; letter-spacing:.4px;
+  font-size: clamp(28px, 5vw, 56px);
+}
+
+/* Encadré présentation type “glass” */
+.card-glass{
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  backdrop-filter: blur(8px);
+  border-radius: 18px;
+  box-shadow: var(--shadow);
+}
+.presentation{
+  max-width: 900px;
+  margin: 12px auto 24px;
+  padding: clamp(14px, 2.2vw, 22px);
+  line-height: 1.7;
+  color: var(--muted);
+}
+
+/* Grille des trois cartes */
+.grid{
+  display:grid; gap: 16px;
+  grid-template-columns: 1fr;
+  max-width: 980px;
+  margin: 0 auto 28px;
+  padding: 0 16px;
+}
+@media (min-width: 760px){
+  .grid{ grid-template-columns: repeat(3, 1fr); }
+}
+
+/* Cartes cliquables */
+.card{
+  position: relative;
+  display: grid;
+  grid-template-columns: 28px 1fr 24px;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 14px;
+  text-decoration: none;
+  color: #fff;
+  border-radius: 14px;
+  border: 1px solid var(--card-border);
+  background: linear-gradient(180deg, var(--brand) 0%, var(--brand-2) 100%);
+  box-shadow: 0 14px 34px rgba(123,30,58,.35);
+  transition: transform .18s ease, box-shadow .18s ease, opacity .18s ease;
+}
+.card:hover{ transform: translateY(-2px); }
+.card:active{ transform: translateY(0); opacity:.95; }
+
+.card-emoji{ font-size: 22px; }
+.card-title{ font-weight: 800; letter-spacing:.2px; line-height:1.25; }
+.card-arrow{ font-weight: 900; }
+
+/* Footer bio */
+.footer{
+  max-width: 980px;
+  margin: 16px auto 36px;
+  padding: clamp(16px, 2.4vw, 24px);
+  display:grid; gap:12px;
+}
+.footer p{ color: var(--muted); line-height:1.7; margin:0; }
+.footer a{ color:#ffd7e3; text-decoration: underline; }
+
+.avatar{
+  width: 72px; height: 72px; border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(255,255,255,.7);
+  box-shadow: 0 8px 24px rgba(0,0,0,.35);
+}
