@@ -891,3 +891,32 @@ body{
   margin-left: auto !important;
   margin-right: auto !important;
 }
+/* === Bloc BIO : centré strict + largeur contenue === */
+.bio{
+  max-width: 980px;                 /* largeur contenue */
+  margin-inline: auto !important;   /* centre horizontal garanti */
+  margin-block: 16px 36px;
+  padding: clamp(16px, 2.4vw, 24px);
+  display: grid;
+  gap: 12px;
+}
+
+.bio p{
+  color: var(--muted);
+  line-height: 1.7;
+  margin: 0;
+  text-align: justify;              /* tu gardes le texte justifié */
+}
+
+.bio .avatar{
+  display: block;                   /* centre l’avatar */
+  margin: 0 auto 12px;
+  width: 86px; height: 86px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(255,255,255,.7);
+  box-shadow: 0 8px 24px rgba(0,0,0,.35);
+}
+
+/* au cas où d’anciens styles trainent : neutralise l’ancien footer */
+.footer.card-glass { margin: 0 !important; padding: 0 !important; border: 0 !important; }
