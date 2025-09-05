@@ -1335,3 +1335,243 @@ a:hover {
   color: #2D5016 !important;
   border: 1px solid #B3E6B3 !important;
 }
+/* === PALETTE BEIGE FONCÉ/BORDEAUX PROFESSIONNELLE === */
+:root {
+  /* BORDEAUX PROFESSIONNEL */
+  --brand: #722F37;        /* Bordeaux foncé */
+  --brand-2: #5A252A;      /* Bordeaux très foncé */
+  --brand-light: #8B3A42;  /* Bordeaux hover */
+  
+  /* BEIGES FONCÉS ET CHAUDS */
+  --bg: #D4C4A8;          /* Beige foncé principal - couleur sable */
+  --bg-secondary: #C9B896; /* Beige plus foncé - couleur camel */
+  --bg-tertiary: #BDA882;  /* Beige très foncé pour contraste */
+  
+  /* CARTES ET SURFACES */
+  --card-bg: #E8DCC6;      /* Beige clair pour cartes */
+  --card-border: #B8A284;  /* Bordure beige très foncé */
+  --nav-bg: #CFC0A3;       /* Fond navigation beige foncé */
+  
+  /* TEXTES */
+  --text: #2D1F1A;         /* Brun très foncé */
+  --text-secondary: #4A3A32; /* Brun moyen */
+  --muted: #5A4A40;        /* Brun pour texte secondaire */
+  --text-light: #F5F1EB;   /* Beige très clair pour texte sur bordeaux */
+}
+
+/* === APPLICATION GLOBALE - TOUTES LES PAGES === */
+
+/* FOND PRINCIPAL */
+body, html, main {
+  background-color: var(--bg) !important;
+  color: var(--text) !important;
+  min-height: 100vh !important;
+}
+
+/* CONTENEURS PRINCIPAUX */
+.page-wrap, .container {
+  background-color: transparent !important;
+}
+
+/* NAVIGATION */
+.nav, .nav-blur, header {
+  background-color: var(--nav-bg) !important;
+  border-bottom: 2px solid var(--card-border) !important;
+  backdrop-filter: none !important;
+}
+
+/* BOUTONS NAVIGATION */
+.nav-link {
+  background-color: var(--brand) !important;
+  color: white !important;
+  border: 1px solid var(--brand) !important;
+  font-weight: 700 !important;
+}
+
+.nav-link:hover {
+  background-color: var(--brand-light) !important;
+  color: white !important;
+  transform: translateY(-1px) !important;
+}
+
+.btn-login {
+  background: var(--brand) !important;
+  color: white !important;
+  border: 2px solid var(--brand) !important;
+  font-weight: 700 !important;
+}
+
+.btn-login:hover {
+  background: var(--brand-light) !important;
+  border-color: var(--brand-light) !important;
+}
+
+/* TITRE PRINCIPAL */
+.hero-title {
+  color: var(--brand) !important;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.1) !important;
+}
+
+/* TOUTES LES CARTES */
+.card, .card-glass, .presentation, .pricing-card, .panel {
+  background-color: var(--card-bg) !important;
+  border: 2px solid var(--card-border) !important;
+  color: var(--text) !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
+}
+
+.card:hover {
+  background-color: var(--bg-tertiary) !important;
+  border-color: var(--brand) !important;
+  transform: translateY(-2px) !important;
+}
+
+/* BADGES ET ÉLÉMENTS BORDEAUX */
+span[style*="background: linear-gradient"],
+.kicker {
+  background: var(--brand) !important;
+  color: white !important;
+  font-weight: 700 !important;
+  border: 1px solid var(--brand-2) !important;
+}
+
+/* PRIX */
+.pricing-price {
+  color: var(--brand) !important;
+  font-weight: 800 !important;
+  font-size: 1.5rem !important;
+}
+
+.pricing-title {
+  color: var(--text) !important;
+  font-weight: 600 !important;
+}
+
+/* BOUTONS D'ACTION */
+.btn-send, button[type="submit"] {
+  background: var(--brand) !important;
+  color: white !important;
+  border: 2px solid var(--brand) !important;
+  font-weight: 700 !important;
+  padding: 12px 24px !important;
+}
+
+.btn-send:hover, button[type="submit"]:hover {
+  background: var(--brand-light) !important;
+  border-color: var(--brand-light) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* FORMULAIRES */
+.form, .field {
+  background-color: transparent !important;
+}
+
+.input, .textarea, input, textarea {
+  background-color: var(--card-bg) !important;
+  border: 2px solid var(--card-border) !important;
+  color: var(--text) !important;
+  padding: 12px !important;
+}
+
+.input:focus, .textarea:focus, input:focus, textarea:focus {
+  border-color: var(--brand) !important;
+  box-shadow: 0 0 0 3px rgba(114, 47, 55, 0.2) !important;
+  outline: none !important;
+}
+
+/* LABELS */
+label {
+  color: var(--text) !important;
+  font-weight: 600 !important;
+  margin-bottom: 8px !important;
+  display: block !important;
+}
+
+/* ZONES D'UPLOAD */
+.uploader, .uploader-box {
+  background-color: var(--card-bg) !important;
+  border: 3px dashed var(--card-border) !important;
+  color: var(--text-secondary) !important;
+}
+
+.uploader-box:hover, .uploader-box.is-dragging {
+  border-color: var(--brand) !important;
+  background-color: var(--bg-tertiary) !important;
+}
+
+.uploader-btn {
+  color: var(--brand) !important;
+  font-weight: 600 !important;
+}
+
+/* LIENS */
+a {
+  color: var(--brand) !important;
+  font-weight: 600 !important;
+}
+
+a:hover {
+  color: var(--brand-light) !important;
+  text-decoration: underline !important;
+}
+
+/* SECTIONS TITRES */
+.section-title, .page-title {
+  color: var(--brand) !important;
+  font-weight: 800 !important;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.1) !important;
+}
+
+/* HELPER TEXT */
+.helper {
+  color: var(--muted) !important;
+  background-color: var(--card-bg) !important;
+  padding: 12px !important;
+  border-radius: 8px !important;
+  border: 1px solid var(--card-border) !important;
+}
+
+/* MESSAGES */
+.msg-error {
+  background-color: #E8B4B4 !important;
+  color: var(--brand) !important;
+  border: 2px solid var(--brand) !important;
+  padding: 12px !important;
+  border-radius: 8px !important;
+}
+
+.msg-ok {
+  background-color: #B4E8B4 !important;
+  color: #2D5016 !important;
+  border: 2px solid #5A8A3A !important;
+  padding: 12px !important;
+  border-radius: 8px !important;
+}
+
+/* LOADER */
+.loader-overlay {
+  background-color: rgba(212, 196, 168, 0.9) !important;
+}
+
+.loader-ring {
+  border-top-color: var(--brand) !important;
+}
+
+/* PAGE DE CORRECTION SPÉCIFIQUE */
+.correction-content, .correction-section {
+  background-color: var(--card-bg) !important;
+  border: 2px solid var(--card-border) !important;
+  color: var(--text) !important;
+}
+
+/* RESPONSIVE - TOUT RESTE COHÉRENT */
+@media (max-width: 768px) {
+  body {
+    background-color: var(--bg) !important;
+  }
+  
+  .card, .card-glass {
+    background-color: var(--card-bg) !important;
+  }
+}
