@@ -2,7 +2,7 @@
 import Link from "next/link"
 
 export default function Home() {
-  // Petits styles "pill" inline pour ne pas dépendre d'un patch CSS
+  // Style "pill" réutilisable
   const pillBase: React.CSSProperties = {
     display: "inline-flex",
     alignItems: "center",
@@ -23,23 +23,24 @@ export default function Home() {
     border: "1px solid rgba(255,255,255,.22)",
   }
 
+  // Wrappers pour un centrage dur (aucun décalage)
+  const centerWrap: React.CSSProperties = {
+    display: "grid",
+    placeItems: "center",
+    padding: "0 16px",
+    margin: "0 auto",
+  }
+  const centeredCard: React.CSSProperties = {
+    width: "min(980px, 100%)",
+    margin: "0 auto",
+  }
+
   return (
     <main>
-      {/* ===== NAV ===== */}
+      {/* ===== NAV (sans logo/nom) ===== */}
       <header className="nav nav-blur">
-        <div className="container nav-inner" style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <div className="brand" style={{ display: "inline-flex", alignItems: "center", gap: 10 }}>
-            <svg
-              xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
-              fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-              style={{ width: 22, height: 22, verticalAlign: "-2px" }} aria-hidden="true"
-            >
-              <path d="M12 3v2" /><path d="M3 7h18" /><path d="M6 7l-3 6a4 4 0 0 0 8 0L8 7" /><path d="M18 7l-3 6a4 4 0 0 0 8 0l-3-6" /><path d="M12 5v13" />
-            </svg>
-            JURISCORRECT
-          </div>
-
-          <nav className="nav-links" style={{ display: "flex", gap: 12, alignItems: "center" }}>
+        <div className="container" style={{ display: "flex", justifyContent: "center", gap: 12 }}>
+          <nav style={{ display: "flex", gap: 12, alignItems: "center" }}>
             <Link href="#tarifs" style={pillBase}>Voir les tarifs</Link>
             <Link href="#avis" style={pillBase}>Avis</Link>
             <Link href="/login" style={pillPrimary}>Se connecter</Link>
@@ -50,6 +51,7 @@ export default function Home() {
       {/* ===== HERO ===== */}
       <section className="hero">
         <h1 className="hero-title" style={{ display: "inline-flex", alignItems: "center", gap: 12, lineHeight: 1 }}>
+          {/* loupe */}
           <svg
             xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
             fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
@@ -62,12 +64,9 @@ export default function Home() {
         </h1>
       </section>
 
-      {/* ===== PRÉSENTATION (centrée dur) ===== */}
-      <div className="container" style={{ display: "flex", justifyContent: "center" }}>
-        <section
-          className="presentation card-glass"
-          style={{ width: "min(900px, 100%)", marginLeft: "auto", marginRight: "auto" }}
-        >
+      {/* ===== PRÉSENTATION — centrée ===== */}
+      <div style={centerWrap}>
+        <section className="presentation card-glass" style={centeredCard}>
           <p>
             JURISCORRECT est un outil de correction automatisée fondé sur la base de données d’un professeur particulier.
             Contrairement aux IA génératives, qui ne sont pas conçues pour corriger les devoirs juridiques et qui ignorent
@@ -123,12 +122,9 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ===== BIO / AVIS (centré dur) ===== */}
-      <div className="container" id="avis" style={{ scrollMarginTop: 90, display: "flex", justifyContent: "center" }}>
-        <footer
-          className="footer card-glass"
-          style={{ width: "min(980px, 100%)", marginLeft: "auto", marginRight: "auto" }}
-        >
+      {/* ===== BIO / AVIS — centrée ===== */}
+      <div id="avis" style={{ ...centerWrap, scrollMarginTop: 90 }}>
+        <footer className="footer card-glass" style={centeredCard}>
           <img src="/marie.jpg" alt="Marie" className="avatar" />
           <p>
             Doctorante en droit international pénal et professeur particulier depuis quatre ans, j’ai effectué un parcours
