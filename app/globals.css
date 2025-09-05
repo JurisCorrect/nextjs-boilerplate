@@ -727,3 +727,146 @@ body{
 
 /* Ancrages qui ne passent pas sous la nav sticky */
 #tarifs, #avis { scroll-margin-top: 90px; }
+/* === NAV proprement alignée === */
+.nav { position: sticky; top: 0; z-index: 50; }
+.nav-blur { backdrop-filter: blur(8px); background: rgba(18,18,26,.35); border-bottom: 1px solid var(--card-border); }
+.container { max-width: 1100px; margin-inline: auto; padding: clamp(16px, 3vw, 32px); }
+.nav-inner{ display:flex; align-items:center; justify-content:space-between; gap:16px; }
+.brand{ font-weight:900; letter-spacing:.6px; display:flex; align-items:center; }
+
+/* Liens top */
+.nav-links{ display:flex; align-items:center; gap: 12px; }
+.nav-link{
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--card-border);
+  background: rgba(255,255,255,.04);
+  color: #fff; text-decoration: none; font-weight: 700;
+  transition: transform .18s ease, border-color .18s ease, opacity .18s ease;
+}
+.nav-link:hover{ transform: translateY(-1px); border-color: rgba(255,255,255,.22); }
+.nav-link:active{ transform: translateY(0); opacity: .92; }
+.btn-login{
+  padding: 10px 16px;
+  border-radius: 14px;
+  font-weight: 800; color:#fff; text-decoration:none;
+  background: linear-gradient(180deg, var(--brand) 0%, var(--brand-2) 100%);
+  box-shadow: 0 12px 30px rgba(123,30,58,.35);
+  transition: transform .18s, opacity .18s;
+}
+.btn-login:hover{ transform: translateY(-1px); }
+.btn-login:active{ transform: translateY(0); opacity:.95; }
+
+/* === Présentation / Bio bien centrées === */
+.card-glass{
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  backdrop-filter: blur(8px);
+  border-radius: 18px;
+  box-shadow: var(--shadow);
+}
+.presentation{
+  margin: 16px auto 26px;
+  padding: clamp(14px, 2.2vw, 22px);
+  line-height: 1.7; color: var(--muted);
+  max-width: 900px;
+}
+.footer{
+  margin: 24px auto 40px;
+  padding: clamp(16px, 2.4vw, 24px);
+  display: grid; gap: 12px;
+  max-width: 980px; /* <-- centré / largeur fixe */
+}
+.footer p{ color: var(--muted); line-height:1.7; margin:0; text-align: justify; }
+.avatar{
+  width: 72px; height: 72px; border-radius: 50%;
+  object-fit: cover; border: 2px solid rgba(255,255,255,.7);
+  box-shadow: 0 8px 24px rgba(0,0,0,.35); justify-self: center;
+}
+
+/* === GRILLE TARIFS === */
+.pricing-grid{
+  display:grid; gap: 14px;
+  grid-template-columns: 1fr;
+}
+@media (min-width:720px){
+  .pricing-grid{ grid-template-columns: repeat(4, 1fr); }
+}
+.pricing-card{
+  padding: 16px 16px;
+  display:flex; align-items:center; justify-content:space-between;
+}
+.pricing-title{ font-weight: 800; }
+.pricing-price{ font-weight: 900; font-size: 18px; }
+
+/* Titre section */
+.section-title{
+  text-align: center;
+  font-size: clamp(22px, 3.6vw, 30px);
+  font-weight: 900;
+  margin: 0 0 10px;
+}
+
+/* === Unifier le style des PAGES EXERCICES + PAGE CORRECTION === */
+/* Conteneur */
+.page-wrap{ max-width: 980px; margin: 0 auto; padding: 24px; color: var(--text); }
+/* Carte principale en “glass” Bordeaux */
+.panel{
+  background: var(--card);
+  color: var(--text);
+  border-radius: 18px;
+  border: 1px solid var(--card-border);
+  backdrop-filter: blur(8px);
+  padding: 28px 32px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+/* Titre */
+.page-title{
+  margin: 0 0 18px;
+  text-align: center;
+  color: #fff;
+  text-transform: uppercase;
+  font-weight: 900;
+  letter-spacing: .6px;
+  font-size: 34px;
+}
+
+/* Labels + champs sur fond sombre */
+.field label{ display:block; font-weight:700; margin-bottom:6px; color:#fff; opacity:.9; }
+.input, .textarea{
+  width:100%; display:block;
+  background: rgba(255,255,255,.06);
+  color: #fff; caret-color:#fff;
+  border:1px solid rgba(255,255,255,.18);
+  border-radius:10px; padding:12px 14px; font-size:15px;
+}
+.input::placeholder, .textarea::placeholder{ color: rgba(255,255,255,.6); }
+.input:focus, .textarea:focus{
+  outline:none; border-color: rgba(255,255,255,.35);
+  box-shadow: 0 0 0 3px rgba(155,39,74,.22);
+  background: rgba(255,255,255,.08);
+}
+.textarea{ min-height:220px; resize: vertical; }
+
+/* Bouton d’envoi Bordeaux */
+.actions{ display:flex; justify-content:center; margin-top:10px; }
+.btn-send{
+  display:inline-flex; align-items:center; gap:10px;
+  background: linear-gradient(180deg, var(--brand) 0%, var(--brand-2) 100%);
+  color:#fff; border:none;
+  padding:14px 22px; border-radius:12px;
+  font-weight:800; letter-spacing:.5px; text-transform:uppercase;
+  box-shadow: 0 12px 30px rgba(123,30,58,.35);
+  cursor:pointer; transition: transform .12s, opacity .12s;
+}
+.btn-send:hover{ transform: translateY(-1px); }
+.btn-send:active{ transform: translateY(0); opacity:.94; }
+
+/* Correction : texte justifié même sous blur */
+.correction-content, .correction-content p, .correction-content li, .correction-content div{
+  text-align: justify; text-justify: inter-word; white-space: pre-wrap;
+}
+.blur-target{ filter: blur(5px); pointer-events:none; user-select:none; }
+
+#tarifs, #avis{ scroll-margin-top: 90px; }
