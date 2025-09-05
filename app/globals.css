@@ -1171,3 +1171,167 @@ a:hover {
 .loader-ring {
   border-top-color: var(--brand);
 }
+/* === PALETTE BEIGE/BORDEAUX PROFESSIONNELLE === */
+:root {
+  /* BORDEAUX VRAIS (pas roses) */
+  --brand: #722F37;        /* Bordeaux foncé professionnel */
+  --brand-2: #8B3A42;      /* Bordeaux moyen */
+  --brand-light: #A0474F;  /* Bordeaux clair pour hover */
+  
+  /* BEIGES CHAUDS */
+  --bg: #F5F1EB;          /* Beige principal */
+  --bg-secondary: #EDE7DD; /* Beige plus foncé */
+  --bg-tertiary: #E3D9CB;  /* Beige foncé pour cartes */
+  
+  /* TEXTES */
+  --text: #2D1F1A;         /* Brun très foncé */
+  --text-secondary: #4A3A32; /* Brun moyen */
+  --muted: #6B5A50;        /* Brun gris */
+  --text-light: #F5F1EB;   /* Beige clair pour texte sur bordeaux */
+  
+  /* CARTES ET SURFACES */
+  --card-bg: #F9F6F1;      /* Beige très clair pour cartes */
+  --card-border: #D4C4B0;  /* Bordure beige foncé */
+  --nav-bg: #F2EDE5;       /* Fond navigation */
+}
+
+/* === APPLICATION DES COULEURS === */
+
+/* FOND GÉNÉRAL */
+body {
+  background-color: var(--bg) !important;
+  color: var(--text) !important;
+}
+
+/* NAVIGATION */
+.nav, .nav-blur {
+  background: var(--nav-bg) !important;
+  border-bottom: 1px solid var(--card-border) !important;
+}
+
+/* BOUTONS NAVIGATION - BORDEAUX AVEC TEXTE BLANC */
+.nav-link {
+  background: var(--brand) !important;
+  color: var(--text-light) !important;
+  border: 1px solid var(--brand) !important;
+}
+
+.nav-link:hover {
+  background: var(--brand-light) !important;
+  color: white !important;
+}
+
+.btn-login {
+  background: linear-gradient(180deg, var(--brand) 0%, var(--brand-2) 100%) !important;
+  color: white !important;
+  border: none !important;
+}
+
+.btn-login:hover {
+  background: linear-gradient(180deg, var(--brand-light) 0%, var(--brand) 100%) !important;
+}
+
+/* TITRE PRINCIPAL */
+.hero-title {
+  color: var(--brand) !important;
+}
+
+/* CARTES */
+.card, .card-glass {
+  background: var(--card-bg) !important;
+  border: 1px solid var(--card-border) !important;
+  color: var(--text) !important;
+}
+
+.card:hover {
+  background: white !important;
+  border-color: var(--brand) !important;
+}
+
+/* CARTES DE PRIX */
+.pricing-card {
+  background: var(--card-bg) !important;
+  border: 1px solid var(--card-border) !important;
+}
+
+.pricing-title {
+  color: var(--text) !important;
+}
+
+.pricing-price {
+  color: var(--brand) !important;
+  font-weight: bold !important;
+}
+
+/* PRÉSENTATION */
+.presentation {
+  background: var(--card-bg) !important;
+  border: 1px solid var(--card-border) !important;
+}
+
+/* BADGES BORDEAUX */
+span[style*="background: linear-gradient"] {
+  background: linear-gradient(180deg, var(--brand) 0%, var(--brand-2) 100%) !important;
+  color: white !important;
+}
+
+/* BOUTONS D'ACTION */
+.btn-send {
+  background: linear-gradient(180deg, var(--brand) 0%, var(--brand-2) 100%) !important;
+  color: white !important;
+  border: none !important;
+}
+
+.btn-send:hover {
+  background: linear-gradient(180deg, var(--brand-light) 0%, var(--brand) 100%) !important;
+}
+
+/* FORMULAIRES */
+.input, .textarea {
+  background: white !important;
+  border: 1px solid var(--card-border) !important;
+  color: var(--text) !important;
+}
+
+.input:focus, .textarea:focus {
+  border-color: var(--brand) !important;
+}
+
+/* UPLOADER */
+.uploader-box {
+  background: white !important;
+  border: 2px dashed var(--card-border) !important;
+  color: var(--text-secondary) !important;
+}
+
+.uploader-box:hover, .uploader-box.is-dragging {
+  border-color: var(--brand) !important;
+  background: var(--bg-tertiary) !important;
+}
+
+/* LIENS */
+a {
+  color: var(--brand) !important;
+}
+
+a:hover {
+  color: var(--brand-light) !important;
+}
+
+/* SECTIONS TITRES */
+.section-title {
+  color: var(--brand) !important;
+}
+
+/* MESSAGES D'ERREUR */
+.msg-error {
+  background: #FFE6E6 !important;
+  color: var(--brand) !important;
+  border: 1px solid #FFB3B3 !important;
+}
+
+.msg-ok {
+  background: #E6F7E6 !important;
+  color: #2D5016 !important;
+  border: 1px solid #B3E6B3 !important;
+}
