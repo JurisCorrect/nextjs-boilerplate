@@ -2,56 +2,59 @@
 import Link from "next/link"
 
 export default function Home() {
-  // Style "pill" réutilisable
-  const pillBase: React.CSSProperties = {
+  // Styles des pastilles de la nav (compatibles avec ton thème bordeaux)
+  const pill: React.CSSProperties = {
     display: "inline-flex",
     alignItems: "center",
-    justifyContent: "center",
-    padding: "10px 14px",
+    gap: 8,
+    padding: "10px 16px",
     borderRadius: 14,
-    border: "1px solid rgba(255,255,255,.18)",
+    border: "1px solid rgba(255,255,255,.12)",
+    backdropFilter: "blur(8px)",
     background: "rgba(255,255,255,.06)",
     color: "#fff",
-    textDecoration: "none",
     fontWeight: 800,
-    boxShadow: "0 12px 30px rgba(123,30,58,.25)",
-    transition: "transform .18s ease, opacity .18s ease",
+    textDecoration: "none",
   }
-  const pillPrimary: React.CSSProperties = {
-    ...pillBase,
+  const cta: React.CSSProperties = {
+    ...pill,
     background: "linear-gradient(180deg, var(--brand) 0%, var(--brand-2) 100%)",
-    border: "1px solid rgba(255,255,255,.22)",
-  }
-
-  // Wrappers pour un centrage dur (aucun décalage)
-  const centerWrap: React.CSSProperties = {
-    display: "grid",
-    placeItems: "center",
-    padding: "0 16px",
-    margin: "0 auto",
-  }
-  const centeredCard: React.CSSProperties = {
-    width: "min(980px, 100%)",
-    margin: "0 auto",
+    boxShadow: "0 12px 30px rgba(123,30,58,.35)",
   }
 
   return (
     <main>
-      {/* ===== NAV (sans logo/nom) ===== */}
+      {/* ===== NAV (alignée à droite, sans logo/brand) ===== */}
       <header className="nav nav-blur">
-        <div className="container" style={{ display: "flex", justifyContent: "center", gap: 12 }}>
-          <nav style={{ display: "flex", gap: 12, alignItems: "center" }}>
-            <Link href="#tarifs" style={pillBase}>Voir les tarifs</Link>
-            <Link href="#avis" style={pillBase}>Avis</Link>
-            <Link href="/login" style={pillPrimary}>Se connecter</Link>
+        <div
+          className="container"
+          style={{
+            display: "flex",
+            justifyContent: "flex-end", // 👉 aligné à droite
+            alignItems: "center",
+          }}
+        >
+          <nav className="nav-links" style={{ display: "flex", gap: 12, alignItems: "center" }}>
+            <Link href="#tarifs" className="nav-link" style={pill}>
+              Voir les tarifs
+            </Link>
+            <Link href="#avis" className="nav-link" style={pill}>
+              Avis
+            </Link>
+            <Link href="/login" className="btn-login" style={cta}>
+              Se connecter
+            </Link>
           </nav>
         </div>
       </header>
 
-      {/* ===== HERO ===== */}
+      {/* ===== HERO (gros JURISCORRECT conservé) ===== */}
       <section className="hero">
-        <h1 className="hero-title" style={{ display: "inline-flex", alignItems: "center", gap: 12, lineHeight: 1 }}>
-          {/* loupe */}
+        <h1
+          className="hero-title"
+          style={{ display: "inline-flex", alignItems: "center", gap: 12, lineHeight: 1 }}
+        >
+          {/* Loupe qui suit la couleur du texte (currentColor) */}
           <svg
             xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
             fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
@@ -64,9 +67,9 @@ export default function Home() {
         </h1>
       </section>
 
-      {/* ===== PRÉSENTATION — centrée ===== */}
-      <div style={centerWrap}>
-        <section className="presentation card-glass" style={centeredCard}>
+      {/* ===== PRÉSENTATION (centrée) ===== */}
+      <div className="container">
+        <section className="presentation card-glass" style={{ marginInline: "auto" }}>
           <p>
             JURISCORRECT est un outil de correction automatisée fondé sur la base de données d’un professeur particulier.
             Contrairement aux IA génératives, qui ne sont pas conçues pour corriger les devoirs juridiques et qui ignorent
@@ -88,7 +91,7 @@ export default function Home() {
 
         <Link href="/commentaire" className="card">
           <span className="card-emoji">⚖️</span>
-          <span className="card-title">COMMENTAIRE D'ARRÊT / FICHE D'ARRÊT</span>
+          <span className="card-title">COMMENTAIRE D&apos;ARRÊT / FICHE D&apos;ARRÊT</span>
           <span className="card-arrow">→</span>
         </Link>
 
@@ -99,7 +102,7 @@ export default function Home() {
         </Link>
       </section>
 
-      {/* ===== TARIFS ===== */}
+      {/* ===== TARIFS (4 cartes) ===== */}
       <section id="tarifs" className="container" style={{ margin: "28px auto 8px" }}>
         <h2 className="section-title">Tarifs</h2>
         <div className="pricing-grid">
@@ -122,9 +125,9 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ===== BIO / AVIS — centrée ===== */}
-      <div id="avis" style={{ ...centerWrap, scrollMarginTop: 90 }}>
-        <footer className="footer card-glass" style={centeredCard}>
+      {/* ===== BIO / AVIS (centré) ===== */}
+      <div className="container" id="avis" style={{ scrollMarginTop: 90 }}>
+        <footer className="footer card-glass" style={{ marginInline: "auto" }}>
           <img src="/marie.jpg" alt="Marie" className="avatar" />
           <p>
             Doctorante en droit international pénal et professeur particulier depuis quatre ans, j’ai effectué un parcours
