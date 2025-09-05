@@ -534,3 +534,135 @@ body{
   border: 2px solid rgba(255,255,255,.7);
   box-shadow: 0 8px 24px rgba(0,0,0,.35);
 }
+/* ======= Thème Bordeaux — overrides finaux ======= */
+:root{
+  --bg:#12121A;
+  --bg-2:#0D0D16;
+  --text:#ffffff;
+  --muted:rgba(255,255,255,.9);
+
+  --brand:#7B1E3A;          /* Bordeaux */
+  --brand-2:#9B274A;        /* Bordeaux + clair */
+  --card:rgba(255,255,255,.06);
+  --card-border:rgba(255,255,255,.12);
+  --shadow:0 18px 50px rgba(10,10,16,.35);
+}
+
+/* Fond premium avec dégradés subtils */
+body{
+  color:var(--text);
+  background:
+    radial-gradient(1200px 800px at 10% -10%, #20243b 0%, transparent 55%),
+    radial-gradient(900px 600px at 95% 0%, #1e213a 0%, transparent 50%),
+    linear-gradient(180deg, var(--bg) 0%, var(--bg-2) 100%) !important;
+  min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+
+/* Container utilitaire */
+.container{ max-width:1100px; margin-inline:auto; padding: clamp(14px, 3vw, 28px); }
+
+/* Nav */
+.nav{ position:sticky; top:0; z-index:50; }
+.nav-blur{ backdrop-filter: blur(8px); background: rgba(10,10,16,.45); border-bottom:1px solid var(--card-border); }
+.brand{ font-weight:900; letter-spacing:.6px; font-size: clamp(18px,2.3vw,22px); }
+.nav-links{ display:flex; align-items:center; gap: clamp(10px,2vw,18px); }
+.nav-link{
+  color: var(--muted);
+  text-decoration: none;
+  font-weight: 700;
+}
+.nav-link:hover{ color:#fff; }
+
+/* Boutons */
+.btn{
+  display:inline-flex; align-items:center; gap:10px; padding:12px 16px;
+  border-radius:12px; font-weight:800; color:#fff; text-decoration:none;
+  background: linear-gradient(180deg, var(--brand) 0%, var(--brand-2) 100%);
+  box-shadow: 0 12px 30px rgba(123,30,58,.35);
+  transition: transform .18s, opacity .18s;
+}
+.btn:hover{ transform: translateY(-2px); }
+.btn:active{ transform: translateY(0); opacity:.92; }
+.btn-small{ padding:8px 12px; font-size:.95rem; }
+
+/* Hero */
+.hero{
+  text-align:center;
+  padding: clamp(28px, 8vw, 80px) 16px 24px;
+}
+.hero-title{
+  font-weight:900; letter-spacing:.4px;
+  font-size: clamp(32px, 6vw, 64px);
+}
+
+/* Carte “glass” */
+.card-glass{
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  backdrop-filter: blur(8px);
+  border-radius: 18px;
+  box-shadow: var(--shadow);
+}
+
+/* Présentation (ton paragraphe) — lisible + teinte Bordeaux */
+.presentation.intro-card.card-glass{
+  max-width: 900px;
+  margin: 12px auto 24px;
+  padding: clamp(14px, 2.2vw, 22px);
+}
+.presentation.intro-card.card-glass p{
+  color: var(--muted);
+  line-height: 1.7;
+  margin: 0;
+}
+
+/* Grille des trois cartes */
+.grid{
+  display:grid; gap: 16px;
+  grid-template-columns: 1fr;
+  max-width: 980px;
+  margin: 0 auto 28px;
+  padding: 0 16px;
+}
+@media (min-width: 760px){
+  .grid{ grid-template-columns: repeat(3, 1fr); }
+}
+
+/* Cartes cliquables (Bordeaux gradient) */
+.card{
+  position: relative;
+  display: grid;
+  grid-template-columns: 28px 1fr 24px;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 14px;
+  text-decoration: none;
+  color: #fff;
+  border-radius: 14px;
+  border: 1px solid var(--card-border) !important;
+  background: linear-gradient(180deg, var(--brand) 0%, var(--brand-2) 100%) !important;
+  box-shadow: 0 14px 34px rgba(123,30,58,.35);
+  transition: transform .18s ease, box-shadow .18s ease, opacity .18s ease;
+}
+.card:hover{ transform: translateY(-2px); }
+.card:active{ transform: translateY(0); opacity:.95; }
+.card-emoji{ font-size: 22px; }
+.card-title{ font-weight: 800; letter-spacing:.2px; line-height:1.25; }
+.card-arrow{ font-weight: 900; }
+
+/* Footer / Bio en vrai Bordeaux */
+.footer.footer-bordeaux{
+  background: linear-gradient(180deg, var(--brand) 0%, var(--brand-2) 100%) !important;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 18px;
+}
+.footer.footer-bordeaux p{ color:#fff !important; }
+.footer.footer-bordeaux a{ color:#ffe3ec !important; text-decoration: underline; }
+.avatar{
+  width: 76px; height: 76px; border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(255,255,255,.8);
+  box-shadow: 0 8px 24px rgba(0,0,0,.35);
+}
