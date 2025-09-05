@@ -2,7 +2,7 @@
 import Link from "next/link"
 
 export default function Home() {
-  // Styles des pastilles de la nav (compatibles avec ton thème bordeaux)
+  // Pastilles de la nav (alignées à droite)
   const pill: React.CSSProperties = {
     display: "inline-flex",
     alignItems: "center",
@@ -24,37 +24,26 @@ export default function Home() {
 
   return (
     <main>
-      {/* ===== NAV (alignée à droite, sans logo/brand) ===== */}
+      {/* ===== NAV (droite, sans logo/brand) ===== */}
       <header className="nav nav-blur">
         <div
           className="container"
-          style={{
-            display: "flex",
-            justifyContent: "flex-end", // 👉 aligné à droite
-            alignItems: "center",
-          }}
+          style={{ display: "flex", justifyContent: "flex-end", alignItems: "center" }}
         >
           <nav className="nav-links" style={{ display: "flex", gap: 12, alignItems: "center" }}>
-            <Link href="#tarifs" className="nav-link" style={pill}>
-              Voir les tarifs
-            </Link>
-            <Link href="#avis" className="nav-link" style={pill}>
-              Avis
-            </Link>
-            <Link href="/login" className="btn-login" style={cta}>
-              Se connecter
-            </Link>
+            <Link href="#tarifs" className="nav-link" style={pill}>Voir les tarifs</Link>
+            <Link href="#avis" className="nav-link" style={pill}>Avis</Link>
+            <Link href="/login" className="btn-login" style={cta}>Se connecter</Link>
           </nav>
         </div>
       </header>
 
-      {/* ===== HERO (gros JURISCORRECT conservé) ===== */}
+      {/* ===== HERO (gros titre conservé) ===== */}
       <section className="hero">
         <h1
           className="hero-title"
           style={{ display: "inline-flex", alignItems: "center", gap: 12, lineHeight: 1 }}
         >
-          {/* Loupe qui suit la couleur du texte (currentColor) */}
           <svg
             xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
             fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
@@ -125,11 +114,32 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ===== BIO / AVIS (centré) ===== */}
-      <div className="container" id="avis" style={{ scrollMarginTop: 90 }}>
-        <footer className="footer card-glass" style={{ marginInline: "auto" }}>
-          <img src="/marie.jpg" alt="Marie" className="avatar" />
-          <p>
+      {/* ===== AVIS / BIO — CENTRÉ STRICT ===== */}
+      <section className="container" id="avis" style={{ scrollMarginTop: 90 }}>
+        <div
+          className="card-glass"
+          style={{
+            /* centrage garanti */
+            maxWidth: 980,
+            margin: "16px auto 36px",
+            padding: "clamp(16px, 2.4vw, 24px)",
+          }}
+        >
+          <img
+            src="/marie.jpg"
+            alt="Marie"
+            style={{
+              display: "block",
+              margin: "0 auto 12px",
+              width: 86,
+              height: 86,
+              borderRadius: "50%",
+              objectFit: "cover",
+              border: "2px solid rgba(255,255,255,.7)",
+              boxShadow: "0 8px 24px rgba(0,0,0,.35)",
+            }}
+          />
+          <p style={{ color: "var(--muted)", lineHeight: 1.7, margin: 0, textAlign: "justify" }}>
             Doctorante en droit international pénal et professeur particulier depuis quatre ans, j’ai effectué un parcours
             universitaire rigoureux, validé mention bien à chaque étape. Après une licence à l’université de Créteil,
             j’ai obtenu deux masters : un master 1 et 2 de droit international et droit comparé à Nanterre, puis un master 1
@@ -141,8 +151,8 @@ export default function Home() {
             Pour un accompagnement personnalisé ou des cours particuliers, contactez-moi :
             <a href="mailto:marie.terki@icloud.com"><strong><u> marie.terki@icloud.com</u></strong></a>.
           </p>
-        </footer>
-      </div>
+        </div>
+      </section>
     </main>
   )
 }
