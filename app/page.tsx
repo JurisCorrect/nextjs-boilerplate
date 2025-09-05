@@ -114,43 +114,73 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ===== AVIS / BIO — CENTRÉ STRICT ===== */}
+      {/* ===== AVIS / BIO — texte + photo à droite ===== */}
       <section className="container" id="avis" style={{ scrollMarginTop: 90 }}>
         <div
           className="card-glass"
           style={{
-            /* centrage garanti */
             maxWidth: 980,
             margin: "16px auto 36px",
             padding: "clamp(16px, 2.4vw, 24px)",
           }}
         >
-          <img
-            src="/marie.jpg"
-            alt="Marie"
+          {/* grille 2 colonnes : texte | photo à droite */}
+          <div
             style={{
-              display: "block",
-              margin: "0 auto 12px",
-              width: 86,
-              height: 86,
-              borderRadius: "50%",
-              objectFit: "cover",
-              border: "2px solid rgba(255,255,255,.7)",
-              boxShadow: "0 8px 24px rgba(0,0,0,.35)",
+              display: "grid",
+              gridTemplateColumns: "1fr min(220px, 28vw)",
+              gap: "clamp(14px, 2vw, 24px)",
+              alignItems: "start",
             }}
-          />
-          <p style={{ color: "var(--muted)", lineHeight: 1.7, margin: 0, textAlign: "justify" }}>
-            Doctorante en droit international pénal et professeur particulier depuis quatre ans, j’ai effectué un parcours
-            universitaire rigoureux, validé mention bien à chaque étape. Après une licence à l’université de Créteil,
-            j’ai obtenu deux masters : un master 1 et 2 de droit international et droit comparé à Nanterre, puis un master 1
-            et 2 de droit pénal et sciences criminelles à Toulouse. Au fil de mes années d’enseignement, j’ai constaté que le
-            plus grand défi des étudiants en droit était la maîtrise de la méthodologie. C’est pourquoi j’ai créé JURISCORRECT :
-            pour démocratiser l’accès à une correction de qualité et permettre à chaque étudiant de progresser efficacement.
-            Il s’agit de ma correction basée sur mes critères et non pas ceux d’Internet. Avec quatre ans d’expérience et un
-            taux de réussite de 100 % parmi mes élèves, je mets aujourd’hui mon expertise à votre service à travers cet outil.
-            Pour un accompagnement personnalisé ou des cours particuliers, contactez-moi :
-            <a href="mailto:marie.terki@icloud.com"><strong><u> marie.terki@icloud.com</u></strong></a>.
-          </p>
+          >
+            {/* Colonne texte */}
+            <p style={{ color: "var(--muted)", lineHeight: 1.7, margin: 0, textAlign: "justify" }}>
+              <span
+                style={{
+                  display: "inline-block",
+                  verticalAlign: "baseline",
+                  marginRight: 10,
+                  padding: "2px 8px",
+                  borderRadius: 8,
+                  fontWeight: 900,
+                  fontSize: "0.95rem",
+                  letterSpacing: ".2px",
+                  whiteSpace: "nowrap",
+                  color: "#fff",
+                  background: "linear-gradient(180deg, var(--brand) 0%, var(--brand-2) 100%)",
+                  boxShadow: "0 8px 20px rgba(123,30,58,.35)",
+                }}
+              >
+                Qui suis-je&nbsp;?
+              </span>
+              Doctorante en droit international pénal et professeur particulier depuis quatre ans, j’ai effectué un parcours
+              universitaire rigoureux, validé mention bien à chaque étape. Après une licence à l’université de Créteil,
+              j’ai obtenu deux masters : un master 1 et 2 de droit international et droit comparé à Nanterre, puis un master 1
+              et 2 de droit pénal et sciences criminelles à Toulouse. Au fil de mes années d’enseignement, j’ai constaté que le
+              plus grand défi des étudiants en droit était la maîtrise de la méthodologie. C’est pourquoi j’ai créé JURISCORRECT :
+              pour démocratiser l’accès à une correction de qualité et permettre à chaque étudiant de progresser efficacement.
+              Il s’agit de ma correction basée sur mes critères et non pas ceux d’Internet. Avec quatre ans d’expérience et un
+              taux de réussite de 100 % parmi mes élèves, je mets aujourd’hui mon expertise à votre service à travers cet outil.
+              Pour un accompagnement personnalisé ou des cours particuliers, contactez-moi :
+              <a href="mailto:marie.terki@icloud.com"><strong><u> marie.terki@icloud.com</u></strong></a>.
+            </p>
+
+            {/* Colonne photo (à droite) */}
+            <div style={{ display: "grid", placeItems: "start end" }}>
+              <img
+                src="/marie.jpg"
+                alt="Marie"
+                style={{
+                  width: "min(180px, 28vw)",
+                  height: "min(180px, 28vw)",
+                  borderRadius: "50%",
+                  objectFit: "cover",
+                  border: "2px solid rgba(255,255,255,.7)",
+                  boxShadow: "0 8px 24px rgba(0,0,0,.35)",
+                }}
+              />
+            </div>
+          </div>
         </div>
       </section>
     </main>
