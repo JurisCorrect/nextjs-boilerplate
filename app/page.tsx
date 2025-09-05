@@ -114,7 +114,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ===== AVIS / BIO — NOUVELLE VERSION ===== */}
+      {/* ===== AVIS / BIO ===== */}
       <section className="container" id="avis" style={{ scrollMarginTop: 90 }}>
         <div
           className="card-glass"
@@ -124,9 +124,9 @@ export default function Home() {
             padding: "clamp(16px, 2.4vw, 24px)",
           }}
         >
-          <div className="bio-container" style={{
+          <div style={{
             display: "flex",
-            flexDirection: window?.innerWidth > 768 ? "row" : "column",
+            flexDirection: "row",
             gap: 20,
             alignItems: "flex-start"
           }}>
