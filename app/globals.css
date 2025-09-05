@@ -972,3 +972,24 @@ body{
   .bio-wrap{ grid-template-columns: 1fr; }
   .bio-photo{ place-items: center; margin-top: 10px; }
 }
+/* Force la disposition bio */
+#avis .card-glass > div:last-child {
+  display: flex !important;
+  flex-direction: row !important;
+  gap: 20px !important;
+  align-items: flex-start !important;
+}
+
+#avis .card-glass img[alt="Marie"] {
+  width: 180px !important;
+  height: 180px !important;
+  border-radius: 50% !important;
+  object-fit: cover !important;
+}
+
+@media (max-width: 768px) {
+  #avis .card-glass > div:last-child {
+    flex-direction: column !important;
+    align-items: center !important;
+  }
+}
