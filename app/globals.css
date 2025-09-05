@@ -1575,3 +1575,323 @@ a:hover {
     background-color: var(--card-bg) !important;
   }
 }
+/* === PALETTE MODERNE BEIGE-BORDEAUX SOPHISTIQUÉE === */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+  /* BORDEAUX SOPHISTIQUÉ */
+  --brand: #6B2737;        /* Bordeaux profond moderne */
+  --brand-dark: #4A1B26;   /* Bordeaux très foncé */
+  --brand-light: #8B3545;  /* Bordeaux clair */
+  
+  /* BEIGES GRIS MODERNES (pas jaunes) */
+  --bg: #F0EFEC;          /* Beige gris très clair - moderne */
+  --bg-secondary: #E8E6E0; /* Beige gris moyen */
+  --bg-tertiary: #DDD9D0;  /* Beige gris plus foncé */
+  
+  /* TONS SOMBRES POUR PAGES FORMULAIRES */
+  --dark-bg: #2C1B1F;      /* Bordeaux très foncé pour formulaires */
+  --dark-secondary: #3A252A; /* Bordeaux foncé secondaire */
+  --dark-card: #4A2F35;    /* Cartes sur fond sombre */
+  
+  /* TEXTES MODERNES */
+  --text: #1A1A1A;         /* Noir moderne */
+  --text-secondary: #4A4A4A; /* Gris foncé */
+  --text-muted: #737373;    /* Gris moyen */
+  --text-light: #FFFFFF;    /* Blanc pur */
+  --text-cream: #F9F8F6;    /* Blanc cassé pour fond sombre */
+  
+  /* CARTES ET SURFACES */
+  --card-bg: #FFFFFF;       /* Blanc pur pour cartes */
+  --card-border: #D1CFC8;   /* Bordure beige moderne */
+  --nav-bg: #FEFEFE;        /* Navigation blanc cassé */
+  
+  /* OMBRES MODERNES */
+  --shadow-light: 0 2px 12px rgba(107, 39, 55, 0.08);
+  --shadow-medium: 0 4px 20px rgba(107, 39, 55, 0.12);
+  --shadow-heavy: 0 8px 32px rgba(107, 39, 55, 0.16);
+}
+
+/* === TYPOGRAPHIE MODERNE === */
+* {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+  letter-spacing: -0.01em !important;
+}
+
+body, html {
+  background-color: var(--bg) !important;
+  color: var(--text) !important;
+  font-weight: 400 !important;
+  line-height: 1.6 !important;
+}
+
+/* === PAGE D'ACCUEIL (BEIGE MODERNE) === */
+.page-wrap:not(.form-page) {
+  background-color: var(--bg) !important;
+}
+
+/* NAVIGATION MODERNE */
+.nav, .nav-blur {
+  background: rgba(254, 254, 254, 0.85) !important;
+  backdrop-filter: blur(20px) !important;
+  border-bottom: 1px solid var(--card-border) !important;
+  box-shadow: var(--shadow-light) !important;
+}
+
+.nav-link {
+  background: var(--brand) !important;
+  color: var(--text-light) !important;
+  font-weight: 500 !important;
+  font-size: 14px !important;
+  padding: 10px 18px !important;
+  border-radius: 8px !important;
+  transition: all 0.2s ease !important;
+  border: none !important;
+}
+
+.nav-link:hover {
+  background: var(--brand-light) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: var(--shadow-medium) !important;
+}
+
+.btn-login {
+  background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%) !important;
+  color: var(--text-light) !important;
+  font-weight: 600 !important;
+  box-shadow: var(--shadow-medium) !important;
+}
+
+/* TITRE PRINCIPAL */
+.hero-title {
+  color: var(--brand) !important;
+  font-weight: 800 !important;
+  font-size: clamp(2rem, 5vw, 3.5rem) !important;
+  letter-spacing: -0.02em !important;
+}
+
+/* CARTES MODERNES */
+.card, .card-glass, .presentation, .pricing-card {
+  background: var(--card-bg) !important;
+  border: 1px solid var(--card-border) !important;
+  box-shadow: var(--shadow-light) !important;
+  border-radius: 12px !important;
+  transition: all 0.3s ease !important;
+}
+
+.card:hover {
+  transform: translateY(-4px) !important;
+  box-shadow: var(--shadow-heavy) !important;
+  border-color: var(--brand) !important;
+}
+
+/* PRIX MODERNES */
+.pricing-price {
+  color: var(--brand) !important;
+  font-weight: 700 !important;
+  font-size: 1.75rem !important;
+}
+
+.pricing-title {
+  color: var(--text) !important;
+  font-weight: 500 !important;
+}
+
+/* BADGES MODERNES */
+span[style*="background: linear-gradient"] {
+  background: var(--brand) !important;
+  color: var(--text-light) !important;
+  font-weight: 600 !important;
+  font-size: 13px !important;
+  padding: 6px 12px !important;
+  border-radius: 6px !important;
+  box-shadow: var(--shadow-light) !important;
+}
+
+/* === PAGES FORMULAIRES (FOND BORDEAUX FONCÉ) === */
+.page-wrap {
+  background: linear-gradient(135deg, var(--dark-bg) 0%, var(--brand-dark) 100%) !important;
+  min-height: 100vh !important;
+}
+
+/* NAVIGATION SUR PAGES SOMBRES */
+.form-page .nav, 
+body[class*="dissertation"] .nav,
+body[class*="commentaire"] .nav,
+body[class*="cas-pratique"] .nav,
+body[class*="correction"] .nav {
+  background: rgba(44, 27, 31, 0.9) !important;
+  border-bottom: 1px solid var(--brand) !important;
+}
+
+/* TITRES SUR FOND SOMBRE */
+.page-title {
+  color: var(--text-cream) !important;
+  font-weight: 800 !important;
+  font-size: clamp(1.5rem, 4vw, 2.5rem) !important;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.3) !important;
+}
+
+/* HELPER TEXT SUR FOND SOMBRE */
+.helper {
+  color: var(--text-cream) !important;
+  background: rgba(255,255,255,0.1) !important;
+  border: 1px solid rgba(255,255,255,0.2) !important;
+  border-radius: 8px !important;
+  padding: 12px !important;
+  font-weight: 400 !important;
+}
+
+/* PANNEAUX SUR FOND SOMBRE */
+.panel, .form {
+  background: var(--dark-card) !important;
+  border: 1px solid var(--brand) !important;
+  box-shadow: var(--shadow-heavy) !important;
+  border-radius: 12px !important;
+  padding: 24px !important;
+}
+
+/* LABELS SUR FOND SOMBRE */
+label {
+  color: var(--text-cream) !important;
+  font-weight: 500 !important;
+  font-size: 14px !important;
+  margin-bottom: 6px !important;
+}
+
+/* INPUTS MODERNES */
+.input, .textarea, input, textarea {
+  background: rgba(255,255,255,0.95) !important;
+  border: 1px solid var(--card-border) !important;
+  border-radius: 8px !important;
+  padding: 12px 16px !important;
+  color: var(--text) !important;
+  font-weight: 400 !important;
+  transition: all 0.2s ease !important;
+}
+
+.input:focus, .textarea:focus, input:focus, textarea:focus {
+  background: var(--card-bg) !important;
+  border-color: var(--brand) !important;
+  box-shadow: 0 0 0 3px rgba(107, 39, 55, 0.1) !important;
+  outline: none !important;
+}
+
+/* BOUTONS D'ACTION MODERNES */
+.btn-send, button[type="submit"] {
+  background: linear-gradient(135deg, var(--brand) 0%, var(--brand-light) 100%) !important;
+  color: var(--text-light) !important;
+  font-weight: 600 !important;
+  font-size: 15px !important;
+  padding: 14px 28px !important;
+  border: none !important;
+  border-radius: 8px !important;
+  box-shadow: var(--shadow-medium) !important;
+  transition: all 0.2s ease !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+}
+
+.btn-send:hover, button[type="submit"]:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: var(--shadow-heavy) !important;
+}
+
+/* UPLOADER MODERNE */
+.uploader-box {
+  background: rgba(255,255,255,0.95) !important;
+  border: 2px dashed var(--brand) !important;
+  border-radius: 12px !important;
+  transition: all 0.2s ease !important;
+}
+
+.uploader-box:hover, .uploader-box.is-dragging {
+  background: var(--card-bg) !important;
+  border-color: var(--brand-light) !important;
+  transform: scale(1.02) !important;
+}
+
+.uploader-btn {
+  color: var(--brand) !important;
+  font-weight: 500 !important;
+}
+
+/* === PAGE DE CORRECTION === */
+body[class*="correction"] {
+  background: linear-gradient(135deg, var(--dark-bg) 0%, var(--brand-dark) 100%) !important;
+}
+
+.correction-content, .correction-section {
+  background: var(--dark-card) !important;
+  border: 1px solid var(--brand) !important;
+  border-radius: 12px !important;
+  padding: 24px !important;
+  color: var(--text-cream) !important;
+}
+
+/* MESSAGES MODERNES */
+.msg-error {
+  background: rgba(239, 68, 68, 0.1) !important;
+  border: 1px solid rgba(239, 68, 68, 0.3) !important;
+  color: #FEF2F2 !important;
+  border-radius: 8px !important;
+  padding: 12px 16px !important;
+  font-weight: 500 !important;
+}
+
+.msg-ok {
+  background: rgba(34, 197, 94, 0.1) !important;
+  border: 1px solid rgba(34, 197, 94, 0.3) !important;
+  color: #F0FDF4 !important;
+  border-radius: 8px !important;
+  padding: 12px 16px !important;
+  font-weight: 500 !important;
+}
+
+/* LOADER MODERNE */
+.loader-overlay {
+  background: rgba(44, 27, 31, 0.95) !important;
+  backdrop-filter: blur(10px) !important;
+}
+
+.loader-ring {
+  border-top-color: var(--brand) !important;
+  border-right-color: var(--brand-light) !important;
+}
+
+/* LIENS MODERNES */
+a {
+  color: var(--brand) !important;
+  font-weight: 500 !important;
+  transition: color 0.2s ease !important;
+}
+
+a:hover {
+  color: var(--brand-light) !important;
+}
+
+/* Sur fond sombre */
+.panel a, .form a {
+  color: var(--text-cream) !important;
+}
+
+.panel a:hover, .form a:hover {
+  color: var(--brand-light) !important;
+}
+
+/* RESPONSIVE MODERNE */
+@media (max-width: 768px) {
+  .nav-links {
+    gap: 8px !important;
+  }
+  
+  .nav-link {
+    padding: 8px 14px !important;
+    font-size: 13px !important;
+  }
+  
+  .btn-send {
+    width: 100% !important;
+    margin-top: 16px !important;
+  }
+}
