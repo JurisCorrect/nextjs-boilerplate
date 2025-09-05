@@ -85,7 +85,7 @@ export default function CommentairePage() {
 
           <div className="field">
             <label htmlFor="sujet">Sujet (arrêt / extrait à commenter)</label>
-            <textarea id="sujet" className="textarea" placeholder="Mettre l'arrêt ou l'extrait de l'arrêt à commenter"
+            <textarea id="sujet" className="textarea" placeholder="Colle ici l'arrêt ou l'extrait à commenter"
                       style={{ minHeight: "4cm" }} value={sujet} onChange={(e) => setSujet(e.target.value)} />
           </div>
 
