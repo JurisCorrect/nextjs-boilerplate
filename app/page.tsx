@@ -164,8 +164,6 @@ export default function Home() {
                 pour démocratiser l'accès à une correction de qualité et permettre à chaque étudiant de progresser efficacement.
                 Il s'agit de ma correction basée sur mes critères et non pas ceux d'Internet. Avec quatre ans d'expérience et un
                 taux de réussite de 100 % parmi mes élèves, je mets aujourd'hui mon expertise à votre service à travers cet outil.
-                Pour un accompagnement personnalisé ou des cours particuliers, contactez-moi :
-                <a href="mailto:marie.terki@icloud.com"><strong><u> marie.terki@icloud.com</u></strong></a>.
               </p>
             </div>
 
