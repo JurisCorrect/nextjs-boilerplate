@@ -124,9 +124,9 @@ export default function Home() {
             padding: "clamp(16px, 2.4vw, 24px)",
           }}
         >
-          <div style={{
+          <div className="bio-container" style={{
             display: "flex",
-            flexDirection: "row",
+            flexDirection: window?.innerWidth > 768 ? "row" : "column",
             gap: 20,
             alignItems: "flex-start"
           }}>
@@ -189,19 +189,6 @@ export default function Home() {
               />
             </div>
           </div>
-
-          {/* Version mobile : photo en dessous */}
-          <style jsx>{`
-            @media (max-width: 768px) {
-              .bio-container {
-                flex-direction: column !important;
-                align-items: center !important;
-              }
-              .bio-photo {
-                margin-top: 16px !important;
-              }
-            }
-          `}</style>
         </div>
       </section>
     </main>
