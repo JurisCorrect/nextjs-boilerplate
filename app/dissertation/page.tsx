@@ -88,6 +88,18 @@ export default function DissertationPage() {
       <section className="panel">
         <form onSubmit={handleSubmit} className="form" noValidate>
           <div className="field">
+            <label htmlFor="sujet">Sujet</label>
+            <textarea
+              id="sujet"
+              className="textarea"
+              placeholder="Colle ici ton sujet de dissertation"
+              style={{ minHeight: "4cm" }}
+              value={sujet}
+              onChange={(e) => setSujet(e.target.value)}
+            />
+          </div>
+
+          <div className="field">
             <label htmlFor="matiere">Matière</label>
             <input
               id="matiere"
