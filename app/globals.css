@@ -447,3 +447,87 @@ html body main:not(.page-wrap) .card-glass p *,
 html body main:not(.page-wrap) section p * {
   color: #000 !important;
 }
+/* === ACCUEIL UNIQUEMENT (main SANS .page-wrap) — textes en NOIR === */
+
+/* 1) On neutralise la variable grise sur l'accueil */
+html body main:not(.page-wrap) {
+  --muted: #000 !important;
+  color: #000 !important; /* couleur par défaut en noir */
+}
+
+/* 2) Paragraphes de la présentation */
+html body main:not(.page-wrap) .presentation p {
+  color: #000 !important;
+}
+
+/* 3) Blocs "bio / accompagnement" qui utilisent .card-glass */
+html body main:not(.page-wrap) .card-glass p,
+html body main:not(.page-wrap) .card-glass li {
+  color: #000 !important;
+}
+
+/* 4) Sécurité : tout <p> dans les sections de l'accueil */
+html body main:not(.page-wrap) section p {
+  color: #000 !important;
+}
+
+/* 5) Et si du style est appliqué à l’intérieur du <p> (spans, liens, etc.) */
+html body main:not(.page-wrap) .presentation p *,
+html body main:not(.page-wrap) .card-glass p *,
+html body main:not(.page-wrap) section p * {
+  color: #000 !important;
+}
+/* === ACCUEIL UNIQUEMENT (main SANS .page-wrap) — textes en NOIR === */
+
+/* 1) On neutralise la variable grise sur l'accueil */
+html body main:not(.page-wrap) {
+  --muted: #000 !important;
+  color: #000 !important; /* couleur par défaut en noir */
+}
+
+/* 2) Paragraphes de la présentation */
+html body main:not(.page-wrap) .presentation p {
+  color: #000 !important;
+}
+
+/* 3) Blocs "bio / accompagnement" qui utilisent .card-glass */
+html body main:not(.page-wrap) .card-glass p,
+html body main:not(.page-wrap) .card-glass li {
+  color: #000 !important;
+}
+
+/* 4) Sécurité : tout <p> dans les sections de l'accueil */
+html body main:not(.page-wrap) section p {
+  color: #000 !important;
+}
+
+/* 5) Et si du style est appliqué à l’intérieur du <p> (spans, liens, etc.) */
+html body main:not(.page-wrap) .presentation p *,
+html body main:not(.page-wrap) .card-glass p *,
+html body main:not(.page-wrap) section p * {
+  color: #000 !important;
+}
+/* === ACCUEIL — forcer le NOIR sur les textes de présentation & bio === */
+/* Écrase .presentation p { color: var(--muted) !important; } défini plus haut */
+.presentation p { 
+  color: #000 !important;
+}
+
+/* Cartes “bio / à propos / accompagnement” (class .card-glass) */
+.card-glass p,
+.card-glass li {
+  color: #000 !important;
+}
+
+/* Sécurité : si un style gris reste collé via un utilitaire “muted” */
+.text-muted,
+.muted,
+.is-muted {
+  color: #000 !important;
+}
+
+/* Liens dans ces blocs, pour éviter un gris hérité */
+.presentation a,
+.card-glass a {
+  color: #000 !important;
+}
