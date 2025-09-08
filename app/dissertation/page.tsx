@@ -39,7 +39,7 @@ export default function DissertationPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!sujet.trim())   { setErreur("Merci d'indiquer le sujet."); setResultat(""); return }
+    if (!sujet.trim())   { setErreur("Merci d'indiquer le sujet de la dissertation."); setResultat(""); return }
     if (!fichier)        { setErreur("Merci de verser le document Word (.docx)."); setResultat(""); return }
 
     setErreur(""); setResultat(""); setIsLoading(true)
@@ -83,16 +83,16 @@ export default function DissertationPage() {
   return (
     <main className="page-wrap">
       <h1 className="page-title">DISSERTATION 🖋️</h1>
-      <p className="helper">Indique le sujet, puis dépose ton document Word (.docx)</p>
+      <p className="helper">Indique le sujet de la dissertation, puis dépose ton document Word (.docx).</p>
 
       <section className="panel">
         <form onSubmit={handleSubmit} className="form" noValidate>
           <div className="field">
-            <label htmlFor="sujet">Sujet</label>
+            <label htmlFor="sujet">Sujet de la dissertation</label>
             <textarea
               id="sujet"
               className="textarea"
-              placeholder="Colle ici ton sujet de dissertation"
+              placeholder="Colle ici le sujet de la dissertation"
               style={{ minHeight: "4cm" }}
               value={sujet}
               onChange={(e) => setSujet(e.target.value)}
