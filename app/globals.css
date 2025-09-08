@@ -530,3 +530,23 @@ html body main:not(.page-wrap) section p * {
 
 /* Si le titre est un lien, on couvre l’intérieur aussi */
 #qui-suis-je-title a { color: #fff !important; }
+/* ——— SUPPRIMER le bloc "Qui suis-je" (sans rien casser) ——— */
+
+/* 1) Si ta section a déjà un id/classe explicite */
+#qui-suis-je,
+.qui-suis-je,
+section[id*="qui-suis"],
+section[class*="qui-suis"],
+[data-section="qui"] {
+  display: none !important;
+}
+
+/* 2) Fallback universel : si tu mets un id sur le Titre.
+   Ajoute simplement id="qui-suis-je-title" sur le <h1>/<h2> "Qui suis-je"
+   et ce sélecteur masque tout le conteneur qui le contient. */
+section:has(#qui-suis-je-title),
+article:has(#qui-suis-je-title),
+div:has(#qui-suis-je-title) {
+  display: none !important;
+}
+
