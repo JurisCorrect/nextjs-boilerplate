@@ -1,891 +1,3 @@
-/* === PALETTE MODERNE BEIGE-BORDEAUX SOPHISTIQUÉE === */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
-
-:root {
-  /* BORDEAUX SOPHISTIQUÉ */
-  --brand: #6B2737;        /* Bordeaux profond moderne */
-  --brand-dark: #4A1B26;   /* Bordeaux très foncé */
-  --brand-light: #8B3545;  /* Bordeaux clair */
-  
-  /* BEIGES GRIS MODERNES (pas jaunes) */
-  --bg: #F0EFEC;          /* Beige gris très clair - moderne */
-  --bg-secondary: #E8E6E0; /* Beige gris moyen */
-  --bg-tertiary: #DDD9D0;  /* Beige gris plus foncé */
-  
-  /* TONS SOMBRES POUR PAGES FORMULAIRES */
-  --dark-bg: #2C1B1F;      /* Bordeaux très foncé pour formulaires */
-  --dark-secondary: #3A252A; /* Bordeaux foncé secondaire */
-  --dark-card: #4A2F35;    /* Cartes sur fond sombre */
-  
-  /* TEXTES MODERNES */
-  --text: #1A1A1A;         /* Noir moderne */
-  --text-secondary: #4A4A4A; /* Gris foncé */
-  --text-muted: #737373;    /* Gris moyen */
-  --text-light: #FFFFFF;    /* Blanc pur */
-  --text-cream: #F9F8F6;    /* Blanc cassé pour fond sombre */
-  
-  /* CARTES ET SURFACES */
-  --card-bg: #FFFFFF;       /* Blanc pur pour cartes */
-  --card-border: #D1CFC8;   /* Bordure beige moderne */
-  --nav-bg: #FEFEFE;        /* Navigation blanc cassé */
-  
-  /* OMBRES MODERNES */
-  --shadow-light: 0 2px 12px rgba(107, 39, 55, 0.08);
-  --shadow-medium: 0 4px 20px rgba(107, 39, 55, 0.12);
-  --shadow-heavy: 0 8px 32px rgba(107, 39, 55, 0.16);
-}
-
-/* === TYPOGRAPHIE MODERNE === */
-* {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
-  letter-spacing: -0.01em !important;
-}
-
-body, html {
-  background-color: var(--bg) !important;
-  color: var(--text) !important;
-  font-weight: 400 !important;
-  line-height: 1.6 !important;
-}
-
-/* === PAGE D'ACCUEIL (BEIGE MODERNE) === */
-.page-wrap:not(.form-page) {
-  background-color: var(--bg) !important;
-}
-
-/* NAVIGATION MODERNE - ALIGNÉE À DROITE */
-.nav, .nav-blur {
-  background: rgba(254, 254, 254, 0.85) !important;
-  backdrop-filter: blur(20px) !important;
-  border-bottom: 1px solid var(--card-border) !important;
-  box-shadow: var(--shadow-light) !important;
-  width: 100% !important;
-}
-
-.nav .container {
-  display: flex !important;
-  justify-content: flex-end !important;
-  align-items: center !important;
-  width: 100% !important;
-  max-width: 1200px !important;
-  margin: 0 auto !important;
-  padding: 0 24px !important;
-}
-
-.nav-links {
-  display: flex !important;
-  gap: 12px !important;
-  align-items: center !important;
-  margin-left: auto !important;
-}
-
-/* Forcer l'alignement à droite sur toutes les pages */
-header[class*="nav"] .container,
-.nav-blur .container {
-  display: flex !important;
-  justify-content: flex-end !important;
-  align-items: center !important;
-}
-
-.nav-link {
-  background: var(--brand) !important;
-  color: var(--text-light) !important;
-  font-weight: 500 !important;
-  font-size: 14px !important;
-  padding: 10px 18px !important;
-  border-radius: 8px !important;
-  transition: all 0.2s ease !important;
-  border: none !important;
-}
-
-.nav-link:hover {
-  background: var(--brand-light) !important;
-  transform: translateY(-1px) !important;
-  box-shadow: var(--shadow-medium) !important;
-}
-
-.btn-login {
-  background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%) !important;
-  color: var(--text-light) !important;
-  font-weight: 600 !important;
-  box-shadow: var(--shadow-medium) !important;
-}
-
-/* TITRE PRINCIPAL */
-.hero-title {
-  color: var(--brand) !important;
-  font-weight: 800 !important;
-  font-size: clamp(2rem, 5vw, 3.5rem) !important;
-  letter-spacing: -0.02em !important;
-}
-
-/* CARTES MODERNES */
-.card, .card-glass, .presentation, .pricing-card {
-  background: var(--card-bg) !important;
-  border: 1px solid var(--card-border) !important;
-  box-shadow: var(--shadow-light) !important;
-  border-radius: 12px !important;
-  transition: all 0.3s ease !important;
-}
-
-.card:hover {
-  transform: translateY(-4px) !important;
-  box-shadow: var(--shadow-heavy) !important;
-  border-color: var(--brand) !important;
-}
-
-/* PRIX MODERNES */
-.pricing-price {
-  color: var(--brand) !important;
-  font-weight: 700 !important;
-  font-size: 1.75rem !important;
-}
-
-.pricing-title {
-  color: var(--text) !important;
-  font-weight: 500 !important;
-}
-
-/* BADGES MODERNES */
-span[style*="background: linear-gradient"] {
-  background: var(--brand) !important;
-  color: var(--text-light) !important;
-  font-weight: 600 !important;
-  font-size: 13px !important;
-  padding: 6px 12px !important;
-  border-radius: 6px !important;
-  box-shadow: var(--shadow-light) !important;
-}
-
-/* === PAGES FORMULAIRES (FOND BORDEAUX FONCÉ) === */
-.page-wrap {
-  background: linear-gradient(135deg, var(--dark-bg) 0%, var(--brand-dark) 100%) !important;
-  min-height: 100vh !important;
-}
-
-/* NAVIGATION SUR PAGES SOMBRES */
-.form-page .nav, 
-body[class*="dissertation"] .nav,
-body[class*="commentaire"] .nav,
-body[class*="cas-pratique"] .nav,
-body[class*="correction"] .nav {
-  background: rgba(44, 27, 31, 0.9) !important;
-  border-bottom: 1px solid var(--brand) !important;
-}
-
-/* TITRES SUR FOND SOMBRE */
-.page-title {
-  color: var(--text-cream) !important;
-  font-weight: 800 !important;
-  font-size: clamp(1.5rem, 4vw, 2.5rem) !important;
-  text-shadow: 0 2px 4px rgba(0,0,0,0.3) !important;
-}
-
-/* HELPER TEXT SUR FOND SOMBRE */
-.helper {
-  color: var(--text-cream) !important;
-  background: rgba(255,255,255,0.1) !important;
-  border: 1px solid rgba(255,255,255,0.2) !important;
-  border-radius: 8px !important;
-  padding: 12px !important;
-  font-weight: 400 !important;
-}
-
-/* PANNEAUX SUR FOND SOMBRE */
-.panel, .form {
-  background: var(--dark-card) !important;
-  border: 1px solid var(--brand) !important;
-  box-shadow: var(--shadow-heavy) !important;
-  border-radius: 12px !important;
-  padding: 24px !important;
-}
-
-/* LABELS SUR FOND SOMBRE */
-label {
-  color: var(--text-cream) !important;
-  font-weight: 500 !important;
-  font-size: 14px !important;
-  margin-bottom: 6px !important;
-}
-
-/* INPUTS MODERNES */
-.input, .textarea, input, textarea {
-  background: rgba(255,255,255,0.95) !important;
-  border: 1px solid var(--card-border) !important;
-  border-radius: 8px !important;
-  padding: 12px 16px !important;
-  color: var(--text) !important;
-  font-weight: 400 !important;
-  transition: all 0.2s ease !important;
-}
-
-.input:focus, .textarea:focus, input:focus, textarea:focus {
-  background: var(--card-bg) !important;
-  border-color: var(--brand) !important;
-  box-shadow: 0 0 0 3px rgba(107, 39, 55, 0.1) !important;
-  outline: none !important;
-}
-
-/* BOUTONS D'ACTION MODERNES */
-.btn-send, button[type="submit"] {
-  background: linear-gradient(135deg, var(--brand) 0%, var(--brand-light) 100%) !important;
-  color: var(--text-light) !important;
-  font-weight: 600 !important;
-  font-size: 15px !important;
-  padding: 14px 28px !important;
-  border: none !important;
-  border-radius: 8px !important;
-  box-shadow: var(--shadow-medium) !important;
-  transition: all 0.2s ease !important;
-  text-transform: uppercase !important;
-  letter-spacing: 0.5px !important;
-}
-
-.btn-send:hover, button[type="submit"]:hover {
-  transform: translateY(-2px) !important;
-  box-shadow: var(--shadow-heavy) !important;
-}
-
-/* UPLOADER MODERNE */
-.uploader-box {
-  background: rgba(255,255,255,0.95) !important;
-  border: 2px dashed var(--brand) !important;
-  border-radius: 12px !important;
-  transition: all 0.2s ease !important;
-}
-
-.uploader-box:hover, .uploader-box.is-dragging {
-  background: var(--card-bg) !important;
-  border-color: var(--brand-light) !important;
-  transform: scale(1.02) !important;
-}
-
-.uploader-btn {
-  color: var(--brand) !important;
-  font-weight: 500 !important;
-}
-
-/* === PAGE DE CORRECTION === */
-body[class*="correction"] {
-  background-color: var(--bg) !important;
-  color: var(--text) !important;
-}
-
-.correction-content, .correction-section {
-  background: var(--brand) !important;
-  border: 2px solid var(--brand-dark) !important;
-  border-radius: 12px !important;
-  padding: 24px !important;
-  color: var(--text-light) !important;
-}
-
-/* Titres sur fond bordeaux */
-.correction-content h1, 
-.correction-content h2, 
-.correction-content h3,
-.correction-section h1, 
-.correction-section h2, 
-.correction-section h3 {
-  color: var(--text-light) !important;
-  margin-bottom: 16px !important;
-}
-
-/* Zone de texte principale - FOND BLANC */
-.correction-text, 
-.correction-body, 
-.normalizedBody,
-.correction-content p,
-.correction-section p,
-.correction-content div[class*="text"],
-.correction-section div[class*="text"] {
-  background: #FFFFFF !important;
-  color: #1A1A1A !important;
-  padding: 20px !important;
-  border-radius: 8px !important;
-  border: 1px solid #E5E5E5 !important;
-  line-height: 1.6 !important;
-  margin: 12px 0 !important;
-  font-size: 15px !important;
-}
-
-/* Navigation sur page de correction */
-body[class*="correction"] .nav {
-  background: rgba(254, 254, 254, 0.95) !important;
-  border-bottom: 1px solid var(--card-border) !important;
-}
-
-/* MESSAGES MODERNES */
-.msg-error {
-  background: rgba(239, 68, 68, 0.1) !important;
-  border: 1px solid rgba(239, 68, 68, 0.3) !important;
-  color: #FEF2F2 !important;
-  border-radius: 8px !important;
-  padding: 12px 16px !important;
-  font-weight: 500 !important;
-}
-
-.msg-ok {
-  background: rgba(34, 197, 94, 0.1) !important;
-  border: 1px solid rgba(34, 197, 94, 0.3) !important;
-  color: #F0FDF4 !important;
-  border-radius: 8px !important;
-  padding: 12px 16px !important;
-  font-weight: 500 !important;
-}
-
-/* LOADER MODERNE */
-.loader-overlay {
-  background: rgba(44, 27, 31, 0.95) !important;
-  backdrop-filter: blur(10px) !important;
-}
-
-.loader-ring {
-  border-top-color: var(--brand) !important;
-  border-right-color: var(--brand-light) !important;
-}
-
-/* LIENS MODERNES */
-a {
-  color: var(--brand) !important;
-  font-weight: 500 !important;
-  transition: color 0.2s ease !important;
-}
-
-a:hover {
-  color: var(--brand-light) !important;
-}
-
-/* Sur fond sombre */
-.panel a, .form a {
-  color: var(--text-cream) !important;
-}
-
-.panel a:hover, .form a:hover {
-  color: var(--brand-light) !important;
-}
-
-/* RESPONSIVE MODERNE */
-@media (max-width: 768px) {
-  .nav-links {
-    gap: 8px !important;
-  }
-  
-  .nav-link {
-    padding: 8px 14px !important;
-    font-size: 13px !important;
-  }
-  
-  .btn-send {
-    width: 100% !important;
-    margin-top: 16px !important;
-  }
-}
-/* === AJOUTEZ CECI À LA FIN DE VOTRE GLOBALS.CSS EXISTANT === */
-/* (Ne supprimez rien, ajoutez juste ça à la fin) */
-
-/* === NOUVELLES COULEURS SEULEMENT === */
-:root {
-  /* Bordeaux professionnel */
-  --brand: #6B2737 !important;
-  --brand-2: #5A252A !important;
-  --brand-light: #8B3545 !important;
-  
-  /* Beiges modernes */
-  --bg: #F0EFEC !important;
-  --bg-secondary: #E8E6E0 !important;
-  --text: #1A1A1A !important;
-  --text-light: #FFFFFF !important;
-  --muted: #737373 !important;
-}
-
-/* === CORRECTION COULEURS FOND === */
-body {
-  background-color: var(--bg) !important;
-  color: var(--text) !important;
-}
-
-/* === NAVIGATION === */
-.nav, .nav-blur {
-  background: rgba(254, 254, 254, 0.9) !important;
-}
-
-.nav-link {
-  background: var(--brand) !important;
-  color: var(--text-light) !important;
-}
-
-.nav-link:hover {
-  background: var(--brand-light) !important;
-}
-
-.btn-login {
-  background: var(--brand) !important;
-  color: var(--text-light) !important;
-}
-
-/* === BOUTONS === */
-.btn-send, button[type="submit"] {
-  background: var(--brand) !important;
-  color: var(--text-light) !important;
-}
-
-.btn-send:hover, button[type="submit"]:hover {
-  background: var(--brand-light) !important;
-}
-
-/* === BADGES === */
-span[style*="background: linear-gradient"] {
-  background: var(--brand) !important;
-  color: var(--text-light) !important;
-}
-
-/* === TITRES === */
-.hero-title, .page-title, .section-title {
-  color: var(--brand) !important;
-}
-
-/* === PRIX === */
-.pricing-price {
-  color: var(--brand) !important;
-}
-
-/* === PAGE DE CORRECTION UNIQUEMENT === */
-body[class*="correction"] {
-  background-color: var(--bg) !important;
-}
-
-.correction-content, .correction-section {
-  background: var(--brand) !important;
-  color: var(--text-light) !important;
-}
-
-/* Texte de correction sur fond blanc */
-.correction-text, 
-.correction-body, 
-.normalizedBody,
-.correction-content p,
-.correction-section p {
-  background: #FFFFFF !important;
-  color: #1A1A1A !important;
-  padding: 20px !important;
-  border-radius: 8px !important;
-  margin: 12px 0 !important;
-}
-
-/* === FORMULAIRES === */
-.input, .textarea {
-  background: white !important;
-  color: var(--text) !important;
-}
-
-.input:focus, .textarea:focus {
-  border-color: var(--brand) !important;
-}
-
-/* === LIENS === */
-a {
-  color: var(--brand) !important;
-}
-
-a:hover {
-  color: var(--brand-light) !important;
-}
-/* === AJOUTEZ CECI À LA FIN DE VOTRE GLOBALS.CSS === */
-
-/* === COULEURS MODERNES === */
-:root {
-  --brand: #6B2737;
-  --brand-light: #8B3545;
-  --bg: #F0EFEC;
-  --card-bg: #FFFFFF;
-  --text: #1A1A1A;
-  --text-light: #FFFFFF;
-  --border: #E0E0E0;
-}
-
-/* === RESET ET BASE === */
-body {
-  background: var(--bg) !important;
-  color: var(--text) !important;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
-  line-height: 1.5 !important;
-}
-
-/* === NAVIGATION MODERNE SIMPLIFIÉE === */
-.nav, .nav-blur {
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-  backdrop-filter: none !important;
-  padding: 20px 0 !important;
-}
-
-.nav .container {
-  display: flex !important;
-  justify-content: flex-end !important;
-  align-items: center !important;
-  max-width: 1200px !important;
-  margin: 0 auto !important;
-  padding: 0 24px !important;
-}
-
-.nav-links {
-  display: flex !important;
-  gap: 0 !important;
-}
-
-/* Cacher "Voir les tarifs" et "Avis" */
-.nav-link:not(.btn-login) {
-  display: none !important;
-}
-
-/* Bouton "Se connecter" moderne */
-.btn-login {
-  background: var(--brand) !important;
-  color: var(--text-light) !important;
-  padding: 12px 24px !important;
-  border-radius: 6px !important;
-  font-weight: 500 !important;
-  font-size: 14px !important;
-  border: none !important;
-  transition: all 0.2s ease !important;
-}
-
-.btn-login:hover {
-  background: var(--brand-light) !important;
-  transform: translateY(-1px) !important;
-  box-shadow: 0 4px 12px rgba(107, 39, 55, 0.25) !important;
-}
-
-/* === TITRE CENTRÉ === */
-.hero {
-  text-align: center !important;
-  padding: 60px 0 40px 0 !important;
-  margin: 0 !important;
-}
-
-.hero-title {
-  color: var(--brand) !important;
-  font-size: clamp(2.5rem, 6vw, 4rem) !important;
-  font-weight: 800 !important;
-  margin: 0 !important;
-  letter-spacing: -0.02em !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  gap: 16px !important;
-}
-
-/* === PRÉSENTATION MODERNE === */
-.container {
-  max-width: 1200px !important;
-  margin: 0 auto !important;
-  padding: 0 24px !important;
-}
-
-.presentation {
-  background: var(--card-bg) !important;
-  border-radius: 16px !important;
-  padding: 32px !important;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.06) !important;
-  border: 1px solid var(--border) !important;
-  margin: 40px auto !important;
-  max-width: 900px !important;
-}
-
-.presentation p {
-  font-size: 16px !important;
-  line-height: 1.7 !important;
-  margin: 0 !important;
-  text-align: justify !important;
-}
-
-/* === CARTES D'EXERCICES MODERNES === */
-.grid {
-  display: grid !important;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)) !important;
-  gap: 24px !important;
-  margin: 60px auto !important;
-  max-width: 1000px !important;
-}
-
-.card {
-  background: var(--card-bg) !important;
-  border: 2px solid var(--border) !important;
-  border-radius: 16px !important;
-  padding: 32px 24px !important;
-  text-align: center !important;
-  transition: all 0.3s ease !important;
-  text-decoration: none !important;
-  color: var(--text) !important;
-  position: relative !important;
-  overflow: hidden !important;
-  min-height: 160px !important;
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: center !important;
-  justify-content: center !important;
-}
-
-.card:hover {
-  transform: translateY(-4px) !important;
-  box-shadow: 0 8px 32px rgba(107, 39, 55, 0.15) !important;
-  border-color: var(--brand) !important;
-}
-
-.card-emoji {
-  font-size: 2.5rem !important;
-  margin-bottom: 16px !important;
-  display: block !important;
-}
-
-.card-title {
-  font-size: 16px !important;
-  font-weight: 600 !important;
-  margin: 0 0 8px 0 !important;
-  color: var(--text) !important;
-}
-
-.card-arrow {
-  color: var(--brand) !important;
-  font-size: 20px !important;
-  font-weight: bold !important;
-  position: absolute !important;
-  bottom: 16px !important;
-  right: 20px !important;
-}
-
-/* === TARIFS MODERNES === */
-#tarifs {
-  margin: 100px auto 80px auto !important;
-  text-align: center !important;
-}
-
-.section-title {
-  color: var(--brand) !important;
-  font-size: 2.5rem !important;
-  font-weight: 700 !important;
-  margin-bottom: 40px !important;
-  text-align: center !important;
-}
-
-.pricing-grid {
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 16px !important;
-  max-width: 500px !important;
-  margin: 0 auto !important;
-}
-
-.pricing-card {
-  background: var(--card-bg) !important;
-  border: 1px solid var(--border) !important;
-  border-radius: 12px !important;
-  padding: 20px 24px !important;
-  display: flex !important;
-  justify-content: space-between !important;
-  align-items: center !important;
-  transition: all 0.2s ease !important;
-}
-
-.pricing-card:hover {
-  border-color: var(--brand) !important;
-  box-shadow: 0 4px 16px rgba(107, 39, 55, 0.1) !important;
-}
-
-.pricing-title {
-  font-weight: 500 !important;
-  color: var(--text) !important;
-  font-size: 16px !important;
-}
-
-.pricing-price {
-  color: var(--brand) !important;
-  font-weight: 700 !important;
-  font-size: 18px !important;
-}
-
-/* === SECTIONS BIO AVEC ESPACEMENT === */
-#avis {
-  margin-top: 120px !important;
-}
-
-.bio-section {
-  margin-bottom: 60px !important;
-}
-
-/* Espacement entre "Qui suis-je" et "Pour aller plus loin" */
-section[style*="marginBottom"] {
-  margin-top: 80px !important;
-}
-
-/* === PAGES FORMULAIRES MODERNES === */
-.page-wrap {
-  background: linear-gradient(135deg, var(--brand) 0%, #4A1B26 100%) !important;
-  min-height: 100vh !important;
-  padding: 0 !important;
-}
-
-.page-title {
-  color: var(--text-light) !important;
-  text-align: center !important;
-  font-size: clamp(1.8rem, 4vw, 2.8rem) !important;
-  font-weight: 700 !important;
-  margin: 0 0 20px 0 !important;
-  padding: 40px 0 0 0 !important;
-}
-
-.helper {
-  color: rgba(255,255,255,0.9) !important;
-  text-align: center !important;
-  background: rgba(255,255,255,0.1) !important;
-  border: 1px solid rgba(255,255,255,0.2) !important;
-  border-radius: 8px !important;
-  padding: 16px !important;
-  margin: 0 auto 40px auto !important;
-  max-width: 600px !important;
-  font-size: 15px !important;
-}
-
-.panel {
-  background: rgba(255,255,255,0.95) !important;
-  border-radius: 16px !important;
-  padding: 40px !important;
-  margin: 0 auto !important;
-  max-width: 600px !important;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.1) !important;
-  border: none !important;
-}
-
-.field {
-  margin-bottom: 24px !important;
-}
-
-label {
-  display: block !important;
-  color: var(--text) !important;
-  font-weight: 500 !important;
-  margin-bottom: 8px !important;
-  font-size: 14px !important;
-}
-
-.input, .textarea {
-  width: 100% !important;
-  padding: 12px 16px !important;
-  border: 2px solid var(--border) !important;
-  border-radius: 8px !important;
-  background: var(--card-bg) !important;
-  color: var(--text) !important;
-  font-size: 15px !important;
-  font-family: inherit !important;
-  transition: all 0.2s ease !important;
-  box-sizing: border-box !important;
-}
-
-.input:focus, .textarea:focus {
-  outline: none !important;
-  border-color: var(--brand) !important;
-  box-shadow: 0 0 0 3px rgba(107, 39, 55, 0.1) !important;
-}
-
-/* === UPLOADER MODERNE === */
-.uploader-box {
-  background: var(--card-bg) !important;
-  border: 3px dashed var(--border) !important;
-  border-radius: 12px !important;
-  padding: 40px 20px !important;
-  text-align: center !important;
-  cursor: pointer !important;
-  transition: all 0.2s ease !important;
-}
-
-.uploader-box:hover {
-  border-color: var(--brand) !important;
-  background: #f8f9fa !important;
-}
-
-.uploader-btn {
-  color: var(--brand) !important;
-  font-weight: 500 !important;
-  font-size: 16px !important;
-}
-
-/* === BOUTON ENVOI === */
-.btn-send {
-  background: var(--brand) !important;
-  color: var(--text-light) !important;
-  border: none !important;
-  border-radius: 8px !important;
-  padding: 16px 32px !important;
-  font-size: 15px !important;
-  font-weight: 600 !important;
-  cursor: pointer !important;
-  transition: all 0.2s ease !important;
-  width: 100% !important;
-  margin-top: 8px !important;
-}
-
-.btn-send:hover {
-  background: var(--brand-light) !important;
-  transform: translateY(-1px) !important;
-  box-shadow: 0 4px 16px rgba(107, 39, 55, 0.25) !important;
-}
-
-/* === PAGE DE CORRECTION === */
-body[class*="correction"] {
-  background: var(--bg) !important;
-}
-
-.correction-content, .correction-section {
-  background: var(--brand) !important;
-  color: var(--text-light) !important;
-  border-radius: 12px !important;
-  padding: 24px !important;
-  margin: 20px auto !important;
-  max-width: 1000px !important;
-}
-
-/* TEXTE DE CORRECTION SUR FOND BLANC */
-.correction-text, 
-.correction-body, 
-.normalizedBody,
-.correction-content p,
-.correction-section p,
-.correction-content div[class*="text"],
-.correction-section div[class*="text"] {
-  background: #FFFFFF !important;
-  color: var(--text) !important;
-  padding: 24px !important;
-  border-radius: 8px !important;
-  margin: 16px 0 !important;
-  font-size: 15px !important;
-  line-height: 1.7 !important;
-  border: 1px solid var(--border) !important;
-}
-
-/* === RESPONSIVE === */
-@media (max-width: 768px) {
-  .grid {
-    grid-template-columns: 1fr !important;
-    gap: 16px !important;
-  }
-  
-  .hero-title {
-    font-size: 2rem !important;
-    flex-direction: column !important;
-    gap: 8px !important;
-  }
-  
-  .panel {
-    margin: 0 16px !important;
-    padding: 24px !important;
-  }
-  
-  .pricing-grid {
-    margin: 0 16px !important;
-  }
-}
-/* === AJOUTEZ CECI À LA FIN DE VOTRE GLOBALS.CSS === */
-
 /* Variables modernes */
 :root {
   --brand: #6B2737;
@@ -902,15 +14,20 @@ body {
   background: var(--bg) !important;
   color: var(--text) !important;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+  margin: 0 !important;
+  padding: 0 !important;
 }
 
-/* === NAV MODERNE === */
+/* === NAV MODERNE AVEC TARIFS === */
 .nav {
   background: rgba(255, 255, 255, 0.95) !important;
   backdrop-filter: blur(20px) !important;
   border-bottom: 1px solid var(--border) !important;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
   padding: 1rem 0 !important;
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 100 !important;
 }
 
 .nav .container {
@@ -920,91 +37,102 @@ body {
   display: flex !important;
   justify-content: space-between !important;
   align-items: center !important;
-  position: relative !important;
 }
 
-/* TITRE CENTRÉ AU MILIEU */
-.hero {
-  text-align: center !important;
-  padding: 4rem 2rem !important;
-  position: relative !important;
-}
-
-.hero-title {
-  font-size: clamp(2.5rem, 5vw, 4rem) !important;
-  font-weight: 900 !important;
-  background: linear-gradient(135deg, var(--brand) 0%, var(--brand-2) 100%) !important;
-  -webkit-background-clip: text !important;
-  -webkit-text-fill-color: transparent !important;
-  background-clip: text !important;
-  margin: 0 !important;
+/* TITRE JURISCORRECT CENTRÉ */
+.nav::before {
+  content: "JURISCORRECT" !important;
   position: absolute !important;
   left: 50% !important;
   top: 50% !important;
   transform: translate(-50%, -50%) !important;
-  width: 100% !important;
+  font-size: 1.8rem !important;
+  font-weight: 900 !important;
+  color: var(--brand) !important;
+  letter-spacing: -0.025em !important;
 }
 
-/* Navigation simplifiée - SEULEMENT "Se connecter" */
+/* Navigation à droite avec Tarifs + Se connecter */
 .nav-links {
   display: flex !important;
-  gap: 0 !important;
+  gap: 1rem !important;
   align-items: center !important;
+  margin-left: auto !important;
 }
 
 .nav-link {
-  display: none !important; /* Cache "Voir les tarifs" et "Avis" */
+  display: inline-flex !important;
+  background: var(--brand) !important;
+  color: white !important;
+  padding: 0.75rem 1.25rem !important;
+  border-radius: 8px !important;
+  text-decoration: none !important;
+  font-weight: 600 !important;
+  transition: all 0.3s ease !important;
+  font-size: 0.95rem !important;
+}
+
+.nav-link:hover,
+.btn-login:hover {
+  background: var(--brand-2) !important;
+  transform: translateY(-2px) !important;
 }
 
 .btn-login {
   background: var(--brand) !important;
   color: white !important;
-  padding: 0.75rem 1.5rem !important;
-  border-radius: 12px !important;
+  padding: 0.75rem 1.25rem !important;
+  border-radius: 8px !important;
   text-decoration: none !important;
   font-weight: 600 !important;
   transition: all 0.3s ease !important;
-  box-shadow: 0 4px 12px rgba(107, 39, 55, 0.3) !important;
+  font-size: 0.95rem !important;
 }
 
-.btn-login:hover {
-  transform: translateY(-2px) !important;
-  box-shadow: 0 8px 20px rgba(107, 39, 55, 0.4) !important;
+/* === SECTION HERO RÉDUITE === */
+.hero {
+  text-align: center !important;
+  padding: 2rem 2rem 1rem !important; /* Réduit l'espacement */
+  position: relative !important;
 }
 
-/* === PRÉSENTATION MODERNE === */
+.hero-title {
+  display: none !important; /* Cache le titre car il est maintenant dans la nav */
+}
+
+/* === PRÉSENTATION RESSERRÉE === */
 .presentation {
-  max-width: 800px !important;
-  margin: 4rem auto !important;
-  padding: 2.5rem !important;
+  max-width: 700px !important;
+  margin: 1rem auto 2rem !important; /* Réduit énormément les marges */
+  padding: 1.5rem !important; /* Réduit le padding */
   background: white !important;
-  border-radius: 20px !important;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08) !important;
   border: 1px solid var(--border) !important;
 }
 
 .presentation p {
-  font-size: 1.125rem !important;
-  line-height: 1.8 !important;
+  font-size: 1rem !important; /* Réduit la taille du texte */
+  line-height: 1.6 !important; /* Réduit l'interligne */
   color: var(--muted) !important;
   margin: 0 !important;
   text-align: justify !important;
 }
 
-/* === CARTES EXERCICES MODERNES === */
+/* === CARTES EXERCICES VISIBLES DIRECTEMENT === */
 .grid {
   display: grid !important;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)) !important;
-  gap: 2rem !important;
-  max-width: 1000px !important;
-  margin: 6rem auto !important;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)) !important;
+  gap: 1.5rem !important;
+  max-width: 900px !important;
+  margin: 2rem auto !important; /* Très proche de la présentation */
   padding: 0 2rem !important;
 }
 
 .card {
   background: white !important;
-  border-radius: 20px !important;
-  padding: 2.5rem !important;
+  border-radius: 16px !important;
+  padding: 2rem !important;
   text-decoration: none !important;
   color: inherit !important;
   display: flex !important;
@@ -1012,7 +140,7 @@ body {
   align-items: center !important;
   text-align: center !important;
   transition: all 0.4s ease !important;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1) !important;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08) !important;
   border: 2px solid transparent !important;
   position: relative !important;
   overflow: hidden !important;
@@ -1029,27 +157,27 @@ body {
 }
 
 .card:hover {
-  transform: translateY(-12px) !important;
-  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.15) !important;
+  transform: translateY(-8px) !important;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12) !important;
   border-color: var(--brand) !important;
 }
 
 .card-emoji {
-  font-size: 3rem !important;
-  margin-bottom: 1.5rem !important;
-  display: block !important;
-}
-
-.card-title {
-  font-size: 1.25rem !important;
-  font-weight: 700 !important;
-  color: var(--brand) !important;
+  font-size: 2.5rem !important;
   margin-bottom: 1rem !important;
   display: block !important;
 }
 
+.card-title {
+  font-size: 1.125rem !important;
+  font-weight: 700 !important;
+  color: var(--brand) !important;
+  margin-bottom: 0.75rem !important;
+  display: block !important;
+}
+
 .card-arrow {
-  font-size: 1.5rem !important;
+  font-size: 1.25rem !important;
   color: var(--brand) !important;
   margin-top: auto !important;
   display: block !important;
@@ -1057,223 +185,122 @@ body {
 }
 
 .card:hover .card-arrow {
-  transform: translateX(8px) !important;
+  transform: translateX(6px) !important;
 }
 
-/* === SECTION TARIFS MODERNE === */
-#tarifs {
-  padding: 6rem 2rem !important;
-  background: linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%) !important;
-  margin: 4rem 0 !important;
-  border-radius: 0 !important;
-}
-
+/* === SUPPRESSION DES TARIFS === */
+#tarifs,
+.pricing-grid,
+.pricing-card,
 .section-title {
-  text-align: center !important;
-  font-size: 2.5rem !important;
-  font-weight: 800 !important;
-  color: var(--brand) !important;
-  margin-bottom: 3rem !important;
+  display: none !important;
 }
 
-.pricing-grid {
-  display: grid !important;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)) !important;
-  gap: 2rem !important;
-  max-width: 1000px !important;
-  margin: 0 auto !important;
-}
-
-.pricing-card {
-  background: white !important;
-  border-radius: 16px !important;
-  padding: 2rem !important;
-  text-align: center !important;
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1) !important;
-  border: 2px solid transparent !important;
-  transition: all 0.3s ease !important;
-}
-
-.pricing-card:hover {
-  transform: translateY(-8px) !important;
-  border-color: var(--brand) !important;
-  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15) !important;
-}
-
-.pricing-title {
-  font-size: 1.125rem !important;
-  font-weight: 600 !important;
-  color: var(--text) !important;
-  margin-bottom: 1rem !important;
-}
-
-.pricing-price {
-  font-size: 2.5rem !important;
-  font-weight: 900 !important;
-  color: var(--brand) !important;
-}
-
-/* === SECTIONS BIO MODERNES === */
+/* === SECTIONS BIO CONSERVÉES === */
 .card-glass {
   background: white !important;
-  border-radius: 20px !important;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.08) !important;
   border: 1px solid var(--border) !important;
   backdrop-filter: none !important;
 }
 
 #avis .card-glass {
-  margin: 8rem auto 4rem !important;
+  margin: 4rem auto 2rem !important;
 }
 
-/* === RESPONSIVE === */
-@media (max-width: 768px) {
-  .hero-title {
-    font-size: 2rem !important;
-  }
-  
-  .grid {
-    grid-template-columns: 1fr !important;
-    margin: 4rem auto !important;
-  }
-  
-  .pricing-grid {
-    grid-template-columns: 1fr !important;
-  }
-  
-  .card {
-    padding: 2rem !important;
-  }
-  
-  .presentation {
-    margin: 2rem auto !important;
-    padding: 1.5rem !important;
-  }
-  
-  #tarifs {
-    padding: 4rem 1rem !important;
-  }
-}
-
-/* === ANIMATIONS === */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.card {
-  animation: fadeInUp 0.6s ease-out !important;
-}
-
-.card:nth-child(2) {
-  animation-delay: 0.1s !important;
-}
-
-.card:nth-child(3) {
-  animation-delay: 0.2s !important;
-}
-/* === CSS POUR PAGES DE FORMULAIRES (DISSERTATION, COMMENTAIRE, CAS PRATIQUE) === */
-/* Ajoutez ceci AUSSI à la fin de votre globals.css */
-
-/* Page de formulaire moderne */
-.form-page,
+/* === PAGES FORMULAIRES === */
 body:has([class*="dissertation"]),
 body:has([class*="commentaire"]),
 body:has([class*="cas-pratique"]) {
-  background: linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%) !important;
+  background: var(--brand) !important;
   min-height: 100vh !important;
 }
 
-/* Header pour pages formulaires */
+/* Conteneur principal formulaire */
+.form-container {
+  max-width: 500px !important;
+  margin: 2rem auto !important;
+  padding: 0 1rem !important;
+}
+
+/* Carte principale - bordeaux puis blanc */
+.form-card {
+  background: white !important;
+  border-radius: 16px !important;
+  overflow: hidden !important;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Header formulaire - bordeaux avec texte blanc */
 .form-header {
   background: var(--brand) !important;
   color: white !important;
-  padding: 2rem 0 !important;
+  padding: 2rem !important;
   text-align: center !important;
-  margin-bottom: 3rem !important;
 }
 
 .form-header h1 {
-  font-size: 2.5rem !important;
+  font-size: 2rem !important;
   font-weight: 800 !important;
   margin: 0 !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  gap: 1rem !important;
+  color: white !important;
 }
 
-/* Conteneur principal du formulaire */
-.form-container {
-  max-width: 600px !important;
-  margin: 0 auto !important;
-  padding: 0 2rem !important;
-}
-
-.form-card {
+/* Contenu formulaire - blanc */
+.form-content {
   background: white !important;
-  border-radius: 20px !important;
-  padding: 3rem !important;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1) !important;
-  border: 1px solid var(--border) !important;
+  padding: 2rem !important;
 }
 
-/* Champs de formulaire modernes */
+/* Champs formulaire */
 .form-group {
-  margin-bottom: 2rem !important;
+  margin-bottom: 1.5rem !important;
 }
 
 .form-label {
   display: block !important;
   font-weight: 600 !important;
-  color: var(--text) !important;
-  margin-bottom: 0.75rem !important;
+  color: white !important; /* Blanc sur fond bordeaux */
+  margin-bottom: 0.5rem !important;
   font-size: 1rem !important;
+  background: var(--brand) !important;
+  padding: 0.5rem 1rem !important;
+  border-radius: 8px 8px 0 0 !important;
 }
 
 .form-input,
-.form-textarea,
-input[type="text"],
-textarea {
+input[type="text"] {
   width: 100% !important;
-  padding: 1rem 1.25rem !important;
-  border: 2px solid #E5E7EB !important;
-  border-radius: 12px !important;
+  padding: 1rem !important;
+  border: 2px solid var(--border) !important;
+  border-radius: 0 0 8px 8px !important;
   font-size: 1rem !important;
   background: white !important;
+  color: var(--text) !important;
   transition: all 0.3s ease !important;
   box-sizing: border-box !important;
-  font-family: inherit !important;
+  margin-top: -2px !important;
 }
 
 .form-input:focus,
-.form-textarea:focus,
-input[type="text"]:focus,
-textarea:focus {
+input[type="text"]:focus {
   outline: none !important;
   border-color: var(--brand) !important;
   box-shadow: 0 0 0 3px rgba(107, 39, 55, 0.1) !important;
-  transform: translateY(-1px) !important;
 }
 
-.form-textarea,
-textarea {
-  min-height: 200px !important;
-  resize: vertical !important;
-  line-height: 1.6 !important;
+/* SUPPRESSION du champ SUJET */
+.form-group:has([placeholder*="sujet"]),
+.form-group:has([placeholder*="Sujet"]) {
+  display: none !important;
 }
 
-/* Zone d'upload moderne */
+/* Zone d'upload PETITE et moderne */
 .upload-zone {
-  border: 2px dashed #D1D5DB !important;
-  border-radius: 16px !important;
-  padding: 3rem 2rem !important;
+  border: 2px dashed var(--brand) !important;
+  border-radius: 12px !important;
+  padding: 1.5rem !important; /* Réduit de 3rem à 1.5rem */
   text-align: center !important;
   background: #F9FAFB !important;
   transition: all 0.3s ease !important;
@@ -1282,30 +309,40 @@ textarea {
 }
 
 .upload-zone:hover {
-  border-color: var(--brand) !important;
   background: rgba(107, 39, 55, 0.05) !important;
   transform: translateY(-2px) !important;
 }
 
-.upload-icon {
-  font-size: 3rem !important;
+/* Icône Word PETITE */
+.upload-icon,
+.upload-zone svg,
+.upload-zone img {
+  font-size: 1.5rem !important; /* Réduit de 3rem à 1.5rem */
   color: var(--brand) !important;
-  margin-bottom: 1rem !important;
+  margin-bottom: 0.5rem !important; /* Réduit de 1rem à 0.5rem */
   display: block !important;
+  width: 48px !important; /* Taille fixe petite */
+  height: 48px !important;
+  margin: 0 auto 0.5rem !important;
 }
 
 .upload-text {
-  color: var(--muted) !important;
-  font-size: 1.125rem !important;
+  color: var(--brand) !important;
+  font-size: 1rem !important;
   margin: 0 !important;
+  font-weight: 600 !important;
 }
 
-/* Bouton de soumission moderne */
+/* SUPPRESSION du input file natif */
+input[type="file"] {
+  display: none !important;
+}
+
+/* Bouton de soumission */
 .submit-button,
-.btn-primary,
 button[type="submit"] {
   width: 100% !important;
-  background: linear-gradient(135deg, var(--brand) 0%, var(--brand-2) 100%) !important;
+  background: var(--brand) !important;
   color: white !important;
   padding: 1rem 2rem !important;
   border: none !important;
@@ -1315,252 +352,45 @@ button[type="submit"] {
   cursor: pointer !important;
   transition: all 0.3s ease !important;
   margin-top: 1rem !important;
-  box-shadow: 0 8px 20px rgba(107, 39, 55, 0.3) !important;
 }
 
 .submit-button:hover,
-.btn-primary:hover,
 button[type="submit"]:hover {
-  transform: translateY(-3px) !important;
-  box-shadow: 0 12px 30px rgba(107, 39, 55, 0.4) !important;
-}
-
-/* Navigation sur pages formulaires */
-body:has([class*="dissertation"]) .nav,
-body:has([class*="commentaire"]) .nav,
-body:has([class*="cas-pratique"]) .nav {
-  background: rgba(255, 255, 255, 0.95) !important;
-  backdrop-filter: blur(20px) !important;
-}
-
-/* Messages d'erreur */
-.error-message {
-  background: #FEF2F2 !important;
-  color: #DC2626 !important;
-  padding: 1rem !important;
-  border-radius: 8px !important;
-  border-left: 4px solid #DC2626 !important;
-  margin: 1rem 0 !important;
-  font-size: 0.95rem !important;
-}
-
-/* Messages de succès */
-.success-message {
-  background: #F0FDF4 !important;
-  color: #16A34A !important;
-  padding: 1rem !important;
-  border-radius: 8px !important;
-  border-left: 4px solid #16A34A !important;
-  margin: 1rem 0 !important;
-  font-size: 0.95rem !important;
-}
-
-/* Responsive pour formulaires */
-@media (max-width: 768px) {
-  .form-container {
-    padding: 0 1rem !important;
-  }
-  
-  .form-card {
-    padding: 2rem !important;
-    margin: 1rem 0 !important;
-  }
-  
-  .form-header h1 {
-    font-size: 2rem !important;
-  }
-  
-  .upload-zone {
-    padding: 2rem 1rem !important;
-  }
-}
-/* === CSS POUR PAGE DE CORRECTION === */
-/* Ajoutez ceci AUSSI à la fin de votre globals.css */
-
-/* Page de correction moderne */
-body:has([class*="correction"]),
-.correction-page {
-  background: var(--bg) !important;
-  min-height: 100vh !important;
-  padding: 2rem 0 !important;
-}
-
-/* Conteneur principal de correction */
-.correction-container {
-  max-width: 900px !important;
-  margin: 0 auto !important;
-  padding: 0 2rem !important;
-}
-
-/* Header de correction - bordeaux */
-.correction-header {
-  background: linear-gradient(135deg, var(--brand) 0%, var(--brand-2) 100%) !important;
-  color: white !important;
-  padding: 2.5rem 2rem !important;
-  border-radius: 20px 20px 0 0 !important;
-  text-align: center !important;
-  box-shadow: 0 4px 20px rgba(107, 39, 55, 0.3) !important;
-}
-
-.correction-header h1 {
-  font-size: 2.5rem !important;
-  font-weight: 800 !important;
-  margin: 0 !important;
-  letter-spacing: -0.025em !important;
-}
-
-.correction-header p {
-  margin: 1rem 0 0 0 !important;
-  font-size: 1.125rem !important;
-  opacity: 0.9 !important;
-}
-
-/* Zone de contenu de correction - FOND BLANC */
-.correction-content {
-  background: white !important;
-  padding: 3rem !important;
-  border-radius: 0 0 20px 20px !important;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1) !important;
-  border: 1px solid var(--border) !important;
-  border-top: none !important;
-}
-
-/* Texte de correction - NOIR SUR BLANC */
-.correction-text,
-.correction-content p,
-.correction-content div {
-  color: var(--text) !important;
-  background: white !important;
-  font-size: 1.125rem !important;
-  line-height: 1.8 !important;
-  margin-bottom: 1.5rem !important;
-}
-
-/* Zone de texte spécifique pour correction */
-.correction-body,
-.text-content {
-  background: white !important;
-  color: var(--text) !important;
-  padding: 2rem !important;
-  border-radius: 12px !important;
-  border: 1px solid var(--border) !important;
-  font-family: 'Georgia', serif !important;
-  line-height: 1.8 !important;
-}
-
-/* Sections de correction */
-.correction-section {
-  background: white !important;
-  margin-bottom: 2rem !important;
-  padding: 1.5rem !important;
-  border-radius: 12px !important;
-  border-left: 4px solid var(--brand) !important;
-}
-
-.correction-section h2,
-.correction-section h3 {
-  color: var(--brand) !important;
-  font-weight: 700 !important;
-  margin-bottom: 1rem !important;
-}
-
-/* Boutons sur page de correction */
-.correction-action-btn {
-  background: var(--brand) !important;
-  color: white !important;
-  padding: 0.75rem 1.5rem !important;
-  border: none !important;
-  border-radius: 8px !important;
-  font-weight: 600 !important;
-  cursor: pointer !important;
-  text-decoration: none !important;
-  display: inline-block !important;
-  transition: all 0.3s ease !important;
-  margin: 0.5rem 0.5rem 0.5rem 0 !important;
-}
-
-.correction-action-btn:hover {
   background: var(--brand-2) !important;
   transform: translateY(-2px) !important;
 }
 
-/* Navigation pour page correction */
-body:has([class*="correction"]) .nav {
-  background: rgba(255, 255, 255, 0.95) !important;
-  backdrop-filter: blur(20px) !important;
-}
-
-/* Métadonnées de correction */
-.correction-meta {
-  background: #F8FAFC !important;
-  padding: 1.5rem !important;
-  border-radius: 12px !important;
-  margin-bottom: 2rem !important;
-  border: 1px solid var(--border) !important;
-}
-
-.correction-meta h3 {
-  color: var(--brand) !important;
-  margin: 0 0 1rem 0 !important;
-  font-size: 1.25rem !important;
-}
-
-.correction-meta p {
-  color: var(--muted) !important;
-  margin: 0.5rem 0 !important;
-  font-size: 1rem !important;
-}
-
-/* Zone de téléchargement sur page correction */
-.download-section {
-  background: linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 100%) !important;
-  padding: 2rem !important;
-  border-radius: 16px !important;
-  text-align: center !important;
-  margin: 2rem 0 !important;
-  border: 1px solid #BAE6FD !important;
-}
-
-.download-btn {
-  background: linear-gradient(135deg, #0EA5E9 0%, #0284C7 100%) !important;
-  color: white !important;
-  padding: 1rem 2rem !important;
-  border: none !important;
-  border-radius: 12px !important;
-  font-weight: 600 !important;
-  font-size: 1.125rem !important;
-  cursor: pointer !important;
-  text-decoration: none !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  gap: 0.5rem !important;
-  transition: all 0.3s ease !important;
-}
-
-.download-btn:hover {
-  transform: translateY(-3px) !important;
-  box-shadow: 0 10px 25px rgba(14, 165, 233, 0.3) !important;
-}
-
-/* Responsive pour page correction */
+/* === RESPONSIVE === */
 @media (max-width: 768px) {
-  .correction-container {
-    padding: 0 1rem !important;
+  .nav::before {
+    font-size: 1.4rem !important;
   }
   
-  .correction-content {
-    padding: 2rem !important;
+  .nav-links {
+    gap: 0.5rem !important;
   }
   
-  .correction-header {
-    padding: 2rem 1rem !important;
+  .nav-link,
+  .btn-login {
+    padding: 0.6rem 1rem !important;
+    font-size: 0.9rem !important;
   }
   
-  .correction-header h1 {
-    font-size: 2rem !important;
+  .grid {
+    grid-template-columns: 1fr !important;
+    margin: 1.5rem auto !important;
   }
   
-  .correction-text {
-    font-size: 1rem !important;
+  .presentation {
+    margin: 1rem auto 1.5rem !important;
+    padding: 1.25rem !important;
+  }
+  
+  .form-container {
+    padding: 0 0.5rem !important;
+  }
+  
+  .form-content {
+    padding: 1.5rem !important;
   }
 }
