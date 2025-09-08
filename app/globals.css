@@ -825,3 +825,263 @@ body:has(.page-wrap) .nav {
     padding: 1rem !important;
   }
 }
+/* === CSS SPÉCIFIQUE PAGES FORMULAIRES SEULEMENT === */
+/* AJOUTEZ CECI À LA FIN DE VOTRE GLOBALS.CSS EXISTANT */
+/* (Ne supprimez rien de votre CSS actuel - ajoutez juste ça à la fin) */
+
+/* === PAGES FORMULAIRES UNIQUEMENT === */
+
+/* Sélecteur spécifique pour les pages de formulaires */
+.page-wrap {
+  background: var(--brand) !important;
+  min-height: 100vh !important;
+  padding: 0 !important;
+}
+
+/* Titre sur fond bordeaux */
+.page-wrap .page-title {
+  background: var(--brand) !important;
+  color: white !important;
+  font-size: 2.5rem !important;
+  font-weight: 800 !important;
+  text-align: center !important;
+  margin: 0 !important;
+  padding: 2rem !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+}
+
+/* Helper text */
+.page-wrap .helper {
+  background: var(--brand) !important;
+  color: white !important;
+  text-align: center !important;
+  padding: 1rem 2rem 2rem !important;
+  margin: 0 !important;
+  font-size: 1rem !important;
+  opacity: 0.9 !important;
+}
+
+/* Panel principal */
+.page-wrap .panel {
+  max-width: 600px !important;
+  margin: 2rem auto !important;
+  background: white !important;
+  border-radius: 20px !important;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2) !important;
+  overflow: hidden !important;
+  border: 1px solid #D1CFC8 !important;
+}
+
+/* Formulaire */
+.page-wrap .form {
+  padding: 2rem !important;
+  background: white !important;
+}
+
+/* Champs */
+.page-wrap .field {
+  margin-bottom: 1.5rem !important;
+}
+
+/* Labels bordeaux avec texte blanc */
+.page-wrap .field label {
+  display: block !important;
+  background: var(--brand) !important;
+  color: white !important;
+  padding: 0.75rem 1rem !important;
+  font-weight: 600 !important;
+  border-radius: 8px 8px 0 0 !important;
+  margin: 0 0 -2px 0 !important;
+  font-size: 1rem !important;
+}
+
+/* Inputs et textarea blancs */
+.page-wrap .input,
+.page-wrap .textarea {
+  width: 100% !important;
+  padding: 1rem !important;
+  border: 2px solid #D1CFC8 !important;
+  border-top: none !important;
+  border-radius: 0 0 8px 8px !important;
+  font-size: 1rem !important;
+  background: white !important;
+  color: #1A1A1A !important;
+  box-sizing: border-box !important;
+  font-family: inherit !important;
+  resize: vertical !important;
+}
+
+.page-wrap .input:focus,
+.page-wrap .textarea:focus {
+  outline: none !important;
+  border-color: var(--brand) !important;
+  box-shadow: 0 0 0 3px rgba(107, 39, 55, 0.1) !important;
+}
+
+.page-wrap .textarea {
+  min-height: 150px !important;
+}
+
+/* SUPPRESSION DU CHAMP SUJET POUR TOUS LES EXERCICES */
+.page-wrap .field:has(label[for="sujet"]) {
+  display: none !important;
+}
+
+/* Uploader moderne et petit */
+.page-wrap .uploader {
+  margin-top: 1rem !important;
+}
+
+.page-wrap .uploader-input {
+  display: none !important;
+}
+
+.page-wrap .uploader-box {
+  display: block !important;
+  border: 2px dashed var(--brand) !important;
+  border-radius: 12px !important;
+  padding: 1.5rem !important;
+  text-align: center !important;
+  background: #F9FAFB !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+  text-decoration: none !important;
+}
+
+.page-wrap .uploader-box:hover,
+.page-wrap .uploader-box.is-dragging {
+  background: rgba(107, 39, 55, 0.05) !important;
+  transform: translateY(-2px) !important;
+}
+
+/* Icône Word PETITE */
+.page-wrap .uploader-icon {
+  margin: 0 auto 0.5rem !important;
+  width: 48px !important;
+  height: 48px !important;
+}
+
+.page-wrap .uploader-icon svg {
+  width: 48px !important;
+  height: 48px !important;
+}
+
+.page-wrap .uploader-btn {
+  display: block !important;
+  color: var(--brand) !important;
+  font-weight: 600 !important;
+  font-size: 1rem !important;
+  margin: 0.5rem 0 !important;
+}
+
+.page-wrap .uploader-filename {
+  color: var(--brand) !important;
+  font-size: 0.9rem !important;
+  margin-top: 0.5rem !important;
+  font-weight: 500 !important;
+}
+
+/* Actions */
+.page-wrap .actions {
+  margin-top: 2rem !important;
+  text-align: center !important;
+}
+
+/* Bouton d'envoi */
+.page-wrap .btn-send {
+  width: 100% !important;
+  background: var(--brand) !important;
+  color: white !important;
+  padding: 1rem 2rem !important;
+  border: none !important;
+  border-radius: 12px !important;
+  font-size: 1.125rem !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+}
+
+.page-wrap .btn-send:hover {
+  background: var(--brand-light) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 20px rgba(107, 39, 55, 0.3) !important;
+}
+
+/* Messages d'erreur */
+.page-wrap .msg-error {
+  background: #FEF2F2 !important;
+  color: #DC2626 !important;
+  padding: 1rem !important;
+  border-radius: 8px !important;
+  border-left: 4px solid #DC2626 !important;
+  margin: 1rem 0 !important;
+  font-size: 0.95rem !important;
+}
+
+/* Messages de succès */
+.page-wrap .msg-ok {
+  background: #F0FDF4 !important;
+  color: #16A34A !important;
+  padding: 1rem !important;
+  border-radius: 8px !important;
+  border-left: 4px solid #16A34A !important;
+  margin: 1rem 0 !important;
+  font-size: 0.95rem !important;
+}
+
+/* Loader */
+.page-wrap .loader-overlay {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  background: rgba(0, 0, 0, 0.7) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  z-index: 1000 !important;
+}
+
+.page-wrap .loader-ring {
+  width: 60px !important;
+  height: 60px !important;
+  border: 4px solid rgba(255, 255, 255, 0.3) !important;
+  border-top: 4px solid white !important;
+  border-radius: 50% !important;
+  animation: spin 1s linear infinite !important;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Navigation sur pages formulaires */
+body:has(.page-wrap) .nav {
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(20px) !important;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .page-wrap .panel {
+    margin: 1rem !important;
+  }
+  
+  .page-wrap .form {
+    padding: 1.5rem !important;
+  }
+  
+  .page-wrap .page-title {
+    font-size: 2rem !important;
+    padding: 1.5rem !important;
+  }
+  
+  .page-wrap .uploader-box {
+    padding: 1rem !important;
+  }
+}
