@@ -593,3 +593,11 @@ section[id*="qui-suis"] h1, section[id*="qui-suis"] h2, section[id*="qui-suis"] 
 #qui-suis-je .card-glass *, .section-qui .card-glass *, .qui .card-glass *, .qui-suis-je .card-glass * {
   color: #fff !important;
 }
+/* ——— Accueil seulement : titre "Qui suis-je" en BLANC ——— */
+main:not(.page-wrap) #qui-suis-je :is(h1,h2,h3),
+main:not(.page-wrap) .qui-suis-je :is(h1,h2,h3),
+main:not(.page-wrap) [id*="qui-suis"] :is(h1,h2,h3),
+main:not(.page-wrap) [class*="qui-suis"] :is(h1,h2,h3) {
+  color: #fff !important;
+}
+
