@@ -61,21 +61,60 @@ export default async function CorrectionPage({ params }: Props) {
   const start  = body.slice(0, part(0.2))
   const middle = body.slice(part(0.45), part(0.55))
 
-  const justify: React.CSSProperties = { whiteSpace: "pre-wrap", textAlign: "justify", lineHeight: 1.7 }
-  const blurBlock: React.CSSProperties = { filter: "blur(6px)", pointerEvents: "none", userSelect: "none", position: "relative", zIndex: 1 }
-  const overlayWrap: React.CSSProperties = { position: "absolute", inset: 0 as any, display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none", zIndex: 30 }
+  const justify: React.CSSProperties = {
+    whiteSpace: "pre-wrap",
+    textAlign: "justify",
+    lineHeight: 1.7
+  }
+  const blurBlock: React.CSSProperties = {
+    filter: "blur(6px)",
+    pointerEvents: "none",
+    userSelect: "none",
+    position: "relative",
+    zIndex: 1
+  }
+  const overlayWrap: React.CSSProperties = {
+    position: "absolute",
+    inset: 0 as any,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    pointerEvents: "none",
+    zIndex: 30
+  }
   const burgundyBox: React.CSSProperties = {
-    background: "#7b1e3a", color: "#fff", borderRadius: 12, padding: "16px 18px",
-    boxShadow: "0 10px 30px rgba(10,26,61,.25)", maxWidth: 380, width: "90%",
-    textAlign: "center", pointerEvents: "auto", border: "1px solid rgba(255,255,255,0.08)"
+    background: "#7b1e3a",
+    color: "#fff",
+    borderRadius: 12,
+    padding: "16px 18px",
+    boxShadow: "0 10px 30px rgba(10,26,61,.25)",
+    maxWidth: 380,
+    width: "90%",
+    textAlign: "center",
+    pointerEvents: "auto",
+    border: "1px solid rgba(255,255,255,0.08)"
+  }
+
+  // NOUVELLE "feuille" blanche: on n'utilise plus .panel
+  const correctionPanel: React.CSSProperties = {
+    position: "relative",
+    maxWidth: "1100px",
+    width: "min(1100px, calc(100% - 40px))",
+    margin: "2rem auto",
+    background: "#fff",
+    borderRadius: 20,
+    boxShadow: "0 20px 40px rgba(0,0,0,0.1)",
+    border: "1px solid rgba(0,0,0,0.08)",
+    padding: 28
   }
 
   return (
     <main className="page-wrap correction">
       <h1 className="page-title">CORRECTION</h1>
 
-      <section className="panel" style={{ position: "relative" }}>
-        {/* "Début" supprimé */}
+      {/* Remplacement de className="panel" par "correction-panel" */}
+      <section className="correction-panel" style={correctionPanel}>
+        {/* Titre "Début" supprimé */}
         <p style={justify}>{start}</p>
 
         <div style={blurBlock}>
@@ -95,29 +134,16 @@ export default async function CorrectionPage({ params }: Props) {
 
         <div style={overlayWrap} aria-hidden>
           <div style={burgundyBox} aria-label="Débloquer la correction">
-            <div style={{ fontWeight: 900, marginBottom: 6, letterSpacing: ".3px" }}>Débloquer la correction</div>
-            <div style={{ opacity: 0.95, marginBottom: 10 }}>Accédez à l'intégralité de votre copie corrigée.</div>
+            <div style={{ fontWeight: 900, marginBottom: 6, letterSpacing: ".3px" }}>
+              Débloquer la correction
+            </div>
+            <div style={{ opacity: 0.95, marginBottom: 10 }}>
+              Accédez à l'intégralité de votre copie corrigée.
+            </div>
             <PaymentPanel pricing={pricing} />
           </div>
         </div>
       </section>
-
-      {/* >>> Styles injectés après le globals.css pour forcer l’élargissement uniquement ici <<< */}
-      <style jsx global>{`
-        main.page-wrap.correction section.panel{
-          max-width:1100px !important;
-          width:min(1100px, calc(100% - 40px)) !important;
-          margin:2rem auto !important;
-          padding:0 !important;
-        }
-        main.page-wrap.correction section.panel > .form,
-        main.page-wrap.correction section.panel > div{
-          padding:28px !important;
-        }
-        /* Si un premier h3 "Début" vient du contenu, on le cache quand même */
-        main.page-wrap.correction section.panel h3:first-of-type{ display:none !important; }
-        main.page-wrap.correction section.panel p{ line-height:1.7 !important; font-size:1.02rem !important; }
-      `}</style>
     </main>
   )
 }
