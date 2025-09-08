@@ -525,6 +525,37 @@ html body main:not(.page-wrap) section p * {
 .is-muted {
   color: #000 !important;
 }
+/* === "Qui suis-je" en BLANC, le reste de l'accueil reste en noir === */
+/* Essaie d'abord par ID le plus probable */
+#qui-suis-je,
+#qui_suis_je,
+section#quisuisje,
+section[id*="qui-suis"] {
+  color: #fff !important;
+}
+
+#qui-suis-je h1, #qui-suis-je h2, #qui-suis-je h3, #qui-suis-je p, #qui-suis-je li, #qui-suis-je a,
+#qui_suis_je h1, #qui_suis_je h2, #qui_suis_je h3, #qui_suis_je p, #qui_suis_je li, #qui_suis_je a,
+section#quisuisje h1, section#quisuisje h2, section#quisuisje h3, section#quisuisje p, section#quisuisje li, section#quisuisje a,
+section[id*="qui-suis"] h1, section[id*="qui-suis"] h2, section[id*="qui-suis"] h3, section[id*="qui-suis"] p, section[id*="qui-suis"] li, section[id*="qui-suis"] a {
+  color: #fff !important;
+}
+
+/* Fallbacks si la section a une classe (on couvre plusieurs noms possibles) */
+.section-qui, .qui, .qui-suis-je, [data-section="qui"] {
+  color: #fff !important;
+}
+.section-qui h1, .section-qui h2, .section-qui h3, .section-qui p, .section-qui li, .section-qui a,
+.qui h1, .qui h2, .qui h3, .qui p, .qui li, .qui a,
+.qui-suis-je h1, .qui-suis-je h2, .qui-suis-je h3, .qui-suis-je p, .qui-suis-je li, .qui-suis-je a,
+[data-section="qui"] h1, [data-section="qui"] h2, [data-section="qui"] h3, [data-section="qui"] p, [data-section="qui"] li, [data-section="qui"] a {
+  color: #fff !important;
+}
+
+/* Si "Qui suis-je" est dans une carte .card-glass spécifique */
+#qui-suis-je .card-glass *, .section-qui .card-glass *, .qui .card-glass *, .qui-suis-je .card-glass * {
+  color: #fff !important;
+}
 
 /* Liens dans ces blocs, pour éviter un gris hérité */
 .presentation a,
