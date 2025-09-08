@@ -1,7 +1,7 @@
 "use client"
 import { useState } from "react"
 
-export default function CasPratiquePage() {
+export default function DissertationPage() {
   const [sujet, setSujet] = useState("")
   const [fichier, setFichier] = useState<File | null>(null)
   const [erreur, setErreur] = useState("")
@@ -31,7 +31,7 @@ export default function CasPratiquePage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!sujet.trim())   { setErreur("Merci d'indiquer l'énoncé du cas pratique."); setResultat(""); return }
+    if (!sujet.trim())   { setErreur("Merci d'indiquer le sujet de la dissertation."); setResultat(""); return }
     if (!fichier)        { setErreur("Merci de verser le document Word (.docx)."); setResultat(""); return }
 
     setErreur(""); setResultat(""); setIsLoading(true)
@@ -49,8 +49,8 @@ export default function CasPratiquePage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          exercise_kind: "cas-pratique", // si ton API attend "cas_pratique", remplace ici
-          matiere: "",                    // pas de matière
+          exercise_kind: "dissertation",
+          matiere: "",
           sujet,
           base64Docx,
           filename: fichier.name,
@@ -74,18 +74,18 @@ export default function CasPratiquePage() {
 
   return (
     <main className="page-wrap">
-      <h1 className="page-title">CAS PRATIQUE 📝</h1>
-      <p className="helper">Indique l'énoncé du cas pratique, puis dépose ton document Word (.docx).</p>
+      <h1 className="page-title">DISSERTATION 🖋️</h1>
+      <p className="helper">Indique le sujet de la dissertation, puis dépose ton document Word (.docx).</p>
 
       <section className="panel">
         <form onSubmit={handleSubmit} className="form" noValidate>
           <div className="field">
-            <label htmlFor="sujet">Énoncé du cas pratique</label>
+            <label htmlFor="sujet">Sujet de la dissertation</label>
             <textarea
               id="sujet"
               className="textarea"
-              placeholder="Colle ici l'énoncé du cas pratique"
-              style={{ minHeight: "4cm" }}
+              placeholder="Colle ici le sujet de la dissertation"
+              style={{ height: "2cm", minHeight: "2cm" }}
               value={sujet}
               onChange={(e) => setSujet(e.target.value)}
             />
@@ -95,14 +95,14 @@ export default function CasPratiquePage() {
             <label>Déposer le document Word (.docx)</label>
             <div className="uploader">
               <input
-                id="docx-cas-pratique"
+                id="docx"
                 className="uploader-input"
                 type="file"
                 accept=".docx"
                 onChange={(e) => handleFileSelect(e.target.files?.[0] ?? null)}
               />
               <label
-                htmlFor="docx-cas-pratique"
+                htmlFor="docx"
                 className={`uploader-box ${isDragging ? "is-dragging" : ""}`}
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
@@ -110,14 +110,10 @@ export default function CasPratiquePage() {
               >
                 <div className="uploader-icon">
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
-                    <rect x="28" y="20" width="72" height="88" rx="8" ry="8" 
-                          fill="none" stroke="#94a3b8" strokeWidth="3"/>
-                    <path d="M72 20v22a6 6 0 0 0 6 6h22" 
-                          fill="none" stroke="#94a3b8" strokeWidth="3"/>
+                    <rect x="28" y="20" width="72" height="88" rx="8" ry="8" fill="none" stroke="#94a3b8" strokeWidth="3"/>
+                    <path d="M72 20v22a6 6 0 0 0 6 6h22" fill="none" stroke="#94a3b8" strokeWidth="3"/>
                     <rect x="42" y="52" width="44" height="34" rx="4" fill="#0f2a5f"/>
-                    <text x="64" y="75" textAnchor="middle" 
-                          fontFamily="ui-sans-serif, system-ui" 
-                          fontWeight="800" fontSize="20" fill="#fff">W</text>
+                    <text x="64" y="75" textAnchor="middle" fontFamily="ui-sans-serif, system-ui" fontWeight="800" fontSize="20" fill="#fff">W</text>
                   </svg>
                 </div>
                 <span className="uploader-btn">Téléchargez votre document ici</span>
