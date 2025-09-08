@@ -525,3 +525,8 @@ html body main:not(.page-wrap) section p * {
 .is-muted {
   color: #000 !important;
 }
+/* ——— Titre “Qui suis-je” en BLANC, et lui seul ——— */
+#qui-suis-je-title { color: #fff !important; }
+
+/* Si le titre est un lien, on couvre l’intérieur aussi */
+#qui-suis-je-title a { color: #fff !important; }
