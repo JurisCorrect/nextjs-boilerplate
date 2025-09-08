@@ -356,3 +356,26 @@ body:has(.page-wrap) .nav {
   .page-title { font-size: 2rem; padding: 1.5rem; }
   .uploader-box { padding: 1rem; }
 }
+/* === PATCH PAGE CORRECTION — largeur + retirer "Début" === */
+html body main.page-wrap.correction section.panel {
+  max-width: 1100px !important;
+  width: min(1100px, calc(100% - 40px)) !important;
+  margin: 2rem auto !important;
+  padding: 0 !important;
+}
+html body main.page-wrap.correction section.panel > .form,
+html body main.page-wrap.correction section.panel > div {
+  padding: 28px !important;
+}
+
+/* Cache uniquement le tout premier h3 dans la feuille (ex: "Début") */
+html body main.page-wrap.correction section.panel h3:first-of-type {
+  display: none !important;
+}
+
+/* Un peu plus de confort de lecture */
+html body main.page-wrap.correction section.panel p {
+  line-height: 1.7 !important;
+  font-size: 1.02rem !important;
+}
+
