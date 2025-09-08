@@ -1457,3 +1457,24 @@ html body main.page-wrap .textarea {
   border: 2px solid var(--border, #E5E7EB) !important;
   border-top: none !important;
 }
+/* Sécurise le fond bordeaux sur pages formulaires */
+main.page-wrap { background: var(--brand, #6B2737) !important; }
+
+/* Cache n'importe quel champ "matière" résiduel */
+#matiere,
+label[for="matiere"],
+#matiere + .input,
+.field:has(#matiere) {
+  display: none !important;
+}
+
+/* Hauteurs si un ancien CSS ré-étire */
+#sujet.textarea {
+  height: auto;
+  min-height: 2cm;
+}
+main.page-wrap[data-route="commentaire"] #sujet.textarea,
+main.page-wrap[data-route="cas-pratique"] #sujet.textarea,
+main.page-wrap[data-route="cas_pratique"] #sujet.textarea {
+  min-height: 3cm;
+}
