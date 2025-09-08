@@ -24,39 +24,25 @@ export default function Home() {
 
   return (
     <main>
-      {/* ===== NAV (droite, sans logo/brand) ===== */}
+      {/* ===== NAV (droite, avec Tarifs + Se connecter) ===== */}
       <header className="nav nav-blur">
         <div
           className="container"
           style={{ display: "flex", justifyContent: "flex-end", alignItems: "center" }}
         >
           <nav className="nav-links" style={{ display: "flex", gap: 12, alignItems: "center" }}>
-            <Link href="#tarifs" className="nav-link" style={pill}>Voir les tarifs</Link>
-            <Link href="#avis" className="nav-link" style={pill}>Avis</Link>
+            <Link href="/tarifs" className="nav-link" style={pill}>Tarifs</Link>
             <Link href="/login" className="btn-login" style={cta}>Se connecter</Link>
           </nav>
         </div>
       </header>
 
-      {/* ===== HERO (gros titre conservé) ===== */}
+      {/* ===== HERO (titre supprimé car maintenant dans nav) ===== */}
       <section className="hero">
-        <h1
-          className="hero-title"
-          style={{ display: "inline-flex", alignItems: "center", gap: 12, lineHeight: 1 }}
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
-            fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-            style={{ width: "1em", height: "1em", display: "inline-block" }} aria-hidden="true"
-          >
-            <circle cx="10.5" cy="10.5" r="6.5" />
-            <path d="M15 15l5 5" />
-          </svg>
-          JURISCORRECT
-        </h1>
+        {/* Le titre est maintenant géré par le CSS dans .nav::before */}
       </section>
 
-      {/* ===== PRÉSENTATION (centrée) ===== */}
+      {/* ===== PRÉSENTATION (resserrée) ===== */}
       <div className="container">
         <section className="presentation card-glass" style={{ marginInline: "auto" }}>
           <p>
@@ -70,7 +56,7 @@ export default function Home() {
         </section>
       </div>
 
-      {/* ===== CARTES EXERCICES ===== */}
+      {/* ===== CARTES EXERCICES (directement visibles) ===== */}
       <section className="grid">
         <Link href="/dissertation" className="card">
           <span className="card-emoji">📚</span>
@@ -91,28 +77,8 @@ export default function Home() {
         </Link>
       </section>
 
-      {/* ===== TARIFS (4 cartes) ===== */}
-      <section id="tarifs" className="container" style={{ margin: "28px auto 8px" }}>
-        <h2 className="section-title">Tarifs</h2>
-        <div className="pricing-grid">
-          <div className="pricing-card card-glass">
-            <div className="pricing-title">Correction unique</div>
-            <div className="pricing-price">3 €</div>
-          </div>
-          <div className="pricing-card card-glass">
-            <div className="pricing-title">Pack 5 corrections</div>
-            <div className="pricing-price">5 €</div>
-          </div>
-          <div className="pricing-card card-glass">
-            <div className="pricing-title">Pack 10 corrections</div>
-            <div className="pricing-price">8 €</div>
-          </div>
-          <div className="pricing-card card-glass">
-            <div className="pricing-title">Illimité mensuel</div>
-            <div className="pricing-price">13 €/mois</div>
-          </div>
-        </div>
-      </section>
+      {/* ===== TARIFS SUPPRIMÉS - maintenant sur page dédiée ===== */}
+      {/* Section tarifs supprimée car bouton Tarifs ajouté dans navigation */}
 
       {/* ===== AVIS / BIO ===== */}
       <section className="container" id="avis" style={{ scrollMarginTop: 90 }}>
