@@ -178,3 +178,262 @@ export default function DissertationPage() {
     </main>
   )
 }
+/* === CSS CORRECTIF POUR VOS PAGES DE FORMULAIRES === */
+/* Ajoutez CECI à la fin de votre globals.css pour corriger les pages dissertation/commentaire/cas-pratique */
+
+/* Page entière */
+.page-wrap {
+  background: var(--bg) !important;
+  min-height: 100vh !important;
+  padding: 2rem 0 !important;
+}
+
+/* Titre de la page */
+.page-title {
+  background: var(--brand) !important;
+  color: white !important;
+  font-size: 2.5rem !important;
+  font-weight: 800 !important;
+  text-align: center !important;
+  margin: 0 0 1rem 0 !important;
+  padding: 2rem !important;
+  border-radius: 0 !important;
+}
+
+/* Description helper */
+.helper {
+  background: var(--brand) !important;
+  color: white !important;
+  text-align: center !important;
+  padding: 1rem 2rem 2rem !important;
+  margin: 0 !important;
+  font-size: 1rem !important;
+}
+
+/* Panel principal */
+.panel {
+  max-width: 600px !important;
+  margin: 2rem auto !important;
+  background: white !important;
+  border-radius: 20px !important;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1) !important;
+  overflow: hidden !important;
+  border: 1px solid var(--border) !important;
+}
+
+/* Formulaire */
+.form {
+  padding: 2rem !important;
+  background: white !important;
+}
+
+/* Chaque field */
+.field {
+  margin-bottom: 1.5rem !important;
+}
+
+/* Labels bordeaux avec texte blanc */
+.field label {
+  display: block !important;
+  background: var(--brand) !important;
+  color: white !important;
+  padding: 0.75rem 1rem !important;
+  font-weight: 600 !important;
+  border-radius: 8px 8px 0 0 !important;
+  margin: 0 0 -2px 0 !important;
+  font-size: 1rem !important;
+}
+
+/* Inputs et textarea blancs */
+.input,
+.textarea {
+  width: 100% !important;
+  padding: 1rem !important;
+  border: 2px solid var(--border) !important;
+  border-top: none !important;
+  border-radius: 0 0 8px 8px !important;
+  font-size: 1rem !important;
+  background: white !important;
+  color: var(--text) !important;
+  box-sizing: border-box !important;
+  font-family: inherit !important;
+  resize: vertical !important;
+}
+
+.input:focus,
+.textarea:focus {
+  outline: none !important;
+  border-color: var(--brand) !important;
+  box-shadow: 0 0 0 3px rgba(107, 39, 55, 0.1) !important;
+}
+
+/* SUPPRESSION du champ sujet pour dissertation */
+.field:has(label[for="sujet"]) {
+  display: none !important;
+}
+
+/* Uploader container */
+.uploader {
+  margin-top: 1rem !important;
+}
+
+/* Input file caché */
+.uploader-input {
+  display: none !important;
+}
+
+/* Zone d'upload PETITE */
+.uploader-box {
+  display: block !important;
+  border: 2px dashed var(--brand) !important;
+  border-radius: 12px !important;
+  padding: 1.5rem !important;
+  text-align: center !important;
+  background: #F9FAFB !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+  text-decoration: none !important;
+}
+
+.uploader-box:hover,
+.uploader-box.is-dragging {
+  background: rgba(107, 39, 55, 0.05) !important;
+  transform: translateY(-2px) !important;
+}
+
+/* Icône Word PETITE */
+.uploader-icon {
+  margin: 0 auto 0.5rem !important;
+  width: 48px !important;
+  height: 48px !important;
+}
+
+.uploader-icon svg {
+  width: 48px !important;
+  height: 48px !important;
+  color: var(--brand) !important;
+}
+
+/* Texte upload */
+.uploader-btn {
+  display: block !important;
+  color: var(--brand) !important;
+  font-weight: 600 !important;
+  font-size: 1rem !important;
+  margin: 0.5rem 0 !important;
+}
+
+/* Nom du fichier */
+.uploader-filename {
+  color: var(--brand) !important;
+  font-size: 0.9rem !important;
+  margin-top: 0.5rem !important;
+  font-weight: 500 !important;
+}
+
+/* Actions container */
+.actions {
+  margin-top: 2rem !important;
+  text-align: center !important;
+}
+
+/* Bouton d'envoi */
+.btn-send {
+  width: 100% !important;
+  background: var(--brand) !important;
+  color: white !important;
+  padding: 1rem 2rem !important;
+  border: none !important;
+  border-radius: 12px !important;
+  font-size: 1.125rem !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+  text-transform: uppercase !important;
+}
+
+.btn-send:hover {
+  background: var(--brand-2) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 20px rgba(107, 39, 55, 0.3) !important;
+}
+
+/* Messages d'erreur */
+.msg-error {
+  background: #FEF2F2 !important;
+  color: #DC2626 !important;
+  padding: 1rem !important;
+  border-radius: 8px !important;
+  border-left: 4px solid #DC2626 !important;
+  margin: 1rem 0 !important;
+  font-size: 0.95rem !important;
+}
+
+/* Messages de succès */
+.msg-ok {
+  background: #F0FDF4 !important;
+  color: #16A34A !important;
+  padding: 1rem !important;
+  border-radius: 8px !important;
+  border-left: 4px solid #16A34A !important;
+  margin: 1rem 0 !important;
+  font-size: 0.95rem !important;
+}
+
+/* Loader overlay */
+.loader-overlay {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  background: rgba(0, 0, 0, 0.7) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  z-index: 1000 !important;
+}
+
+.loader-ring {
+  width: 60px !important;
+  height: 60px !important;
+  border: 4px solid rgba(255, 255, 255, 0.3) !important;
+  border-top: 4px solid white !important;
+  border-radius: 50% !important;
+  animation: spin 1s linear infinite !important;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Navigation sur pages formulaires */
+body:has(.page-wrap) .nav {
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(20px) !important;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .page-wrap {
+    padding: 1rem 0 !important;
+  }
+  
+  .panel {
+    margin: 1rem !important;
+  }
+  
+  .form {
+    padding: 1.5rem !important;
+  }
+  
+  .page-title {
+    font-size: 2rem !important;
+    padding: 1.5rem !important;
+  }
+  
+  .uploader-box {
+    padding: 1rem !important;
+  }
+}
