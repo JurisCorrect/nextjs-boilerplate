@@ -2,7 +2,6 @@
 import { useState } from "react"
 
 export default function CommentairePage() {
-  const [matiere, setMatiere] = useState("")
   const [sujet, setSujet] = useState("")
   const [fichier, setFichier] = useState<File | null>(null)
   const [erreur, setErreur] = useState("")
@@ -28,8 +27,11 @@ export default function CommentairePage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!matiere.trim()) { setErreur("Merci d'indiquer la matière."); setResultat(""); return }
-    if (!sujet.trim())   { setErreur("Merci d'indiquer le sujet.");   setResultat(""); return }
+    if (!sujet.trim())   { 
+      setErreur("Merci de copier coller l'extrait de l'arrêt ou l'arrêt entier à commenter."); 
+      setResultat(""); 
+      return 
+    }
     if (!fichier)        { setErreur("Merci de verser le document Word (.docx)."); setResultat(""); return }
 
     setErreur(""); setResultat(""); setIsLoading(true)
@@ -48,7 +50,7 @@ export default function CommentairePage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           exercise_kind: "commentaire",
-          matiere,
+          matiere: "", // pas de matière
           sujet,
           base64Docx,
           filename: fichier.name,
@@ -73,35 +75,50 @@ export default function CommentairePage() {
   return (
     <main className="page-wrap">
       <h1 className="page-title">COMMENTAIRE D'ARRÊT / FICHE D'ARRÊT ⚖️</h1>
-      <p className="helper">Indique la matière et le sujet, puis dépose ton document Word (.docx)</p>
+      <p className="helper">
+        Copie-colle l'extrait de l'arrêt (ou l'arrêt entier) à commenter, puis dépose ton document Word (.docx).
+      </p>
 
       <section className="panel">
         <form onSubmit={handleSubmit} className="form" noValidate>
           <div className="field">
-            <label htmlFor="matiere">Matière</label>
-            <input id="matiere" className="input" type="text" placeholder="Ex : Droit administratif"
-                   value={matiere} onChange={(e) => setMatiere(e.target.value)} autoComplete="off" />
-          </div>
-
-          <div className="field">
-            <label htmlFor="sujet">Sujet (arrêt / extrait à commenter)</label>
-            <textarea id="sujet" className="textarea" placeholder="Colle ici l'arrêt ou l'extrait à commenter"
-                      style={{ minHeight: "4cm" }} value={sujet} onChange={(e) => setSujet(e.target.value)} />
+            <label htmlFor="sujet">Extrait de l'arrêt (ou arrêt complet)</label>
+            <textarea
+              id="sujet"
+              className="textarea"
+              placeholder="Colle ici l'extrait de l'arrêt ou l'arrêt entier"
+              style={{ minHeight: "4cm" }}
+              value={sujet}
+              onChange={(e) => setSujet(e.target.value)}
+            />
           </div>
 
           <div className="field">
             <label>Déposer le document Word (.docx)</label>
             <div className="uploader">
-              <input id="docx-commentaire" className="uploader-input" type="file" accept=".docx"
-                     onChange={(e) => handleFileSelect(e.target.files?.[0] ?? null)} />
-              <label htmlFor="docx-commentaire" className={`uploader-box ${isDragging ? "is-dragging" : ""}`}
-                     onDragOver={handleDragOver} onDragLeave={handleDragLeave} onDrop={handleDrop}>
+              <input
+                id="docx-commentaire"
+                className="uploader-input"
+                type="file"
+                accept=".docx"
+                onChange={(e) => handleFileSelect(e.target.files?.[0] ?? null)}
+              />
+              <label
+                htmlFor="docx-commentaire"
+                className={`uploader-box ${isDragging ? "is-dragging" : ""}`}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+              >
                 <div className="uploader-icon">
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
-                    <rect x="28" y="20" width="72" height="88" rx="8" ry="8" fill="none" stroke="#94a3b8" strokeWidth="3"/>
-                    <path d="M72 20v22a6 6 0 0 0 6 6h22" fill="none" stroke="#94a3b8" strokeWidth="3"/>
+                    <rect x="28" y="20" width="72" height="88" rx="8" ry="8" 
+                          fill="none" stroke="#94a3b8" strokeWidth="3"/>
+                    <path d="M72 20v22a6 6 0 0 0 6 6h22" 
+                          fill="none" stroke="#94a3b8" strokeWidth="3"/>
                     <rect x="42" y="52" width="44" height="34" rx="4" fill="#0f2a5f"/>
-                    <text x="64" y="75" textAnchor="middle" fontFamily="ui-sans-serif, system-ui"
+                    <text x="64" y="75" textAnchor="middle" 
+                          fontFamily="ui-sans-serif, system-ui" 
                           fontWeight="800" fontSize="20" fill="#fff">W</text>
                   </svg>
                 </div>
@@ -112,7 +129,9 @@ export default function CommentairePage() {
           </div>
 
           <div className="actions">
-            <button type="submit" className="btn-send" aria-label="Envoyer pour correction">ENVOI POUR CORRECTION</button>
+            <button type="submit" className="btn-send" aria-label="Envoyer pour correction">
+              ENVOI POUR CORRECTION
+            </button>
           </div>
 
           {erreur && <p className="msg-error">{erreur}</p>}
