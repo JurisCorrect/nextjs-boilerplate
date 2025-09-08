@@ -378,4 +378,18 @@ html body main.page-wrap.correction section.panel p {
   line-height: 1.7 !important;
   font-size: 1.02rem !important;
 }
+/* === ACCUEIL : textes en noir (sans toucher aux autres pages) === */
+/* L’accueil n’a pas .page-wrap ; les pages formulaires/correction oui */
+body:not(:has(.page-wrap)) .presentation p {
+  color: #000 !important;
+}
 
+body:not(:has(.page-wrap)) .card-glass p,
+body:not(:has(.page-wrap)) .card-glass li {
+  color: #000 !important;
+}
+
+/* Si un paragraphe est directement dans la carte/section (sécurité) */
+body:not(:has(.page-wrap)) section p {
+  color: #000 !important;
+}
