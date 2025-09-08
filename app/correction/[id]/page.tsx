@@ -36,7 +36,7 @@ export default async function CorrectionPage({ params }: Props) {
 
   if (error || !data) {
     return (
-      <main className="page-wrap">
+      <main className="page-wrap correction">
         <p style={{ textAlign: "justify" }}>❌ Erreur : correction introuvable.</p>
       </main>
     )
@@ -62,7 +62,12 @@ export default async function CorrectionPage({ params }: Props) {
   const start = body.slice(0, part(0.2))
   const middle = body.slice(part(0.45), part(0.55))
 
-  const justify: React.CSSProperties = { whiteSpace: "pre-wrap", textAlign: "justify" }
+  const justify: React.CSSProperties = {
+    whiteSpace: "pre-wrap",
+    textAlign: "justify",
+    lineHeight: 1.7
+  }
+
   const blurBlock: React.CSSProperties = {
     filter: "blur(6px)",
     pointerEvents: "none",
@@ -80,6 +85,7 @@ export default async function CorrectionPage({ params }: Props) {
     pointerEvents: "none",
     zIndex: 30
   }
+
   const burgundyBox: React.CSSProperties = {
     background: "#7b1e3a",
     color: "#fff",
@@ -93,12 +99,20 @@ export default async function CorrectionPage({ params }: Props) {
     border: "1px solid rgba(255,255,255,0.08)"
   }
 
+  // élargit la "feuille" blanche uniquement ici
+  const panelStyle: React.CSSProperties = {
+    position: "relative",
+    maxWidth: "1100px",
+    width: "min(1100px, calc(100% - 40px))",
+    margin: "2rem auto"
+  }
+
   return (
-    <main className="page-wrap">
+    <main className="page-wrap correction">
       <h1 className="page-title">CORRECTION</h1>
 
-      <section className="panel" style={{ position: "relative" }}>
-        <h3>Début</h3>
+      <section className="panel" style={panelStyle}>
+        {/* Titre "Début" supprimé */}
         <p style={justify}>{start}</p>
 
         <div style={blurBlock}>
