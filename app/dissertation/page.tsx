@@ -21,7 +21,7 @@ export default function DissertationPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!sujet.trim()) { setErreur("Merci d'indiquer le sujet de la dissertation."); setResultat(""); return }
-    if (!fichier)      { setErreur("Merci de verser le document Word (.docx).");   setResultat(""); return }
+    if (!fichier)      { setErreur("Merci de verser le document Word (.docx)."); setResultat(""); return }
 
     setErreur(""); setResultat(""); setIsLoading(true)
     try {
@@ -29,7 +29,6 @@ export default function DissertationPage() {
         const r = new FileReader(); r.onload = () => { const s = String(r.result || ""); resolve(s.split(",")[1] || "") }; r.onerror = reject; r.readAsDataURL(file)
       })
       const base64Docx = await toBase64(fichier)
-
       const res = await fetch("/api/correct", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -59,6 +58,7 @@ export default function DissertationPage() {
 
       <section className="panel">
         <form onSubmit={handleSubmit} className="form" noValidate>
+          {/* Sujet (2 cm) */}
           <div className="field">
             <label htmlFor="sujet">Sujet</label>
             <textarea
@@ -71,6 +71,7 @@ export default function DissertationPage() {
             />
           </div>
 
+          {/* Upload */}
           <div className="field">
             <label>Déposer le document Word (.docx)</label>
             <div className="uploader">
@@ -92,10 +93,7 @@ export default function DissertationPage() {
             </div>
           </div>
 
-          <div className="actions">
-            <button type="submit" className="btn-send">ENVOI POUR CORRECTION</button>
-          </div>
-
+          <div className="actions"><button type="submit" className="btn-send">ENVOI POUR CORRECTION</button></div>
           {erreur && <p className="msg-error">{erreur}</p>}
           {resultat && <p className="msg-ok">{resultat}</p>}
         </form>
