@@ -549,4 +549,15 @@ article:has(#qui-suis-je-title),
 div:has(#qui-suis-je-title) {
   display: none !important;
 }
+/* ACCUEIL UNIQUEMENT : masquer le titre "Qui suis-je" (conserver la section et la mise en page) */
+main:not(.page-wrap) :is(#qui-suis-je, .qui-suis-je, [id*="qui-suis"], [class*="qui-suis"]) :is(h1,h2,h3) {
+  color: transparent !important;
+  text-shadow: none !important; /* évite un halo */
+}
+
+/* Si le titre contient un lien ou un span à l’intérieur, on le masque aussi */
+main:not(.page-wrap) :is(#qui-suis-je, .qui-suis-je, [id*="qui-suis"], [class*="qui-suis"]) :is(h1,h2,h3) * {
+  color: transparent !important;
+  text-shadow: none !important;
+}
 
