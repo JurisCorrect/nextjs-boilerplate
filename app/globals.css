@@ -490,3 +490,397 @@ a {
 a:hover {
   color: var(--brand-light) !important;
 }
+/* === AJOUTEZ CECI À LA FIN DE VOTRE GLOBALS.CSS === */
+
+/* === COULEURS MODERNES === */
+:root {
+  --brand: #6B2737;
+  --brand-light: #8B3545;
+  --bg: #F0EFEC;
+  --card-bg: #FFFFFF;
+  --text: #1A1A1A;
+  --text-light: #FFFFFF;
+  --border: #E0E0E0;
+}
+
+/* === RESET ET BASE === */
+body {
+  background: var(--bg) !important;
+  color: var(--text) !important;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+  line-height: 1.5 !important;
+}
+
+/* === NAVIGATION MODERNE SIMPLIFIÉE === */
+.nav, .nav-blur {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  padding: 20px 0 !important;
+}
+
+.nav .container {
+  display: flex !important;
+  justify-content: flex-end !important;
+  align-items: center !important;
+  max-width: 1200px !important;
+  margin: 0 auto !important;
+  padding: 0 24px !important;
+}
+
+.nav-links {
+  display: flex !important;
+  gap: 0 !important;
+}
+
+/* Cacher "Voir les tarifs" et "Avis" */
+.nav-link:not(.btn-login) {
+  display: none !important;
+}
+
+/* Bouton "Se connecter" moderne */
+.btn-login {
+  background: var(--brand) !important;
+  color: var(--text-light) !important;
+  padding: 12px 24px !important;
+  border-radius: 6px !important;
+  font-weight: 500 !important;
+  font-size: 14px !important;
+  border: none !important;
+  transition: all 0.2s ease !important;
+}
+
+.btn-login:hover {
+  background: var(--brand-light) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(107, 39, 55, 0.25) !important;
+}
+
+/* === TITRE CENTRÉ === */
+.hero {
+  text-align: center !important;
+  padding: 60px 0 40px 0 !important;
+  margin: 0 !important;
+}
+
+.hero-title {
+  color: var(--brand) !important;
+  font-size: clamp(2.5rem, 6vw, 4rem) !important;
+  font-weight: 800 !important;
+  margin: 0 !important;
+  letter-spacing: -0.02em !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 16px !important;
+}
+
+/* === PRÉSENTATION MODERNE === */
+.container {
+  max-width: 1200px !important;
+  margin: 0 auto !important;
+  padding: 0 24px !important;
+}
+
+.presentation {
+  background: var(--card-bg) !important;
+  border-radius: 16px !important;
+  padding: 32px !important;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.06) !important;
+  border: 1px solid var(--border) !important;
+  margin: 40px auto !important;
+  max-width: 900px !important;
+}
+
+.presentation p {
+  font-size: 16px !important;
+  line-height: 1.7 !important;
+  margin: 0 !important;
+  text-align: justify !important;
+}
+
+/* === CARTES D'EXERCICES MODERNES === */
+.grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)) !important;
+  gap: 24px !important;
+  margin: 60px auto !important;
+  max-width: 1000px !important;
+}
+
+.card {
+  background: var(--card-bg) !important;
+  border: 2px solid var(--border) !important;
+  border-radius: 16px !important;
+  padding: 32px 24px !important;
+  text-align: center !important;
+  transition: all 0.3s ease !important;
+  text-decoration: none !important;
+  color: var(--text) !important;
+  position: relative !important;
+  overflow: hidden !important;
+  min-height: 160px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.card:hover {
+  transform: translateY(-4px) !important;
+  box-shadow: 0 8px 32px rgba(107, 39, 55, 0.15) !important;
+  border-color: var(--brand) !important;
+}
+
+.card-emoji {
+  font-size: 2.5rem !important;
+  margin-bottom: 16px !important;
+  display: block !important;
+}
+
+.card-title {
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  margin: 0 0 8px 0 !important;
+  color: var(--text) !important;
+}
+
+.card-arrow {
+  color: var(--brand) !important;
+  font-size: 20px !important;
+  font-weight: bold !important;
+  position: absolute !important;
+  bottom: 16px !important;
+  right: 20px !important;
+}
+
+/* === TARIFS MODERNES === */
+#tarifs {
+  margin: 100px auto 80px auto !important;
+  text-align: center !important;
+}
+
+.section-title {
+  color: var(--brand) !important;
+  font-size: 2.5rem !important;
+  font-weight: 700 !important;
+  margin-bottom: 40px !important;
+  text-align: center !important;
+}
+
+.pricing-grid {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 16px !important;
+  max-width: 500px !important;
+  margin: 0 auto !important;
+}
+
+.pricing-card {
+  background: var(--card-bg) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 12px !important;
+  padding: 20px 24px !important;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  transition: all 0.2s ease !important;
+}
+
+.pricing-card:hover {
+  border-color: var(--brand) !important;
+  box-shadow: 0 4px 16px rgba(107, 39, 55, 0.1) !important;
+}
+
+.pricing-title {
+  font-weight: 500 !important;
+  color: var(--text) !important;
+  font-size: 16px !important;
+}
+
+.pricing-price {
+  color: var(--brand) !important;
+  font-weight: 700 !important;
+  font-size: 18px !important;
+}
+
+/* === SECTIONS BIO AVEC ESPACEMENT === */
+#avis {
+  margin-top: 120px !important;
+}
+
+.bio-section {
+  margin-bottom: 60px !important;
+}
+
+/* Espacement entre "Qui suis-je" et "Pour aller plus loin" */
+section[style*="marginBottom"] {
+  margin-top: 80px !important;
+}
+
+/* === PAGES FORMULAIRES MODERNES === */
+.page-wrap {
+  background: linear-gradient(135deg, var(--brand) 0%, #4A1B26 100%) !important;
+  min-height: 100vh !important;
+  padding: 0 !important;
+}
+
+.page-title {
+  color: var(--text-light) !important;
+  text-align: center !important;
+  font-size: clamp(1.8rem, 4vw, 2.8rem) !important;
+  font-weight: 700 !important;
+  margin: 0 0 20px 0 !important;
+  padding: 40px 0 0 0 !important;
+}
+
+.helper {
+  color: rgba(255,255,255,0.9) !important;
+  text-align: center !important;
+  background: rgba(255,255,255,0.1) !important;
+  border: 1px solid rgba(255,255,255,0.2) !important;
+  border-radius: 8px !important;
+  padding: 16px !important;
+  margin: 0 auto 40px auto !important;
+  max-width: 600px !important;
+  font-size: 15px !important;
+}
+
+.panel {
+  background: rgba(255,255,255,0.95) !important;
+  border-radius: 16px !important;
+  padding: 40px !important;
+  margin: 0 auto !important;
+  max-width: 600px !important;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.1) !important;
+  border: none !important;
+}
+
+.field {
+  margin-bottom: 24px !important;
+}
+
+label {
+  display: block !important;
+  color: var(--text) !important;
+  font-weight: 500 !important;
+  margin-bottom: 8px !important;
+  font-size: 14px !important;
+}
+
+.input, .textarea {
+  width: 100% !important;
+  padding: 12px 16px !important;
+  border: 2px solid var(--border) !important;
+  border-radius: 8px !important;
+  background: var(--card-bg) !important;
+  color: var(--text) !important;
+  font-size: 15px !important;
+  font-family: inherit !important;
+  transition: all 0.2s ease !important;
+  box-sizing: border-box !important;
+}
+
+.input:focus, .textarea:focus {
+  outline: none !important;
+  border-color: var(--brand) !important;
+  box-shadow: 0 0 0 3px rgba(107, 39, 55, 0.1) !important;
+}
+
+/* === UPLOADER MODERNE === */
+.uploader-box {
+  background: var(--card-bg) !important;
+  border: 3px dashed var(--border) !important;
+  border-radius: 12px !important;
+  padding: 40px 20px !important;
+  text-align: center !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+
+.uploader-box:hover {
+  border-color: var(--brand) !important;
+  background: #f8f9fa !important;
+}
+
+.uploader-btn {
+  color: var(--brand) !important;
+  font-weight: 500 !important;
+  font-size: 16px !important;
+}
+
+/* === BOUTON ENVOI === */
+.btn-send {
+  background: var(--brand) !important;
+  color: var(--text-light) !important;
+  border: none !important;
+  border-radius: 8px !important;
+  padding: 16px 32px !important;
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  width: 100% !important;
+  margin-top: 8px !important;
+}
+
+.btn-send:hover {
+  background: var(--brand-light) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 16px rgba(107, 39, 55, 0.25) !important;
+}
+
+/* === PAGE DE CORRECTION === */
+body[class*="correction"] {
+  background: var(--bg) !important;
+}
+
+.correction-content, .correction-section {
+  background: var(--brand) !important;
+  color: var(--text-light) !important;
+  border-radius: 12px !important;
+  padding: 24px !important;
+  margin: 20px auto !important;
+  max-width: 1000px !important;
+}
+
+/* TEXTE DE CORRECTION SUR FOND BLANC */
+.correction-text, 
+.correction-body, 
+.normalizedBody,
+.correction-content p,
+.correction-section p,
+.correction-content div[class*="text"],
+.correction-section div[class*="text"] {
+  background: #FFFFFF !important;
+  color: var(--text) !important;
+  padding: 24px !important;
+  border-radius: 8px !important;
+  margin: 16px 0 !important;
+  font-size: 15px !important;
+  line-height: 1.7 !important;
+  border: 1px solid var(--border) !important;
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 768px) {
+  .grid {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+  
+  .hero-title {
+    font-size: 2rem !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+  }
+  
+  .panel {
+    margin: 0 16px !important;
+    padding: 24px !important;
+  }
+  
+  .pricing-grid {
+    margin: 0 16px !important;
+  }
+}
