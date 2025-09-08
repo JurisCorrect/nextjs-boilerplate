@@ -3,7 +3,6 @@ import { useState } from "react"
 
 export default function DissertationPage() {
   const [matiere, setMatiere] = useState("")
-  const [sujet, setSujet] = useState("")
   const [fichier, setFichier] = useState<File | null>(null)
   const [erreur, setErreur] = useState("")
   const [resultat, setResultat] = useState("")
@@ -40,7 +39,6 @@ export default function DissertationPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!matiere.trim()) { setErreur("Merci d'indiquer la matière."); setResultat(""); return }
     if (!sujet.trim())   { setErreur("Merci d'indiquer le sujet.");   setResultat(""); return }
     if (!fichier)        { setErreur("Merci de verser le document Word (.docx)."); setResultat(""); return }
 
@@ -61,7 +59,7 @@ export default function DissertationPage() {
         body: JSON.stringify({
           exercise_kind: "dissertation",
           matiere,
-          sujet,
+          sujet: "", // Supprimé le champ sujet comme demandé
           base64Docx,
           filename: fichier.name,
           copie: `Document Word déposé : ${fichier.name}`,
@@ -85,7 +83,7 @@ export default function DissertationPage() {
   return (
     <main className="page-wrap">
       <h1 className="page-title">DISSERTATION 🖋️</h1>
-      <p className="helper">Indique la matière et le sujet, puis dépose ton document Word (.docx)</p>
+      <p className="helper">Indique la matière, puis dépose ton document Word (.docx)</p>
 
       <section className="panel">
         <form onSubmit={handleSubmit} className="form" noValidate>
@@ -99,18 +97,6 @@ export default function DissertationPage() {
               value={matiere}
               onChange={(e) => setMatiere(e.target.value)}
               autoComplete="off"
-            />
-          </div>
-
-          <div className="field">
-            <label htmlFor="sujet">Sujet</label>
-            <textarea
-              id="sujet"
-              className="textarea"
-              placeholder="Colle ici ton sujet de dissertation"
-              style={{ minHeight: "4cm" }}
-              value={sujet}
-              onChange={(e) => setSujet(e.target.value)}
             />
           </div>
 
