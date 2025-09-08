@@ -1,7 +1,7 @@
 "use client"
 import { useState } from "react"
 
-export default function DissertationPage() {
+export default function CasPratiquePage() {
   const [sujet, setSujet] = useState("")
   const [fichier, setFichier] = useState<File | null>(null)
   const [erreur, setErreur] = useState("")
@@ -19,16 +19,8 @@ export default function DissertationPage() {
     setFichier(file)
   }
 
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault()
-    setIsDragging(true)
-  }
-
-  const handleDragLeave = (e: React.DragEvent) => {
-    e.preventDefault()
-    setIsDragging(false)
-  }
-
+  const handleDragOver = (e: React.DragEvent) => { e.preventDefault(); setIsDragging(true) }
+  const handleDragLeave = (e: React.DragEvent) => { e.preventDefault(); setIsDragging(false) }
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault()
     setIsDragging(false)
@@ -39,7 +31,7 @@ export default function DissertationPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!sujet.trim())   { setErreur("Merci d'indiquer le sujet de la dissertation."); setResultat(""); return }
+    if (!sujet.trim())   { setErreur("Merci d'indiquer l'énoncé du cas pratique."); setResultat(""); return }
     if (!fichier)        { setErreur("Merci de verser le document Word (.docx)."); setResultat(""); return }
 
     setErreur(""); setResultat(""); setIsLoading(true)
@@ -57,8 +49,8 @@ export default function DissertationPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          exercise_kind: "dissertation",
-          matiere: "", // Pas de matière
+          exercise_kind: "cas-pratique", // si ton API attend "cas_pratique", remplace ici
+          matiere: "",                    // pas de matière
           sujet,
           base64Docx,
           filename: fichier.name,
@@ -82,17 +74,17 @@ export default function DissertationPage() {
 
   return (
     <main className="page-wrap">
-      <h1 className="page-title">DISSERTATION 🖋️</h1>
-      <p className="helper">Indique le sujet de la dissertation, puis dépose ton document Word (.docx).</p>
+      <h1 className="page-title">CAS PRATIQUE 📝</h1>
+      <p className="helper">Indique l'énoncé du cas pratique, puis dépose ton document Word (.docx).</p>
 
       <section className="panel">
         <form onSubmit={handleSubmit} className="form" noValidate>
           <div className="field">
-            <label htmlFor="sujet">Sujet de la dissertation</label>
+            <label htmlFor="sujet">Énoncé du cas pratique</label>
             <textarea
               id="sujet"
               className="textarea"
-              placeholder="Colle ici le sujet de la dissertation"
+              placeholder="Colle ici l'énoncé du cas pratique"
               style={{ minHeight: "4cm" }}
               value={sujet}
               onChange={(e) => setSujet(e.target.value)}
@@ -101,18 +93,16 @@ export default function DissertationPage() {
 
           <div className="field">
             <label>Déposer le document Word (.docx)</label>
-            
             <div className="uploader">
               <input
-                id="docx"
+                id="docx-cas-pratique"
                 className="uploader-input"
                 type="file"
                 accept=".docx"
                 onChange={(e) => handleFileSelect(e.target.files?.[0] ?? null)}
               />
-
               <label
-                htmlFor="docx"
+                htmlFor="docx-cas-pratique"
                 className={`uploader-box ${isDragging ? "is-dragging" : ""}`}
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
@@ -130,16 +120,8 @@ export default function DissertationPage() {
                           fontWeight="800" fontSize="20" fill="#fff">W</text>
                   </svg>
                 </div>
-
-                <span className="uploader-btn">
-                  Téléchargez votre document ici
-                </span>
-
-                {fichier && (
-                  <div className="uploader-filename">
-                    📄 {fichier.name}
-                  </div>
-                )}
+                <span className="uploader-btn">Téléchargez votre document ici</span>
+                {fichier && <div className="uploader-filename">📄 {fichier.name}</div>}
               </label>
             </div>
           </div>
