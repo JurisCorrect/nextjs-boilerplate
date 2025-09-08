@@ -1089,3 +1089,157 @@ body:has(.page-wrap) .nav {
     padding: 1rem !important;
   }
 }
+/* === CSS PAGES FORMULAIRES CORRIGÉ === */
+/* Remplacez votre test rouge par ceci */
+
+html body main.page-wrap {
+  background: var(--brand) !important; /* Bordeaux au lieu de rouge */
+  min-height: 100vh !important;
+  padding: 0 !important;
+}
+
+html body main.page-wrap h1.page-title {
+  background: var(--brand) !important;
+  color: white !important;
+  font-size: 2.5rem !important;
+  font-weight: 800 !important;
+  text-align: center !important;
+  margin: 0 !important;
+  padding: 2rem !important;
+  text-transform: uppercase !important;
+}
+
+html body main.page-wrap p.helper {
+  background: var(--brand) !important;
+  color: white !important;
+  text-align: center !important;
+  padding: 1rem 2rem 2rem !important;
+  margin: 0 !important;
+  opacity: 0.9 !important;
+}
+
+html body main.page-wrap section.panel {
+  max-width: 600px !important;
+  margin: 2rem auto !important;
+  background: white !important;
+  border-radius: 20px !important;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2) !important;
+  overflow: hidden !important;
+}
+
+html body main.page-wrap section.panel form.form {
+  padding: 2rem !important;
+  background: white !important;
+}
+
+html body main.page-wrap section.panel form.form div.field {
+  margin-bottom: 1.5rem !important;
+}
+
+html body main.page-wrap section.panel form.form div.field label {
+  display: block !important;
+  background: var(--brand) !important;
+  color: white !important;
+  padding: 0.75rem 1rem !important;
+  font-weight: 600 !important;
+  border-radius: 8px 8px 0 0 !important;
+  margin: 0 !important;
+}
+
+html body main.page-wrap section.panel form.form div.field input.input,
+html body main.page-wrap section.panel form.form div.field textarea.textarea {
+  width: 100% !important;
+  padding: 1rem !important;
+  border: 2px solid #E5E7EB !important;
+  border-top: none !important;
+  border-radius: 0 0 8px 8px !important;
+  background: white !important;
+  color: var(--text) !important;
+  font-size: 1rem !important;
+  box-sizing: border-box !important;
+}
+
+/* SUPPRESSION DU CHAMP MATIÈRE (pas sujet) */
+html body main.page-wrap section.panel form.form div.field:has(label[for="matiere"]) {
+  display: none !important;
+}
+
+html body main.page-wrap section.panel form.form div.field:has(input#matiere) {
+  display: none !important;
+}
+
+/* Uploader petit */
+html body main.page-wrap section.panel form.form div.field div.uploader {
+  margin-top: 1rem !important;
+}
+
+html body main.page-wrap section.panel form.form div.field div.uploader input.uploader-input {
+  display: none !important;
+}
+
+html body main.page-wrap section.panel form.form div.field div.uploader label.uploader-box {
+  border: 2px dashed var(--brand) !important;
+  border-radius: 12px !important;
+  padding: 1.5rem !important;
+  text-align: center !important;
+  background: #F9FAFB !important;
+  cursor: pointer !important;
+  display: block !important;
+}
+
+html body main.page-wrap section.panel form.form div.field div.uploader label.uploader-box div.uploader-icon {
+  width: 48px !important;
+  height: 48px !important;
+  margin: 0 auto 0.5rem !important;
+}
+
+html body main.page-wrap section.panel form.form div.field div.uploader label.uploader-box div.uploader-icon svg {
+  width: 48px !important;
+  height: 48px !important;
+}
+
+html body main.page-wrap section.panel form.form div.field div.uploader label.uploader-box span.uploader-btn {
+  color: var(--brand) !important;
+  font-weight: 600 !important;
+}
+
+html body main.page-wrap section.panel form.form div.actions {
+  margin-top: 2rem !important;
+  text-align: center !important;
+}
+
+html body main.page-wrap section.panel form.form div.actions button.btn-send {
+  width: 100% !important;
+  background: var(--brand) !important;
+  color: white !important;
+  padding: 1rem 2rem !important;
+  border: none !important;
+  border-radius: 12px !important;
+  font-size: 1.125rem !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  text-transform: uppercase !important;
+  transition: all 0.3s ease !important;
+}
+
+html body main.page-wrap section.panel form.form div.actions button.btn-send:hover {
+  background: #8B3545 !important;
+  transform: translateY(-2px) !important;
+}
+
+/* Messages */
+html body main.page-wrap section.panel form.form p.msg-error {
+  background: #FEF2F2 !important;
+  color: #DC2626 !important;
+  padding: 1rem !important;
+  border-radius: 8px !important;
+  margin: 1rem 0 !important;
+}
+
+html body main.page-wrap section.panel form.form p.msg-ok {
+  background: #F0FDF4 !important;
+  color: #16A34A !important;
+  padding: 1rem !important;
+  border-radius: 8px !important;
+  margin: 1rem 0 !important;
+}
