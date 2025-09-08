@@ -380,3 +380,113 @@ a:hover {
     margin-top: 16px !important;
   }
 }
+/* === AJOUTEZ CECI À LA FIN DE VOTRE GLOBALS.CSS EXISTANT === */
+/* (Ne supprimez rien, ajoutez juste ça à la fin) */
+
+/* === NOUVELLES COULEURS SEULEMENT === */
+:root {
+  /* Bordeaux professionnel */
+  --brand: #6B2737 !important;
+  --brand-2: #5A252A !important;
+  --brand-light: #8B3545 !important;
+  
+  /* Beiges modernes */
+  --bg: #F0EFEC !important;
+  --bg-secondary: #E8E6E0 !important;
+  --text: #1A1A1A !important;
+  --text-light: #FFFFFF !important;
+  --muted: #737373 !important;
+}
+
+/* === CORRECTION COULEURS FOND === */
+body {
+  background-color: var(--bg) !important;
+  color: var(--text) !important;
+}
+
+/* === NAVIGATION === */
+.nav, .nav-blur {
+  background: rgba(254, 254, 254, 0.9) !important;
+}
+
+.nav-link {
+  background: var(--brand) !important;
+  color: var(--text-light) !important;
+}
+
+.nav-link:hover {
+  background: var(--brand-light) !important;
+}
+
+.btn-login {
+  background: var(--brand) !important;
+  color: var(--text-light) !important;
+}
+
+/* === BOUTONS === */
+.btn-send, button[type="submit"] {
+  background: var(--brand) !important;
+  color: var(--text-light) !important;
+}
+
+.btn-send:hover, button[type="submit"]:hover {
+  background: var(--brand-light) !important;
+}
+
+/* === BADGES === */
+span[style*="background: linear-gradient"] {
+  background: var(--brand) !important;
+  color: var(--text-light) !important;
+}
+
+/* === TITRES === */
+.hero-title, .page-title, .section-title {
+  color: var(--brand) !important;
+}
+
+/* === PRIX === */
+.pricing-price {
+  color: var(--brand) !important;
+}
+
+/* === PAGE DE CORRECTION UNIQUEMENT === */
+body[class*="correction"] {
+  background-color: var(--bg) !important;
+}
+
+.correction-content, .correction-section {
+  background: var(--brand) !important;
+  color: var(--text-light) !important;
+}
+
+/* Texte de correction sur fond blanc */
+.correction-text, 
+.correction-body, 
+.normalizedBody,
+.correction-content p,
+.correction-section p {
+  background: #FFFFFF !important;
+  color: #1A1A1A !important;
+  padding: 20px !important;
+  border-radius: 8px !important;
+  margin: 12px 0 !important;
+}
+
+/* === FORMULAIRES === */
+.input, .textarea {
+  background: white !important;
+  color: var(--text) !important;
+}
+
+.input:focus, .textarea:focus {
+  border-color: var(--brand) !important;
+}
+
+/* === LIENS === */
+a {
+  color: var(--brand) !important;
+}
+
+a:hover {
+  color: var(--brand-light) !important;
+}
