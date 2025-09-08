@@ -1478,3 +1478,73 @@ main.page-wrap[data-route="cas-pratique"] #sujet.textarea,
 main.page-wrap[data-route="cas_pratique"] #sujet.textarea {
   min-height: 3cm;
 }
+/***** PATCH FORMULAIRES — À COLLER TOUT EN BAS DE app/globals.css *****/
+
+/* Fond bordeaux sur les pages formulaire (sans toucher à l'accueil) */
+main.page-wrap { 
+  background: var(--brand, #6B2737) !important; 
+}
+
+/* Carte blanche + labels bordeaux (mise en page validée) */
+main.page-wrap section.panel { 
+  background: #fff !important; 
+  border-radius: 16px !important; 
+}
+main.page-wrap .field > label {
+  background: var(--brand, #6B2737) !important;
+  color: #fff !important;
+}
+
+/* CACHER complètement “Matière” (champ + label + bloc) */
+#matiere,
+label[for="matiere"] {
+  display: none !important;
+}
+.field:has(#matiere) {
+  display: none !important;
+}
+
+/* FORCER l’affichage propre du champ “Sujet” */
+#sujet {
+  display: block !important;
+  background: #ffffff !important;
+  color: var(--text, #1A1A1A) !important;
+  border: 2px solid var(--border, #E5E7EB) !important;
+  border-top: none !important;
+  border-radius: 0 0 12px 12px !important;
+  box-shadow: none !important;
+}
+
+/* HAUTEUR PAR PAGE (détectée par l'ID du file input) */
+/* Dissertation => input fichier id="docx" */
+main.page-wrap:has(#docx) #sujet {
+  height: 2cm !important;
+  min-height: 2cm !important;
+}
+
+/* Commentaire => id="docx-commentaire" */
+main.page-wrap:has(#docx-commentaire) #sujet {
+  height: 3cm !important;
+  min-height: 3cm !important;
+}
+
+/* Cas pratique => id="docx-cas-pratique" */
+main.page-wrap:has(#docx-cas-pratique) #sujet {
+  height: 3cm !important;
+  min-height: 3cm !important;
+}
+
+/* Champs (input/textarea) en blanc, lisibles */
+main.page-wrap .input,
+main.page-wrap .textarea {
+  background: #fff !important;
+  color: var(--text, #1A1A1A) !important;
+  border: 2px solid var(--border, #E5E7EB) !important;
+  border-top: none !important;
+}
+
+/* Bouton intact */
+main.page-wrap .btn-send {
+  background: var(--brand, #6B2737) !important;
+  color: #fff !important;
+}
