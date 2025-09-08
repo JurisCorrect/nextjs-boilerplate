@@ -1253,3 +1253,45 @@ html body main.page-wrap section.panel form.form div.field:has(textarea#sujet) {
   display: block !important;
   margin-bottom: 1.5rem !important;
 }
+/* FORCER L'AFFICHAGE DU CHAMP SUJET - ULTRA AGRESSIF */
+html body main.page-wrap section.panel form.form div.field:has(label[for="sujet"]),
+html body main.page-wrap section.panel form.form div.field:has(textarea#sujet),
+html body main.page-wrap section.panel form.form div.field:has(input#sujet) {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  height: auto !important;
+  margin-bottom: 1.5rem !important;
+  position: static !important;
+}
+
+/* Label du sujet */
+html body main.page-wrap section.panel form.form div.field label[for="sujet"] {
+  display: block !important;
+  background: var(--brand) !important;
+  color: white !important;
+  padding: 0.75rem 1rem !important;
+  font-weight: 600 !important;
+  border-radius: 8px 8px 0 0 !important;
+  margin: 0 !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Textarea du sujet */
+html body main.page-wrap section.panel form.form div.field textarea#sujet {
+  display: block !important;
+  width: 100% !important;
+  padding: 1rem !important;
+  border: 2px solid #E5E7EB !important;
+  border-top: none !important;
+  border-radius: 0 0 8px 8px !important;
+  background: white !important;
+  color: var(--text) !important;
+  font-size: 1rem !important;
+  box-sizing: border-box !important;
+  min-height: 150px !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  position: static !important;
+}
