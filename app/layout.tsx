@@ -1,19 +1,13 @@
-// app/layout.tsx
-import './globals.css'
-import type { Metadata } from 'next'
-import { Merriweather } from 'next/font/google'
-
-const merri = Merriweather({ subsets: ['latin'], weight: ['300','400','700'] })
-
-export const metadata: Metadata = {
-  title: 'Jurisconnect',
-  description: 'Correction automatisée spécialisée en méthodologie juridique',
-}
+import "./globals.css";
+import FormsPatch from "./_forms-patch"; // <— AJOUT
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="fr">
-      <body className={merri.className}>{children}</body>
+      <body>
+        {children}
+        <FormsPatch /> {/* <— AJOUT : patch DOM pages d’envoi seulement */}
+      </body>
     </html>
-  )
+  );
 }
