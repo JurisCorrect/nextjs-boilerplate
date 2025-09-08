@@ -14,6 +14,7 @@ type Props = { params: { id: string } }
 export default async function CorrectionPage({ params }: Props) {
   const theId = params.id
 
+  // --- Fetch correction ---
   let { data, error } = await supabase
     .from("corrections")
     .select("id, submission_id, result_json")
@@ -61,17 +62,18 @@ export default async function CorrectionPage({ params }: Props) {
   const start  = body.slice(0, part(0.2))
   const middle = body.slice(part(0.45), part(0.55))
 
+  // --- Styles inline (compatibles Server Component) ---
   const justify: React.CSSProperties = {
     whiteSpace: "pre-wrap",
     textAlign: "justify",
-    lineHeight: 1.7
+    lineHeight: 1.7,
   }
   const blurBlock: React.CSSProperties = {
     filter: "blur(6px)",
     pointerEvents: "none",
     userSelect: "none",
     position: "relative",
-    zIndex: 1
+    zIndex: 1,
   }
   const overlayWrap: React.CSSProperties = {
     position: "absolute",
@@ -80,7 +82,7 @@ export default async function CorrectionPage({ params }: Props) {
     alignItems: "center",
     justifyContent: "center",
     pointerEvents: "none",
-    zIndex: 30
+    zIndex: 30,
   }
   const burgundyBox: React.CSSProperties = {
     background: "#7b1e3a",
@@ -92,10 +94,10 @@ export default async function CorrectionPage({ params }: Props) {
     width: "90%",
     textAlign: "center",
     pointerEvents: "auto",
-    border: "1px solid rgba(255,255,255,0.08)"
+    border: "1px solid rgba(255,255,255,0.08)",
   }
 
-  // NOUVELLE "feuille" blanche: on n'utilise plus .panel
+  // On n'utilise PAS .panel pour éviter ton globals.css (qui fixe max-width: 600px !important)
   const correctionPanel: React.CSSProperties = {
     position: "relative",
     maxWidth: "1100px",
@@ -105,16 +107,16 @@ export default async function CorrectionPage({ params }: Props) {
     borderRadius: 20,
     boxShadow: "0 20px 40px rgba(0,0,0,0.1)",
     border: "1px solid rgba(0,0,0,0.08)",
-    padding: 28
+    padding: 28,
   }
 
   return (
     <main className="page-wrap correction">
       <h1 className="page-title">CORRECTION</h1>
 
-      {/* Remplacement de className="panel" par "correction-panel" */}
+      {/* Nouvelle classe pour ne pas hériter de .panel global */}
       <section className="correction-panel" style={correctionPanel}>
-        {/* Titre "Début" supprimé */}
+        {/* "Début" supprimé */}
         <p style={justify}>{start}</p>
 
         <div style={blurBlock}>
