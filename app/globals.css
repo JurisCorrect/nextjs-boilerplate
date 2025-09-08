@@ -1,13 +1,10 @@
-.field {
-  display: block !important;
-  background: yellow !important;
-}
-html body main.page-wrap {
-  min-height: 100vh !important;
-}
-/* Variables modernes */
+/* ================================
+   JURISCORRECT — GLOBALS.CSS (CLEAN)
+   ================================ */
+
+/* Variables */
 :root {
-  --brand: #6B2737;
+  --brand: #6B2737;     /* Bordeaux */
   --brand-2: #5A2129;
   --bg: #FAFAF9;
   --card-bg: #FFFFFF;
@@ -16,1535 +13,346 @@ html body main.page-wrap {
   --border: #E5E7EB;
 }
 
-/* Reset body pour fond moderne */
+/* Reset de base */
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
 body {
-  background: var(--bg) !important;
-  color: var(--text) !important;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
-  margin: 0 !important;
-  padding: 0 !important;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-/* === NAV MODERNE AVEC TARIFS === */
+/* ================================
+   NAV / ACCUEIL (conservé)
+   ================================ */
 .nav {
-  background: rgba(255, 255, 255, 0.95) !important;
-  backdrop-filter: blur(20px) !important;
-  border-bottom: 1px solid var(--border) !important;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
-  padding: 1rem 0 !important;
-  position: sticky !important;
-  top: 0 !important;
-  z-index: 100 !important;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,.1);
+  padding: 1rem 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
-
 .nav .container {
-  max-width: 1200px !important;
-  margin: 0 auto !important;
-  padding: 0 2rem !important;
-  display: flex !important;
-  justify-content: space-between !important;
-  align-items: center !important;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
-
-/* TITRE JURISCORRECT CENTRÉ */
 .nav::before {
-  content: "JURISCORRECT" !important;
-  position: absolute !important;
-  left: 50% !important;
-  top: 50% !important;
-  transform: translate(-50%, -50%) !important;
-  font-size: 1.8rem !important;
-  font-weight: 900 !important;
-  color: var(--brand) !important;
-  letter-spacing: -0.025em !important;
+  content: "JURISCORRECT";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: var(--brand);
+  letter-spacing: -0.025em;
 }
-
-/* Navigation à droite avec Tarifs + Se connecter */
 .nav-links {
-  display: flex !important;
-  gap: 1rem !important;
-  align-items: center !important;
-  margin-left: auto !important;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  margin-left: auto;
 }
-
-.nav-link {
-  display: inline-flex !important;
-  background: var(--brand) !important;
-  color: white !important;
-  padding: 0.75rem 1.25rem !important;
-  border-radius: 8px !important;
-  text-decoration: none !important;
-  font-weight: 600 !important;
-  transition: all 0.3s ease !important;
-  font-size: 0.95rem !important;
+.nav-link,
+.btn-login {
+  display: inline-flex;
+  background: var(--brand);
+  color: #fff;
+  padding: 0.75rem 1.25rem;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all .3s ease;
+  font-size: .95rem;
 }
-
 .nav-link:hover,
 .btn-login:hover {
-  background: var(--brand-2) !important;
-  transform: translateY(-2px) !important;
+  background: var(--brand-2);
+  transform: translateY(-2px);
 }
 
-.btn-login {
-  background: var(--brand) !important;
-  color: white !important;
-  padding: 0.75rem 1.25rem !important;
-  border-radius: 8px !important;
-  text-decoration: none !important;
-  font-weight: 600 !important;
-  transition: all 0.3s ease !important;
-  font-size: 0.95rem !important;
-}
-
-/* === SECTION HERO RÉDUITE === */
-.hero {
-  text-align: center !important;
-  padding: 2rem 2rem 1rem !important; /* Réduit l'espacement */
-  position: relative !important;
-}
-
-.hero-title {
-  display: none !important; /* Cache le titre car il est maintenant dans la nav */
-}
-
-/* === PRÉSENTATION RESSERRÉE === */
+/* Hero / Présentation serrée */
+.hero { text-align: center; padding: 2rem 2rem 1rem; position: relative; }
+.hero-title { display: none; } /* Titre déjà dans la nav */
 .presentation {
-  max-width: 700px !important;
-  margin: 1rem auto 2rem !important; /* Réduit énormément les marges */
-  padding: 1.5rem !important; /* Réduit le padding */
-  background: white !important;
-  border-radius: 16px !important;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08) !important;
-  border: 1px solid var(--border) !important;
+  max-width: 700px;
+  margin: 1rem auto 2rem;
+  padding: 1.5rem;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0,0,0,.08);
+  border: 1px solid var(--border);
 }
-
 .presentation p {
-  font-size: 1rem !important; /* Réduit la taille du texte */
-  line-height: 1.6 !important; /* Réduit l'interligne */
-  color: var(--muted) !important;
-  margin: 0 !important;
-  text-align: justify !important;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--muted);
+  margin: 0;
+  text-align: justify;
 }
 
-/* === CARTES EXERCICES VISIBLES DIRECTEMENT === */
+/* Cartes exercices visibles directement */
 .grid {
-  display: grid !important;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)) !important;
-  gap: 1.5rem !important;
-  max-width: 900px !important;
-  margin: 2rem auto !important; /* Très proche de la présentation */
-  padding: 0 2rem !important;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 0 2rem;
 }
-
 .card {
-  background: white !important;
-  border-radius: 16px !important;
-  padding: 2rem !important;
-  text-decoration: none !important;
-  color: inherit !important;
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: center !important;
-  text-align: center !important;
-  transition: all 0.4s ease !important;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08) !important;
-  border: 2px solid transparent !important;
-  position: relative !important;
-  overflow: hidden !important;
+  background: #fff;
+  border-radius: 16px;
+  padding: 2rem;
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  transition: all .4s ease;
+  box-shadow: 0 8px 20px rgba(0,0,0,.08);
+  border: 2px solid transparent;
+  position: relative;
+  overflow: hidden;
 }
-
 .card::before {
-  content: '' !important;
-  position: absolute !important;
-  top: 0 !important;
-  left: 0 !important;
-  right: 0 !important;
-  height: 4px !important;
-  background: linear-gradient(90deg, var(--brand) 0%, var(--brand-2) 100%) !important;
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 4px;
+  background: linear-gradient(90deg, var(--brand) 0%, var(--brand-2) 100%);
 }
+.card:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(0,0,0,.12); border-color: var(--brand); }
+.card-emoji { font-size: 2.5rem; margin-bottom: 1rem; display: block; }
+.card-title { font-size: 1.125rem; font-weight: 700; color: var(--brand); margin-bottom: .75rem; display: block; }
+.card-arrow { font-size: 1.25rem; color: var(--brand); margin-top: auto; display: block; transition: transform .3s ease; }
+.card:hover .card-arrow { transform: translateX(6px); }
 
-.card:hover {
-  transform: translateY(-8px) !important;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12) !important;
-  border-color: var(--brand) !important;
-}
+/* Cacher ancienne section tarifs de l'accueil si elle existe */
+#tarifs, .pricing-grid, .pricing-card, .section-title { display: none; }
 
-.card-emoji {
-  font-size: 2.5rem !important;
-  margin-bottom: 1rem !important;
-  display: block !important;
-}
-
-.card-title {
-  font-size: 1.125rem !important;
-  font-weight: 700 !important;
-  color: var(--brand) !important;
-  margin-bottom: 0.75rem !important;
-  display: block !important;
-}
-
-.card-arrow {
-  font-size: 1.25rem !important;
-  color: var(--brand) !important;
-  margin-top: auto !important;
-  display: block !important;
-  transition: transform 0.3s ease !important;
-}
-
-.card:hover .card-arrow {
-  transform: translateX(6px) !important;
-}
-
-/* === SUPPRESSION DES TARIFS === */
-#tarifs,
-.pricing-grid,
-.pricing-card,
-.section-title {
-  display: none !important;
-}
-
-/* === SECTIONS BIO CONSERVÉES === */
+/* Divers cartes */
 .card-glass {
-  background: white !important;
-  border-radius: 16px !important;
-  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.08) !important;
-  border: 1px solid var(--border) !important;
-  backdrop-filter: none !important;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 15px 30px rgba(0,0,0,.08);
+  border: 1px solid var(--border);
+  backdrop-filter: none;
 }
+#avis .card-glass { margin: 4rem auto 2rem; }
 
-#avis .card-glass {
-  margin: 4rem auto 2rem !important;
-}
-
-/* === PAGES FORMULAIRES === */
-body:has([class*="dissertation"]),
-body:has([class*="commentaire"]),
-body:has([class*="cas-pratique"]) {
-  background: var(--brand) !important;
-  min-height: 100vh !important;
-}
-
-/* Conteneur principal formulaire */
-.form-container {
-  max-width: 500px !important;
-  margin: 2rem auto !important;
-  padding: 0 1rem !important;
-}
-
-/* Carte principale - bordeaux puis blanc */
-.form-card {
-  background: white !important;
-  border-radius: 16px !important;
-  overflow: hidden !important;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2) !important;
-}
-
-/* Header formulaire - bordeaux avec texte blanc */
-.form-header {
-  background: var(--brand) !important;
-  color: white !important;
-  padding: 2rem !important;
-  text-align: center !important;
-}
-
-.form-header h1 {
-  font-size: 2rem !important;
-  font-weight: 800 !important;
-  margin: 0 !important;
-  color: white !important;
-}
-
-/* Contenu formulaire - blanc */
-.form-content {
-  background: white !important;
-  padding: 2rem !important;
-}
-
-/* Champs formulaire */
-.form-group {
-  margin-bottom: 1.5rem !important;
-}
-
-.form-label {
-  display: block !important;
-  font-weight: 600 !important;
-  color: white !important; /* Blanc sur fond bordeaux */
-  margin-bottom: 0.5rem !important;
-  font-size: 1rem !important;
-  background: var(--brand) !important;
-  padding: 0.5rem 1rem !important;
-  border-radius: 8px 8px 0 0 !important;
-}
-
-.form-input,
-input[type="text"] {
-  width: 100% !important;
-  padding: 1rem !important;
-  border: 2px solid var(--border) !important;
-  border-radius: 0 0 8px 8px !important;
-  font-size: 1rem !important;
-  background: white !important;
-  color: var(--text) !important;
-  transition: all 0.3s ease !important;
-  box-sizing: border-box !important;
-  margin-top: -2px !important;
-}
-
-.form-input:focus,
-input[type="text"]:focus {
-  outline: none !important;
-  border-color: var(--brand) !important;
-  box-shadow: 0 0 0 3px rgba(107, 39, 55, 0.1) !important;
-}
-
-/* SUPPRESSION du champ SUJET */
-.form-group:has([placeholder*="sujet"]),
-.form-group:has([placeholder*="Sujet"]) {
-  display: none !important;
-}
-
-/* Zone d'upload PETITE et moderne */
-.upload-zone {
-  border: 2px dashed var(--brand) !important;
-  border-radius: 12px !important;
-  padding: 1.5rem !important; /* Réduit de 3rem à 1.5rem */
-  text-align: center !important;
-  background: #F9FAFB !important;
-  transition: all 0.3s ease !important;
-  cursor: pointer !important;
-  margin: 1rem 0 !important;
-}
-
-.upload-zone:hover {
-  background: rgba(107, 39, 55, 0.05) !important;
-  transform: translateY(-2px) !important;
-}
-
-/* Icône Word PETITE */
-.upload-icon,
-.upload-zone svg,
-.upload-zone img {
-  font-size: 1.5rem !important; /* Réduit de 3rem à 1.5rem */
-  color: var(--brand) !important;
-  margin-bottom: 0.5rem !important; /* Réduit de 1rem à 0.5rem */
-  display: block !important;
-  width: 48px !important; /* Taille fixe petite */
-  height: 48px !important;
-  margin: 0 auto 0.5rem !important;
-}
-
-.upload-text {
-  color: var(--brand) !important;
-  font-size: 1rem !important;
-  margin: 0 !important;
-  font-weight: 600 !important;
-}
-
-/* SUPPRESSION du input file natif */
-input[type="file"] {
-  display: none !important;
-}
-
-/* Bouton de soumission */
-.submit-button,
-button[type="submit"] {
-  width: 100% !important;
-  background: var(--brand) !important;
-  color: white !important;
-  padding: 1rem 2rem !important;
-  border: none !important;
-  border-radius: 12px !important;
-  font-size: 1.125rem !important;
-  font-weight: 600 !important;
-  cursor: pointer !important;
-  transition: all 0.3s ease !important;
-  margin-top: 1rem !important;
-}
-
-.submit-button:hover,
-button[type="submit"]:hover {
-  background: var(--brand-2) !important;
-  transform: translateY(-2px) !important;
-}
-
-/* === RESPONSIVE === */
+/* Responsive accueil */
 @media (max-width: 768px) {
-  .nav::before {
-    font-size: 1.4rem !important;
-  }
-  
-  .nav-links {
-    gap: 0.5rem !important;
-  }
-  
-  .nav-link,
-  .btn-login {
-    padding: 0.6rem 1rem !important;
-    font-size: 0.9rem !important;
-  }
-  
-  .grid {
-    grid-template-columns: 1fr !important;
-    margin: 1.5rem auto !important;
-  }
-  
-  .presentation {
-    margin: 1rem auto 1.5rem !important;
-    padding: 1.25rem !important;
-  }
-  
-  .form-container {
-    padding: 0 0.5rem !important;
-  }
-  
-  .form-content {
-    padding: 1.5rem !important;
-  }
-}
-/* === CSS CORRECTIF POUR PAGES DE FORMULAIRES === */
-/* Ajoutez CECI en plus de votre CSS existant */
-
-/* Page entière en beige */
-body {
-  background: #F5F5F4 !important;
+  .nav::before { font-size: 1.4rem; }
+  .nav-links { gap: .5rem; }
+  .nav-link, .btn-login { padding: .6rem 1rem; font-size: .9rem; }
+  .grid { grid-template-columns: 1fr; margin: 1.5rem auto; }
+  .presentation { margin: 1rem auto 1.5rem; padding: 1.25rem; }
 }
 
-/* Header de formulaire moderne */
-.form-page-header {
+/* =======================================
+   PAGES FORMULAIRES (dissert / com / cas)
+   ======================================= */
+
+/* Fond bordeaux, pleine hauteur */
+main.page-wrap {
   background: var(--brand) !important;
-  color: white !important;
-  padding: 2rem 0 !important;
-  margin: 0 !important;
-  text-align: center !important;
+  min-height: 100vh;
+  padding: 0;
 }
 
-.form-page-header h1 {
-  color: white !important;
-  font-size: 2.5rem !important;
-  font-weight: 800 !important;
-  margin: 0 !important;
-}
-
-/* Container principal */
-.form-main-container {
-  max-width: 600px !important;
-  margin: 2rem auto !important;
-  padding: 0 1rem !important;
-}
-
-/* Carte principale blanche */
-.form-main-card {
-  background: white !important;
-  border-radius: 20px !important;
-  overflow: hidden !important;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1) !important;
-  border: 1px solid #E5E7EB !important;
-}
-
-/* Section description */
-.form-description {
-  background: var(--brand) !important;
-  color: white !important;
-  padding: 1.5rem 2rem !important;
-  text-align: center !important;
-  font-size: 1rem !important;
-  font-weight: 500 !important;
-}
-
-/* Contenu du formulaire */
-.form-main-content {
-  background: white !important;
-  padding: 2rem !important;
-}
-
-/* Groupes de champs */
-.form-field-group {
-  margin-bottom: 1.5rem !important;
-}
-
-/* Labels bordeaux avec texte blanc */
-.form-field-label {
-  display: block !important;
-  background: var(--brand) !important;
-  color: white !important;
-  padding: 0.75rem 1rem !important;
-  font-weight: 600 !important;
-  border-radius: 8px 8px 0 0 !important;
-  margin: 0 !important;
-  font-size: 1rem !important;
-}
-
-/* Inputs blancs */
-.form-field-input {
-  width: 100% !important;
-  padding: 1rem !important;
-  border: 2px solid #E5E7EB !important;
-  border-top: none !important;
-  border-radius: 0 0 8px 8px !important;
-  font-size: 1rem !important;
-  background: white !important;
-  color: #1A1A1A !important;
-  box-sizing: border-box !important;
-  font-family: inherit !important;
-}
-
-.form-field-input:focus {
-  outline: none !important;
-  border-color: var(--brand) !important;
-  box-shadow: 0 0 0 3px rgba(107, 39, 55, 0.1) !important;
-}
-
-/* Zone d'upload moderne et petite */
-.form-upload-zone {
-  border: 2px dashed var(--brand) !important;
-  border-radius: 12px !important;
-  padding: 1.5rem !important;
-  text-align: center !important;
-  background: #F9FAFB !important;
-  cursor: pointer !important;
-  transition: all 0.3s ease !important;
-  margin: 1rem 0 !important;
-}
-
-.form-upload-zone:hover {
-  background: rgba(107, 39, 55, 0.05) !important;
-  transform: translateY(-2px) !important;
-}
-
-/* Icône Word PETITE */
-.form-upload-icon {
-  width: 48px !important;
-  height: 48px !important;
-  margin: 0 auto 0.5rem !important;
-  color: var(--brand) !important;
-}
-
-.form-upload-text {
-  color: var(--brand) !important;
-  font-weight: 600 !important;
-  font-size: 1rem !important;
-  margin: 0 !important;
-}
-
-/* Bouton de soumission */
-.form-submit-button {
-  width: 100% !important;
-  background: var(--brand) !important;
-  color: white !important;
-  padding: 1rem 2rem !important;
-  border: none !important;
-  border-radius: 12px !important;
-  font-size: 1.125rem !important;
-  font-weight: 600 !important;
-  cursor: pointer !important;
-  transition: all 0.3s ease !important;
-  margin-top: 1.5rem !important;
-}
-
-.form-submit-button:hover {
-  background: #5A2129 !important;
-  transform: translateY(-2px) !important;
-  box-shadow: 0 8px 20px rgba(107, 39, 55, 0.3) !important;
-}
-
-/* Suppression du champ sujet */
-.field:has(label[for*="sujet"]),
-.field:has(input[placeholder*="sujet"]) {
-  display: none !important;
-}
-
-/* Suppression input file natif */
-input[type="file"] {
-  display: none !important;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-  .form-main-container {
-    margin: 1rem auto !important;
-    padding: 0 0.5rem !important;
-  }
-  
-  .form-main-content {
-    padding: 1.5rem !important;
-  }
-  
-  .form-page-header h1 {
-    font-size: 2rem !important;
-  }
-}
-/* === CSS CORRECTIF POUR VOS PAGES DE FORMULAIRES === */
-/* Ajoutez CECI à la fin de votre globals.css pour corriger les pages dissertation/commentaire/cas-pratique */
-
-/* Page entière */
-.page-wrap {
-  background: var(--bg) !important;
-  min-height: 100vh !important;
-  padding: 2rem 0 !important;
-}
-
-/* Titre de la page */
+/* Titre + sous-texte (helper) */
 .page-title {
-  background: var(--brand) !important;
-  color: white !important;
-  font-size: 2.5rem !important;
-  font-weight: 800 !important;
-  text-align: center !important;
-  margin: 0 0 1rem 0 !important;
-  padding: 2rem !important;
-  border-radius: 0 !important;
+  background: var(--brand);
+  color: #fff;
+  font-size: 2.5rem;
+  font-weight: 800;
+  text-align: center;
+  margin: 0;
+  padding: 2rem;
+  text-transform: uppercase;
+  letter-spacing: .5px;
 }
-
-/* Description helper */
 .helper {
-  background: var(--brand) !important;
-  color: white !important;
-  text-align: center !important;
-  padding: 1rem 2rem 2rem !important;
-  margin: 0 !important;
-  font-size: 1rem !important;
+  background: var(--brand);
+  color: #fff;
+  text-align: center;
+  padding: 1rem 2rem 2rem;
+  margin: 0;
+  font-size: 1rem;
+  opacity: .95;
 }
 
-/* Panel principal */
+/* Carte du formulaire */
 .panel {
-  max-width: 600px !important;
-  margin: 2rem auto !important;
-  background: white !important;
-  border-radius: 20px !important;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1) !important;
-  overflow: hidden !important;
-  border: 1px solid var(--border) !important;
+  max-width: 600px;
+  margin: 2rem auto;
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 20px 40px rgba(0,0,0,.15);
+  overflow: hidden;
+  border: 1px solid var(--border);
 }
-
-/* Formulaire */
-.form {
-  padding: 2rem !important;
-  background: white !important;
-}
-
-/* Chaque field */
-.field {
-  margin-bottom: 1.5rem !important;
-}
-
-/* Labels bordeaux avec texte blanc */
-.field label {
-  display: block !important;
-  background: var(--brand) !important;
-  color: white !important;
-  padding: 0.75rem 1rem !important;
-  font-weight: 600 !important;
-  border-radius: 8px 8px 0 0 !important;
-  margin: 0 0 -2px 0 !important;
-  font-size: 1rem !important;
-}
-
-/* Inputs et textarea blancs */
-.input,
-.textarea {
-  width: 100% !important;
-  padding: 1rem !important;
-  border: 2px solid var(--border) !important;
-  border-top: none !important;
-  border-radius: 0 0 8px 8px !important;
-  font-size: 1rem !important;
-  background: white !important;
-  color: var(--text) !important;
-  box-sizing: border-box !important;
-  font-family: inherit !important;
-  resize: vertical !important;
-}
-
-.input:focus,
-.textarea:focus {
-  outline: none !important;
-  border-color: var(--brand) !important;
-  box-shadow: 0 0 0 3px rgba(107, 39, 55, 0.1) !important;
-}
-
-/* SUPPRESSION du champ sujet pour dissertation */
-.field:has(label[for="sujet"]) {
-  display: none !important;
-}
-
-/* Uploader container */
-.uploader {
-  margin-top: 1rem !important;
-}
-
-/* Input file caché */
-.uploader-input {
-  display: none !important;
-}
-
-/* Zone d'upload PETITE */
-.uploader-box {
-  display: block !important;
-  border: 2px dashed var(--brand) !important;
-  border-radius: 12px !important;
-  padding: 1.5rem !important;
-  text-align: center !important;
-  background: #F9FAFB !important;
-  cursor: pointer !important;
-  transition: all 0.3s ease !important;
-  text-decoration: none !important;
-}
-
-.uploader-box:hover,
-.uploader-box.is-dragging {
-  background: rgba(107, 39, 55, 0.05) !important;
-  transform: translateY(-2px) !important;
-}
-
-/* Icône Word PETITE */
-.uploader-icon {
-  margin: 0 auto 0.5rem !important;
-  width: 48px !important;
-  height: 48px !important;
-}
-
-.uploader-icon svg {
-  width: 48px !important;
-  height: 48px !important;
-  color: var(--brand) !important;
-}
-
-/* Texte upload */
-.uploader-btn {
-  display: block !important;
-  color: var(--brand) !important;
-  font-weight: 600 !important;
-  font-size: 1rem !important;
-  margin: 0.5rem 0 !important;
-}
-
-/* Nom du fichier */
-.uploader-filename {
-  color: var(--brand) !important;
-  font-size: 0.9rem !important;
-  margin-top: 0.5rem !important;
-  font-weight: 500 !important;
-}
-
-/* Actions container */
-.actions {
-  margin-top: 2rem !important;
-  text-align: center !important;
-}
-
-/* Bouton d'envoi */
-.btn-send {
-  width: 100% !important;
-  background: var(--brand) !important;
-  color: white !important;
-  padding: 1rem 2rem !important;
-  border: none !important;
-  border-radius: 12px !important;
-  font-size: 1.125rem !important;
-  font-weight: 600 !important;
-  cursor: pointer !important;
-  transition: all 0.3s ease !important;
-  text-transform: uppercase !important;
-}
-
-.btn-send:hover {
-  background: var(--brand-2) !important;
-  transform: translateY(-2px) !important;
-  box-shadow: 0 8px 20px rgba(107, 39, 55, 0.3) !important;
-}
-
-/* Messages d'erreur */
-.msg-error {
-  background: #FEF2F2 !important;
-  color: #DC2626 !important;
-  padding: 1rem !important;
-  border-radius: 8px !important;
-  border-left: 4px solid #DC2626 !important;
-  margin: 1rem 0 !important;
-  font-size: 0.95rem !important;
-}
-
-/* Messages de succès */
-.msg-ok {
-  background: #F0FDF4 !important;
-  color: #16A34A !important;
-  padding: 1rem !important;
-  border-radius: 8px !important;
-  border-left: 4px solid #16A34A !important;
-  margin: 1rem 0 !important;
-  font-size: 0.95rem !important;
-}
-
-/* Loader overlay */
-.loader-overlay {
-  position: fixed !important;
-  top: 0 !important;
-  left: 0 !important;
-  right: 0 !important;
-  bottom: 0 !important;
-  background: rgba(0, 0, 0, 0.7) !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  z-index: 1000 !important;
-}
-
-.loader-ring {
-  width: 60px !important;
-  height: 60px !important;
-  border: 4px solid rgba(255, 255, 255, 0.3) !important;
-  border-top: 4px solid white !important;
-  border-radius: 50% !important;
-  animation: spin 1s linear infinite !important;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-/* Navigation sur pages formulaires */
-body:has(.page-wrap) .nav {
-  background: rgba(255, 255, 255, 0.95) !important;
-  backdrop-filter: blur(20px) !important;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-  .page-wrap {
-    padding: 1rem 0 !important;
-  }
-  
-  .panel {
-    margin: 1rem !important;
-  }
-  
-  .form {
-    padding: 1.5rem !important;
-  }
-  
-  .page-title {
-    font-size: 2rem !important;
-    padding: 1.5rem !important;
-  }
-  
-  .uploader-box {
-    padding: 1rem !important;
-  }
-}
-/* === CSS SPÉCIFIQUE PAGES FORMULAIRES SEULEMENT === */
-/* AJOUTEZ CECI À LA FIN DE VOTRE GLOBALS.CSS EXISTANT */
-/* (Ne supprimez rien de votre CSS actuel - ajoutez juste ça à la fin) */
-
-/* === PAGES FORMULAIRES UNIQUEMENT === */
-
-/* Sélecteur spécifique pour les pages de formulaires */
-.page-wrap {
-  background: var(--brand) !important;
-  min-height: 100vh !important;
-  padding: 0 !important;
-}
-
-/* Titre sur fond bordeaux */
-.page-wrap .page-title {
-  background: var(--brand) !important;
-  color: white !important;
-  font-size: 2.5rem !important;
-  font-weight: 800 !important;
-  text-align: center !important;
-  margin: 0 !important;
-  padding: 2rem !important;
-  text-transform: uppercase !important;
-  letter-spacing: 0.5px !important;
-}
-
-/* Helper text */
-.page-wrap .helper {
-  background: var(--brand) !important;
-  color: white !important;
-  text-align: center !important;
-  padding: 1rem 2rem 2rem !important;
-  margin: 0 !important;
-  font-size: 1rem !important;
-  opacity: 0.9 !important;
-}
-
-/* Panel principal */
-.page-wrap .panel {
-  max-width: 600px !important;
-  margin: 2rem auto !important;
-  background: white !important;
-  border-radius: 20px !important;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2) !important;
-  overflow: hidden !important;
-  border: 1px solid #D1CFC8 !important;
-}
-
-/* Formulaire */
-.page-wrap .form {
-  padding: 2rem !important;
-  background: white !important;
-}
+.form { padding: 2rem; background: #fff; }
 
 /* Champs */
-.page-wrap .field {
-  margin-bottom: 1.5rem !important;
-}
-
-/* Labels bordeaux avec texte blanc */
-.page-wrap .field label {
-  display: block !important;
-  background: var(--brand) !important;
-  color: white !important;
-  padding: 0.75rem 1rem !important;
-  font-weight: 600 !important;
-  border-radius: 8px 8px 0 0 !important;
-  margin: 0 0 -2px 0 !important;
-  font-size: 1rem !important;
-}
-
-/* Inputs et textarea blancs */
-.page-wrap .input,
-.page-wrap .textarea {
-  width: 100% !important;
-  padding: 1rem !important;
-  border: 2px solid #D1CFC8 !important;
-  border-top: none !important;
-  border-radius: 0 0 8px 8px !important;
-  font-size: 1rem !important;
-  background: white !important;
-  color: #1A1A1A !important;
-  box-sizing: border-box !important;
-  font-family: inherit !important;
-  resize: vertical !important;
-}
-
-.page-wrap .input:focus,
-.page-wrap .textarea:focus {
-  outline: none !important;
-  border-color: var(--brand) !important;
-  box-shadow: 0 0 0 3px rgba(107, 39, 55, 0.1) !important;
-}
-
-.page-wrap .textarea {
-  min-height: 150px !important;
-}
-
-/* SUPPRESSION DU CHAMP SUJET POUR TOUS LES EXERCICES */
-.page-wrap .field:has(label[for="sujet"]) {
-  display: none !important;
-}
-
-/* Uploader moderne et petit */
-.page-wrap .uploader {
-  margin-top: 1rem !important;
-}
-
-.page-wrap .uploader-input {
-  display: none !important;
-}
-
-.page-wrap .uploader-box {
-  display: block !important;
-  border: 2px dashed var(--brand) !important;
-  border-radius: 12px !important;
-  padding: 1.5rem !important;
-  text-align: center !important;
-  background: #F9FAFB !important;
-  cursor: pointer !important;
-  transition: all 0.3s ease !important;
-  text-decoration: none !important;
-}
-
-.page-wrap .uploader-box:hover,
-.page-wrap .uploader-box.is-dragging {
-  background: rgba(107, 39, 55, 0.05) !important;
-  transform: translateY(-2px) !important;
-}
-
-/* Icône Word PETITE */
-.page-wrap .uploader-icon {
-  margin: 0 auto 0.5rem !important;
-  width: 48px !important;
-  height: 48px !important;
-}
-
-.page-wrap .uploader-icon svg {
-  width: 48px !important;
-  height: 48px !important;
-}
-
-.page-wrap .uploader-btn {
-  display: block !important;
-  color: var(--brand) !important;
-  font-weight: 600 !important;
-  font-size: 1rem !important;
-  margin: 0.5rem 0 !important;
-}
-
-.page-wrap .uploader-filename {
-  color: var(--brand) !important;
-  font-size: 0.9rem !important;
-  margin-top: 0.5rem !important;
-  font-weight: 500 !important;
-}
-
-/* Actions */
-.page-wrap .actions {
-  margin-top: 2rem !important;
-  text-align: center !important;
-}
-
-/* Bouton d'envoi */
-.page-wrap .btn-send {
-  width: 100% !important;
-  background: var(--brand) !important;
-  color: white !important;
-  padding: 1rem 2rem !important;
-  border: none !important;
-  border-radius: 12px !important;
-  font-size: 1.125rem !important;
-  font-weight: 600 !important;
-  cursor: pointer !important;
-  transition: all 0.3s ease !important;
-  text-transform: uppercase !important;
-  letter-spacing: 0.5px !important;
-}
-
-.page-wrap .btn-send:hover {
-  background: var(--brand-light) !important;
-  transform: translateY(-2px) !important;
-  box-shadow: 0 8px 20px rgba(107, 39, 55, 0.3) !important;
-}
-
-/* Messages d'erreur */
-.page-wrap .msg-error {
-  background: #FEF2F2 !important;
-  color: #DC2626 !important;
-  padding: 1rem !important;
-  border-radius: 8px !important;
-  border-left: 4px solid #DC2626 !important;
-  margin: 1rem 0 !important;
-  font-size: 0.95rem !important;
-}
-
-/* Messages de succès */
-.page-wrap .msg-ok {
-  background: #F0FDF4 !important;
-  color: #16A34A !important;
-  padding: 1rem !important;
-  border-radius: 8px !important;
-  border-left: 4px solid #16A34A !important;
-  margin: 1rem 0 !important;
-  font-size: 0.95rem !important;
-}
-
-/* Loader */
-.page-wrap .loader-overlay {
-  position: fixed !important;
-  top: 0 !important;
-  left: 0 !important;
-  right: 0 !important;
-  bottom: 0 !important;
-  background: rgba(0, 0, 0, 0.7) !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  z-index: 1000 !important;
-}
-
-.page-wrap .loader-ring {
-  width: 60px !important;
-  height: 60px !important;
-  border: 4px solid rgba(255, 255, 255, 0.3) !important;
-  border-top: 4px solid white !important;
-  border-radius: 50% !important;
-  animation: spin 1s linear infinite !important;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-/* Navigation sur pages formulaires */
-body:has(.page-wrap) .nav {
-  background: rgba(255, 255, 255, 0.95) !important;
-  backdrop-filter: blur(20px) !important;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-  .page-wrap .panel {
-    margin: 1rem !important;
-  }
-  
-  .page-wrap .form {
-    padding: 1.5rem !important;
-  }
-  
-  .page-wrap .page-title {
-    font-size: 2rem !important;
-    padding: 1.5rem !important;
-  }
-  
-  .page-wrap .uploader-box {
-    padding: 1rem !important;
-  }
-}
-/* === CSS PAGES FORMULAIRES CORRIGÉ === */
-/* Remplacez votre test rouge par ceci */
-
-html body main.page-wrap {
-  background: var(--brand) !important; /* Bordeaux au lieu de rouge */
-  min-height: 100vh !important;
-  padding: 0 !important;
-}
-
-html body main.page-wrap h1.page-title {
-  background: var(--brand) !important;
-  color: white !important;
-  font-size: 2.5rem !important;
-  font-weight: 800 !important;
-  text-align: center !important;
-  margin: 0 !important;
-  padding: 2rem !important;
-  text-transform: uppercase !important;
-}
-
-html body main.page-wrap p.helper {
-  background: var(--brand) !important;
-  color: white !important;
-  text-align: center !important;
-  padding: 1rem 2rem 2rem !important;
-  margin: 0 !important;
-  opacity: 0.9 !important;
-}
-
-html body main.page-wrap section.panel {
-  max-width: 600px !important;
-  margin: 2rem auto !important;
-  background: white !important;
-  border-radius: 20px !important;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2) !important;
-  overflow: hidden !important;
-}
-
-html body main.page-wrap section.panel form.form {
-  padding: 2rem !important;
-  background: white !important;
-}
-
-html body main.page-wrap section.panel form.form div.field {
-  margin-bottom: 1.5rem !important;
-}
-
-html body main.page-wrap section.panel form.form div.field label {
-  display: block !important;
-  background: var(--brand) !important;
-  color: white !important;
-  padding: 0.75rem 1rem !important;
-  font-weight: 600 !important;
-  border-radius: 8px 8px 0 0 !important;
-  margin: 0 !important;
-}
-
-html body main.page-wrap section.panel form.form div.field input.input,
-html body main.page-wrap section.panel form.form div.field textarea.textarea {
-  width: 100% !important;
-  padding: 1rem !important;
-  border: 2px solid #E5E7EB !important;
-  border-top: none !important;
-  border-radius: 0 0 8px 8px !important;
-  background: white !important;
-  color: var(--text) !important;
-  font-size: 1rem !important;
-  box-sizing: border-box !important;
-}
-
-/* SUPPRESSION DU CHAMP MATIÈRE (pas sujet) */
-html body main.page-wrap section.panel form.form div.field:has(label[for="matiere"]) {
-  display: none !important;
-}
-
-html body main.page-wrap section.panel form.form div.field:has(input#matiere) {
-  display: none !important;
-}
-
-/* Uploader petit */
-html body main.page-wrap section.panel form.form div.field div.uploader {
-  margin-top: 1rem !important;
-}
-
-html body main.page-wrap section.panel form.form div.field div.uploader input.uploader-input {
-  display: none !important;
-}
-
-html body main.page-wrap section.panel form.form div.field div.uploader label.uploader-box {
-  border: 2px dashed var(--brand) !important;
-  border-radius: 12px !important;
-  padding: 1.5rem !important;
-  text-align: center !important;
-  background: #F9FAFB !important;
-  cursor: pointer !important;
-  display: block !important;
-}
-
-html body main.page-wrap section.panel form.form div.field div.uploader label.uploader-box div.uploader-icon {
-  width: 48px !important;
-  height: 48px !important;
-  margin: 0 auto 0.5rem !important;
-}
-
-html body main.page-wrap section.panel form.form div.field div.uploader label.uploader-box div.uploader-icon svg {
-  width: 48px !important;
-  height: 48px !important;
-}
-
-html body main.page-wrap section.panel form.form div.field div.uploader label.uploader-box span.uploader-btn {
-  color: var(--brand) !important;
-  font-weight: 600 !important;
-}
-
-html body main.page-wrap section.panel form.form div.actions {
-  margin-top: 2rem !important;
-  text-align: center !important;
-}
-
-html body main.page-wrap section.panel form.form div.actions button.btn-send {
-  width: 100% !important;
-  background: var(--brand) !important;
-  color: white !important;
-  padding: 1rem 2rem !important;
-  border: none !important;
-  border-radius: 12px !important;
-  font-size: 1.125rem !important;
-  font-weight: 600 !important;
-  cursor: pointer !important;
-  text-transform: uppercase !important;
-  transition: all 0.3s ease !important;
-}
-
-html body main.page-wrap section.panel form.form div.actions button.btn-send:hover {
-  background: #8B3545 !important;
-  transform: translateY(-2px) !important;
-}
-
-/* Messages */
-html body main.page-wrap section.panel form.form p.msg-error {
-  background: #FEF2F2 !important;
-  color: #DC2626 !important;
-  padding: 1rem !important;
-  border-radius: 8px !important;
-  margin: 1rem 0 !important;
-}
-
-html body main.page-wrap section.panel form.form p.msg-ok {
-  background: #F0FDF4 !important;
-  color: #16A34A !important;
-  padding: 1rem !important;
-  border-radius: 8px !important;
-  margin: 1rem 0 !important;
-}
-/* FORCER L'AFFICHAGE DU CHAMP SUJET */
-html body main.page-wrap section.panel form.form div.field:has(label[for="sujet"]) {
-  display: block !important;
-  margin-bottom: 1.5rem !important;
-}
-
-html body main.page-wrap section.panel form.form div.field:has(textarea#sujet) {
-  display: block !important;
-  margin-bottom: 1.5rem !important;
-}
-/* FORCER L'AFFICHAGE DU CHAMP SUJET - ULTRA AGRESSIF */
-html body main.page-wrap section.panel form.form div.field:has(label[for="sujet"]),
-html body main.page-wrap section.panel form.form div.field:has(textarea#sujet),
-html body main.page-wrap section.panel form.form div.field:has(input#sujet) {
-  display: block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  height: auto !important;
-  margin-bottom: 1.5rem !important;
-  position: static !important;
-}
-
-/* Label du sujet */
-html body main.page-wrap section.panel form.form div.field label[for="sujet"] {
-  display: block !important;
-  background: var(--brand) !important;
-  color: white !important;
-  padding: 0.75rem 1rem !important;
-  font-weight: 600 !important;
-  border-radius: 8px 8px 0 0 !important;
-  margin: 0 !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-}
-
-/* Textarea du sujet */
-html body main.page-wrap section.panel form.form div.field textarea#sujet {
-  display: block !important;
-  width: 100% !important;
-  padding: 1rem !important;
-  border: 2px solid #E5E7EB !important;
-  border-top: none !important;
-  border-radius: 0 0 8px 8px !important;
-  background: white !important;
-  color: var(--text) !important;
-  font-size: 1rem !important;
-  box-sizing: border-box !important;
-  min-height: 150px !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  position: static !important;
-}
-/* === FORM PAGES ONLY === */
-:root{
-  --brand:#6B2737; /* bordeaux */
-  --bg:#FAFAF9;
-  --text:#1A1A1A;
-  --border:#E5E7EB;
-}
-
-.form-page{
-  background:var(--bg);
-  min-height:100svh;
-  padding:0 16px 48px;
-}
-
-.form-page .title{
-  background:var(--brand);
-  color:#fff;
-  font-weight:800;
-  font-size:clamp(24px,3.5vw,40px);
-  line-height:1.1;
-  text-align:center;
-  margin:0;
-  padding:28px 16px 12px;
-  border-bottom:1px solid rgba(255,255,255,.15);
-}
-
-.form-page .helper{
-  background:var(--brand);
-  color:#fff;
-  text-align:center;
-  margin:0;
-  padding:0 16px 20px;
-}
-
-.form-page .card{
-  max-width:720px;
-  margin:28px auto 0;
-  background:#fff;
-  border:1px solid var(--border);
-  border-radius:16px;
-  box-shadow:0 18px 40px rgba(0,0,0,.06);
-  padding:20px;
-}
-
-.form-page .field{
-  margin-bottom:16px;
-}
-
-.form-page .field > label{
-  display:block;
-  background:var(--brand);
-  color:#fff;
-  font-weight:600;
-  padding:10px 12px;
-  border-radius:10px 10px 0 0;
-  margin:0;
-}
-
-.form-page textarea,
-.form-page input[type="text"]{
-  width:100%;
-  background:#fff;
-  color:var(--text);
-  border:2px solid var(--border);
-  border-top:none;
-  border-radius:0 0 10px 10px;
-  padding:12px 14px;
-  font-size:16px;
-  outline:none;
-}
-
-.form-page textarea{ min-height:140px; resize:vertical; }
-
-/* Uploader */
-.form-page .uploader{ margin-top:8px; }
-.form-page .uploader-input{ display:none; } /* cache "Choisir un fichier" */
-
-.form-page .uploader-box{
-  display:block;
-  border:2px dashed var(--brand);
-  border-radius:12px;
-  padding:18px;
-  text-align:center;
-  background:#F9FAFB;
-  cursor:pointer;
-  transition:transform .05s ease;
-}
-
-.form-page .uploader-box:active{ transform:scale(.99); }
-
-.form-page .uploader-icon{ width:48px; height:48px; margin:0 auto 8px; }
-.form-page .uploader-filename{ margin-top:8px; font-size:14px; color:#374151; }
-
-.form-page .btn{
-  width:100%;
-  margin-top:8px;
-  background:var(--brand);
-  color:#fff;
-  border:none;
-  border-radius:12px;
-  padding:14px 18px;
-  font-weight:700;
-  font-size:16px;
-  cursor:pointer;
-}
-
-.form-page .msg-error{
-  margin-top:10px;
-  color:#b91c1c;
-  background:#fee2e2;
-  border:1px solid #fecaca;
-  padding:10px 12px;
-  border-radius:10px;
-}
-
-.form-page .msg-ok{
-  margin-top:10px;
-  color:#065f46;
-  background:#d1fae5;
-  border:1px solid #a7f3d0;
-  padding:10px 12px;
-  border-radius:10px;
-}
-
-/* Petit overlay pendant l’envoi */
-.form-page .loader{
-  position:fixed; inset:0; display:flex; align-items:center; justify-content:center;
-  background:rgba(0,0,0,.25); backdrop-filter:blur(2px);
-}
-.form-page .ring{
-  width:48px; height:48px; border-radius:50%;
-  border:4px solid #fff; border-top-color:transparent;
-  animation:spin 1s linear infinite;
-}
-@keyframes spin{ to{ transform:rotate(360deg) } }
-/* === REMETTRE LE BORDEAUX SUR LES PAGES FORMULAIRES === */
-html body main.page-wrap {
-  background: var(--brand) !important; /* #6B2737 */
-}
-
-/* Carte blanche + labels bordeaux (mise en page "ancienne" validée) */
-html body main.page-wrap section.panel {
-  background: #fff !important;
-  border-radius: 16px !important;
-}
-
-html body main.page-wrap .field > label {
-  background: var(--brand) !important;
-  color: #fff !important;
-}
-
-/* Champs blancs lisibles */
-html body main.page-wrap .input,
-html body main.page-wrap .textarea {
-  background: #fff !important;
-  color: var(--text, #1A1A1A) !important;
-  border: 2px solid var(--border, #E5E7EB) !important;
-  border-top: none !important;
-}
-/* Sécurise le fond bordeaux sur pages formulaires */
-main.page-wrap { background: var(--brand, #6B2737) !important; }
-
-/* Cache n'importe quel champ "matière" résiduel */
+.field { margin-bottom: 1.5rem; }
+.field > label {
+  display: block;
+  background: var(--brand);
+  color: #fff;
+  padding: .75rem 1rem;
+  font-weight: 600;
+  border-radius: 8px 8px 0 0;
+  margin: 0 0 -2px 0;
+  font-size: 1rem;
+}
+.input, .textarea {
+  width: 100%;
+  padding: 1rem;
+  border: 2px solid var(--border);
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+  font-size: 1rem;
+  background: #fff;
+  color: var(--text);
+  box-sizing: border-box;
+  font-family: inherit;
+  resize: vertical;
+}
+.input:focus, .textarea:focus {
+  outline: none;
+  border-color: var(--brand);
+  box-shadow: 0 0 0 3px rgba(107,39,55,.1);
+}
+
+/* ⚠️ SUPPRESSION DÉFINITIVE DE “MATIÈRE” (champ + label + field) */
 #matiere,
 label[for="matiere"],
-#matiere + .input,
 .field:has(#matiere) {
   display: none !important;
 }
 
-/* Hauteurs si un ancien CSS ré-étire */
-#sujet.textarea {
-  height: auto;
-  min-height: 2cm;
-}
-main.page-wrap[data-route="commentaire"] #sujet.textarea,
-main.page-wrap[data-route="cas-pratique"] #sujet.textarea,
-main.page-wrap[data-route="cas_pratique"] #sujet.textarea {
-  min-height: 3cm;
-}
-/***** PATCH FORMULAIRES — À COLLER TOUT EN BAS DE app/globals.css *****/
-
-/* Fond bordeaux sur les pages formulaire (sans toucher à l'accueil) */
-main.page-wrap { 
-  background: var(--brand, #6B2737) !important; 
-}
-
-/* Carte blanche + labels bordeaux (mise en page validée) */
-main.page-wrap section.panel { 
-  background: #fff !important; 
-  border-radius: 16px !important; 
-}
-main.page-wrap .field > label {
-  background: var(--brand, #6B2737) !important;
-  color: #fff !important;
-}
-
-/* CACHER complètement “Matière” (champ + label + bloc) */
-#matiere,
-label[for="matiere"] {
-  display: none !important;
-}
-.field:has(#matiere) {
-  display: none !important;
-}
-
-/* FORCER l’affichage propre du champ “Sujet” */
+/* ✅ FORCER L’AFFICHAGE DU CHAMP “SUJET” (en blanc) */
+section.panel form .field:has(#sujet) { display: block !important; }
 #sujet {
   display: block !important;
-  background: #ffffff !important;
-  color: var(--text, #1A1A1A) !important;
-  border: 2px solid var(--border, #E5E7EB) !important;
+  background: #fff !important;
+  color: var(--text) !important;
+  border: 2px solid var(--border) !important;
   border-top: none !important;
   border-radius: 0 0 12px 12px !important;
   box-shadow: none !important;
 }
 
-/* HAUTEUR PAR PAGE (détectée par l'ID du file input) */
-/* Dissertation => input fichier id="docx" */
-main.page-wrap:has(#docx) #sujet {
+/* Hauteur par page (détection via ID du file input dans tes pages) */
+main.page-wrap:has(#docx) #sujet { /* Dissertation */
   height: 2cm !important;
   min-height: 2cm !important;
 }
-
-/* Commentaire => id="docx-commentaire" */
-main.page-wrap:has(#docx-commentaire) #sujet {
+main.page-wrap:has(#docx-commentaire) #sujet,    /* Commentaire */
+main.page-wrap:has(#docx-cas-pratique) #sujet {  /* Cas pratique */
   height: 3cm !important;
   min-height: 3cm !important;
 }
 
-/* Cas pratique => id="docx-cas-pratique" */
-main.page-wrap:has(#docx-cas-pratique) #sujet {
-  height: 3cm !important;
-  min-height: 3cm !important;
+/* Uploader compact */
+.uploader { margin-top: 1rem; }
+.uploader-input { display: none; } /* cache l’input natif */
+.uploader-box {
+  display: block;
+  border: 2px dashed var(--brand);
+  border-radius: 12px;
+  padding: 1.5rem;
+  text-align: center;
+  background: #F9FAFB;
+  cursor: pointer;
+  transition: all .3s ease;
+  text-decoration: none;
+}
+.uploader-box:hover,
+.uploader-box.is-dragging {
+  background: rgba(107,39,55,.05);
+  transform: translateY(-2px);
+}
+.uploader-icon { margin: 0 auto .5rem; width: 48px; height: 48px; }
+.uploader-icon svg { width: 48px; height: 48px; }
+.uploader-btn { display: block; color: var(--brand); font-weight: 600; font-size: 1rem; margin: .5rem 0; }
+.uploader-filename { color: var(--brand); font-size: .9rem; margin-top: .5rem; font-weight: 500; }
+
+/* Actions */
+.actions { margin-top: 2rem; text-align: center; }
+.btn-send {
+  width: 100%;
+  background: var(--brand);
+  color: #fff;
+  padding: 1rem 2rem;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .3s ease;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+}
+.btn-send:hover {
+  background: var(--brand-2);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(107,39,55,.3);
 }
 
-/* Champs (input/textarea) en blanc, lisibles */
-main.page-wrap .input,
-main.page-wrap .textarea {
-  background: #fff !important;
-  color: var(--text, #1A1A1A) !important;
-  border: 2px solid var(--border, #E5E7EB) !important;
-  border-top: none !important;
+/* Messages */
+.msg-error {
+  background: #FEF2F2;
+  color: #DC2626;
+  padding: 1rem;
+  border-radius: 8px;
+  border-left: 4px solid #DC2626;
+  margin: 1rem 0;
+  font-size: .95rem;
+}
+.msg-ok {
+  background: #F0FDF4;
+  color: #16A34A;
+  padding: 1rem;
+  border-radius: 8px;
+  border-left: 4px solid #16A34A;
+  margin: 1rem 0;
+  font-size: .95rem;
 }
 
-/* Bouton intact */
-main.page-wrap .btn-send {
-  background: var(--brand, #6B2737) !important;
-  color: #fff !important;
+/* Loader */
+.loader-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.7);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 1000;
+}
+.loader-ring {
+  width: 60px; height: 60px; border: 4px solid rgba(255,255,255,.3);
+  border-top: 4px solid #fff; border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin { 0% { transform: rotate(0deg) } 100% { transform: rotate(360deg) } }
+
+/* Nav sur pages formulaires */
+body:has(.page-wrap) .nav {
+  background: rgba(255,255,255,.95);
+  backdrop-filter: blur(20px);
+}
+
+/* Responsive formulaires */
+@media (max-width: 768px) {
+  .page-wrap { padding: 1rem 0; }
+  .panel { margin: 1rem; }
+  .form { padding: 1.5rem; }
+  .page-title { font-size: 2rem; padding: 1.5rem; }
+  .uploader-box { padding: 1rem; }
 }
