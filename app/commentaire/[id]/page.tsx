@@ -17,12 +17,7 @@ export default async function CommentaireViewPage({ params }: Props) {
 
   if (error || !data) {
     return (
-      <main className="page-wrap" style={{ 
-        maxWidth: 'none', 
-        width: '98%', 
-        margin: '0 auto',
-        padding: '0 1%'
-      }}>
+      <main className="page-wrap correction">
         <p style={{ textAlign: 'justify' }}>❌ Erreur : correction introuvable.</p>
       </main>
     )
@@ -70,12 +65,7 @@ export default async function CommentaireViewPage({ params }: Props) {
   }
 
   return (
-    <main className="page-wrap" style={{ 
-      maxWidth: 'none', 
-      width: '98%', 
-      margin: '0 auto',
-      padding: '0 1%'
-    }}>
+    <main className="page-wrap correction">
       <h1 className="page-title">CORRECTION — COMMENTAIRE</h1>
 
       <section className="panel" style={{ position: 'relative' }}>
