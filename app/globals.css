@@ -646,5 +646,5 @@ main:not(.page-wrap) :is(#qui-suis-je, .qui-suis-je, [id*="qui-suis"], [class*="
 
 /* micro-ajustement mobile (si besoin) */
 @media (max-width: 640px){
-  .nav{ --title-half: 8.2ch; } /* un poil moins large sur petits écrans */
+  .nav{ --title-half: 12.2ch; } /* un poil moins large sur petits écrans */
 }
