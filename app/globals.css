@@ -598,3 +598,4 @@ main:not(.page-wrap) :is(#qui-suis-je, .qui-suis-je, [id*="qui-suis"], [class*="
 @media (max-width: 640px){
   .nav{ --title-half: 5.9ch; }
 }
+.nav{ --brand-gap: 0.7cm; }   /* essaie 0.6–0.9cm */
