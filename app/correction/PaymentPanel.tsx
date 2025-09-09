@@ -56,8 +56,12 @@ export default function PaymentPanel({ refId }: Props) {
       }}
     />
   )
+
   return (
     <div>
+      {/* DEBUG - supprime après test */}
+      <div style={{color: 'yellow', fontSize: '12px', marginBottom: '10px'}}>DEBUG: PaymentPanel v2.0</div>
+      
       <Btn onClick={() => startCheckout("payment")} disabled={loading !== null}>
         <span style={{ textAlign: "left" }}>
           <div>Correction unique</div>
