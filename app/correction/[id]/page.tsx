@@ -82,7 +82,6 @@ export default async function CorrectionPage({ params }: Props) {
     border: "1px solid rgba(255,255,255,0.08)"
   }
 
-  // on passe un identifiant exploitable au Checkout (correctionId ou submissionId)
   const refId = (data as any).submission_id || (data as any).id || theId
 
   return (
@@ -90,7 +89,6 @@ export default async function CorrectionPage({ params }: Props) {
       <h1 className="page-title">CORRECTION</h1>
 
       <section className="panel" style={{ position: "relative" }}>
-        {/* Titre "Début" supprimé */}
         <p style={justify}>{start}</p>
 
         <div style={blurBlock}>
@@ -116,7 +114,7 @@ export default async function CorrectionPage({ params }: Props) {
             <div style={{ opacity: 0.95, marginBottom: 12 }}>
               Accédez à l'intégralité de votre copie corrigée.
             </div>
-            {/* 👉 panel cliquable */}
+            {/* 👉 deux offres seulement */}
             <PaymentPanel refId={refId} />
           </div>
         </div>
