@@ -1,11 +1,4 @@
 // app/correction/PaymentPanel.tsx
-return (
-  <div>
-    {/* DEBUG - supprime après test */}
-    <div style={{color: 'yellow', fontSize: '12px'}}>DEBUG: PaymentPanel v2.0</div>
-    
-    <Btn onClick={() => startCheckout("payment")} disabled={loading !== null}>
-      // ... reste du code
 "use client"
 import { useState } from "react"
 
