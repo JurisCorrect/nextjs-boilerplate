@@ -1,16 +1,18 @@
 // app/commentaire/[id]/page.tsx
 import { supabase } from '@/app/lib/supabase'
-import PaymentPanel from '../../correction/PaymentPanel' // ajuste ce chemin si ton PaymentPanel est ailleurs
+import PaymentPanel from '../../correction/PaymentPanel'
 
-export const dynamic = 'force-dynamic' // pas de cache statique
+export const dynamic = 'force-dynamic'
 
 type Props = { params: { id: string } }
 
 export default async function CommentaireViewPage({ params }: Props) {
+  const theId = params.id; // ← Variable ajoutée pour passer à PaymentPanel
+
   const { data, error } = await supabase
-    .from('corrections') // si ta table est différente, remplace ici
+    .from('corrections')
     .select('result_json')
-    .eq('id', params.id)
+    .eq('id', theId)
     .single()
 
   if (error || !data) {
@@ -40,7 +42,6 @@ export default async function CommentaireViewPage({ params }: Props) {
     zIndex: 1,
   }
 
-  // Boîte bordeaux centrée
   const overlayWrap: React.CSSProperties = {
     position: 'absolute',
     inset: 0 as any,
@@ -51,7 +52,7 @@ export default async function CommentaireViewPage({ params }: Props) {
     zIndex: 30,
   }
   const burgundyBox: React.CSSProperties = {
-    background: '#7b1e3a', // bordeaux chic
+    background: '#7b1e3a',
     color: '#fff',
     borderRadius: 12,
     padding: '16px 18px',
@@ -68,39 +69,34 @@ export default async function CommentaireViewPage({ params }: Props) {
       <h1 className="page-title">CORRECTION — COMMENTAIRE</h1>
 
       <section className="panel" style={{ position: 'relative' }}>
-        {/* Début visible */}
         <h3>Début</h3>
         <p style={justify}>{start}</p>
 
-        {/* Corps flouté (1) */}
         <div style={blurBlock}>
           <p style={justify}>{body.slice(part(0.2), part(0.45))}</p>
         </div>
 
-        {/* Paragraphe central visible (sans titre) */}
         <p style={justify}>{middle}</p>
 
-        {/* Corps flouté (2) */}
         <div style={blurBlock}>
           <p style={justify}>{body.slice(part(0.55))}</p>
         </div>
 
-        {/* Commentaire global : TOUT flouté */}
         <h3>Commentaire global</h3>
         <div style={blurBlock}>
           <p style={justify}>{globalComment}</p>
         </div>
 
-        {/* Carré bordeaux centré */}
         <div style={overlayWrap} aria-hidden>
           <div style={burgundyBox} aria-label="Débloquer la correction">
             <div style={{ fontWeight: 900, marginBottom: 6, letterSpacing: '.3px' }}>
               Débloquer la correction
             </div>
             <div style={{ opacity: 0.95, marginBottom: 10 }}>
-              Accédez à l’intégralité de votre copie corrigée.
+              Accédez à l'intégralité de votre copie corrigée.
             </div>
-            <PaymentPanel />
+            {/* ⬇️ Prop refId ajoutée */}
+            <PaymentPanel refId={theId} />
           </div>
         </div>
       </section>
