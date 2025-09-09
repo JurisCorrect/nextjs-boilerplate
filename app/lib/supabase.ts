@@ -14,7 +14,6 @@ export function getSupabase() {
     auth: { persistSession: false }
   })
 }
-
 /** Client NAVIGATEUR (components "use client") */
 export function getSupabaseBrowser() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
