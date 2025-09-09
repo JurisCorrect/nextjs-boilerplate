@@ -15,7 +15,6 @@ type Body = {
   userId?: string
   exerciseKind?: "dissertation" | "commentaire" | "cas-pratique"
 }
-
 export async function POST(req: Request) {
   try {
     const body = (await req.json()) as Body
