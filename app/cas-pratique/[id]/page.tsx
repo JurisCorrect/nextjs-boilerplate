@@ -22,7 +22,6 @@ export default async function CasPratiqueViewPage({ params }: Props) {
       </main>
     )
   }
-
   const result = data.result_json as any
   const body: string = result.normalizedBody || ''
   const globalComment: string = result.globalComment || ''
