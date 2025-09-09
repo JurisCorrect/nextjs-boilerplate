@@ -1,6 +1,5 @@
 // app/api/checkout/route.ts
 import Stripe from "stripe"
-
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
 
@@ -28,16 +27,25 @@ export async function POST(req: Request) {
     const priceOne = process.env.NEXT_PUBLIC_STRIPE_PRICE_ONE
     const priceSub = process.env.NEXT_PUBLIC_STRIPE_PRICE_SUB
 
+    // === DEBUG ICI (DANS la fonction) ===
+    console.log("=== DEBUG CHECKOUT ===")
+    console.log("mode:", body.mode)
+    console.log("priceOne from env:", priceOne)
+    console.log("priceSub from env:", priceSub)
+    console.log("======================")
+
     if (!siteUrl)  return Response.json({ error: "NEXT_PUBLIC_SITE_URL manquant" }, { status: 500 })
     if (body.mode === "payment"      && !priceOne) return Response.json({ error: "NEXT_PUBLIC_STRIPE_PRICE_ONE manquant" }, { status: 500 })
     if (body.mode === "subscription" && !priceSub) return Response.json({ error: "NEXT_PUBLIC_STRIPE_PRICE_SUB manquant" }, { status: 500 })
 
     const chosenPrice = body.mode === "payment" ? priceOne! : priceSub!
+    
+    console.log("chosenPrice:", chosenPrice) // Debug ici aussi
+    
     if (!/^price_/.test(chosenPrice)) {
       return Response.json({ error: `Mauvais ID: ${chosenPrice}. Il faut un price_… (pas prod_…)` }, { status: 500 })
     }
 
-    // ✅ type-safe: on force le type en string pour la détection Test/Live
     const keyMode = (secretKey as string).startsWith("sk_test_") ? "TEST" : "LIVE"
     console.log("[/api/checkout]", { mode: body.mode, usingPrice: chosenPrice, keyMode })
 
@@ -60,10 +68,3 @@ export async function POST(req: Request) {
     return Response.json({ error: err?.message || String(err) }, { status: 500 })
   }
 }
-// Dans app/api/checkout/route.ts, ajoutez ceci juste après la ligne const chosenPrice = ...
-console.log("=== DEBUG CHECKOUT ===")
-console.log("mode:", body.mode)
-console.log("priceOne from env:", priceOne)
-console.log("priceSub from env:", priceSub) 
-console.log("chosenPrice:", chosenPrice)
-console.log("======================")
