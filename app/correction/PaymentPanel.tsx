@@ -56,7 +56,6 @@ export default function PaymentPanel({ refId }: Props) {
       }}
     />
   )
-
   return (
     <div>
       <Btn onClick={() => startCheckout("payment")} disabled={loading !== null}>
