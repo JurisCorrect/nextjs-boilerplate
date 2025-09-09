@@ -560,4 +560,26 @@ main:not(.page-wrap) :is(#qui-suis-je, .qui-suis-je, [id*="qui-suis"], [class*="
   color: transparent !important;
   text-shadow: none !important;
 }
+/* === Icône loupe à côté du titre JURISCORRECT dans la nav === */
+.nav {
+  /* tu peux ajuster finement le décalage si besoin */
+  --brand-icon-shift: 8.6ch;   /* combien on décale la loupe vers la gauche par rapport au centre */
+  --brand-icon-size: 1.25em;   /* taille de la loupe (proportionnelle au titre) */
+}
+
+.nav::after{
+  content:"";
+  position:absolute;
+  left:50%;
+  top:50%;
+  width:var(--brand-icon-size);
+  height:var(--brand-icon-size);
+  transform:translate(calc(-50% - var(--brand-icon-shift)), -50%);
+  background:var(--brand);               /* couleur bordeaux */
+  pointer-events:none;
+
+  /* Loupe en SVG via mask pour hériter de la couleur */
+  -webkit-mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 21l-4.35-4.35M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15z" fill="none" stroke="%23000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>') no-repeat center / contain;
+          mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 21l-4.35-4.35M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15z" fill="none" stroke="%23000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>') no-repeat center / contain;
+}
 
