@@ -21,7 +21,6 @@ export async function POST(req: Request) {
     if (!body?.mode) {
       return Response.json({ error: "mode manquant" }, { status: 400 })
     }
-
     const siteUrl  = process.env.NEXT_PUBLIC_SITE_URL
     const priceOne = process.env.NEXT_PUBLIC_STRIPE_PRICE_ONE
     const priceSub = process.env.NEXT_PUBLIC_STRIPE_PRICE_SUB
