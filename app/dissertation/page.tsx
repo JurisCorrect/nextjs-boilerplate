@@ -19,7 +19,6 @@ export default function DissertationPage() {
     setErreur("")
     setFichier(file)
   }
-
   const handleDragOver = (e: React.DragEvent) => { e.preventDefault(); setIsDragging(true) }
   const handleDragLeave = (e: React.DragEvent) => { e.preventDefault(); setIsDragging(false) }
   const handleDrop = (e: React.DragEvent) => {
