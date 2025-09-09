@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic'
 type Props = { params: { id: string } }
 
 export default async function CommentaireViewPage({ params }: Props) {
-  const theId = params.id; // ← Variable ajoutée pour passer à PaymentPanel
+  const theId = params.id;
 
   const { data, error } = await supabase
     .from('corrections')
@@ -17,7 +17,7 @@ export default async function CommentaireViewPage({ params }: Props) {
 
   if (error || !data) {
     return (
-      <main className="page-wrap">
+      <main className="page-wrap" style={{ maxWidth: 'none', width: '95%' }}>
         <p style={{ textAlign: 'justify' }}>❌ Erreur : correction introuvable.</p>
       </main>
     )
@@ -65,7 +65,7 @@ export default async function CommentaireViewPage({ params }: Props) {
   }
 
   return (
-    <main className="page-wrap">
+    <main className="page-wrap" style={{ maxWidth: 'none', width: '95%' }}>
       <h1 className="page-title">CORRECTION — COMMENTAIRE</h1>
 
       <section className="panel" style={{ position: 'relative' }}>
@@ -95,7 +95,6 @@ export default async function CommentaireViewPage({ params }: Props) {
             <div style={{ opacity: 0.95, marginBottom: 10 }}>
               Accédez à l'intégralité de votre copie corrigée.
             </div>
-            {/* ⬇️ Prop refId ajoutée */}
             <PaymentPanel refId={theId} />
           </div>
         </div>
