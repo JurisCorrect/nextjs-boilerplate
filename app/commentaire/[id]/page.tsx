@@ -1,5 +1,5 @@
 // app/commentaire/[id]/page.tsx
-import { supabase } from '@/app/lib/supabase'
+import { getSupabase } from '@/app/lib/supabase'
 import PaymentPanel from '../../correction/PaymentPanel'
 
 export const dynamic = 'force-dynamic'
@@ -7,7 +7,9 @@ export const dynamic = 'force-dynamic'
 type Props = { params: { id: string } }
 
 export default async function CommentaireViewPage({ params }: Props) {
-  const theId = params.id;
+  const theId = params.id
+
+  const supabase = getSupabase()
 
   const { data, error } = await supabase
     .from('corrections')
