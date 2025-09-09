@@ -10,15 +10,18 @@ export default function PaymentPanel({ refId }: Props) {
   const startCheckout = async (mode: "payment" | "subscription") => {
     try {
       setLoading(mode === "payment" ? "one" : "sub")
+
+      // ✅ On n’envoie PAS d’ID de prix au serveur.
       const res = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           mode,
           submissionId: refId,
-          // pas de priceId côté client
+          // (facultatif) userId / exerciseKind si tu veux
         }),
       })
+
       const data = await res.json()
       if (!res.ok || !data?.url) throw new Error(data?.error || "Erreur Checkout")
       window.location.href = data.url
