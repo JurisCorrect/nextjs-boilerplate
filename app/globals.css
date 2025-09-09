@@ -601,3 +601,50 @@ main:not(.page-wrap) :is(#qui-suis-je, .qui-suis-je, [id*="qui-suis"], [class*="
 .nav{ --brand-gap: 0.7cm; }   /* essaie 0.6–0.9cm */
 /* Écarte la loupe à ~1 cm du "J" */
 .nav{ --brand-gap: 1cm; }
+/* === LOUPE AVANT "JURISCORRECT" — alignée et à ~1 cm du J === */
+.nav{
+  position: relative;                 /* ancre l'absolu */
+  --brand-icon-size: 1.9rem;          /* hauteur ≈ au titre */
+  --brand-gap: 1cm;                   /* distance voulue entre la loupe et le J */
+  --title-half: 8.6ch;                /* demi-largeur du mot : augmente si encore trop près */
+}
+
+/* Titre centré (inchangé) */
+.nav::before{
+  content: "JURISCORRECT";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%,-50%);
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: var(--brand);
+  letter-spacing: -0.025em;
+  z-index: 1;
+}
+
+/* Loupe bordeaux placée AVANT le J */
+.nav::after{
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: var(--brand-icon-size);
+  height: var(--brand-icon-size);
+  transform: translate(
+    calc(-50% - var(--title-half) - var(--brand-gap) - (var(--brand-icon-size)/2)),
+    -50%
+  );
+  background: var(--brand);     /* même couleur que le titre */
+  pointer-events: none;
+  z-index: 1;
+
+  /* SVG en mask pour hériter de la couleur bordeaux */
+  -webkit-mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 21l-4.35-4.35M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15z" fill="none" stroke="%23000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>') no-repeat center / contain;
+          mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 21l-4.35-4.35M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15z" fill="none" stroke="%23000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>') no-repeat center / contain;
+}
+
+/* micro-ajustement mobile (si besoin) */
+@media (max-width: 640px){
+  .nav{ --title-half: 8.2ch; } /* un poil moins large sur petits écrans */
+}
