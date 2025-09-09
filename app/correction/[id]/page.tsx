@@ -36,7 +36,7 @@ export default async function CorrectionPage({ params }: Props) {
 
   if (error || !data) {
     return (
-      <main className="page-wrap" style={{ maxWidth: "none", width: "95%" }}>
+      <main className="page-wrap correction">
         <p style={{ textAlign: "justify" }}>❌ Erreur : correction introuvable.</p>
       </main>
     )
@@ -85,7 +85,7 @@ export default async function CorrectionPage({ params }: Props) {
   const refId = (data as any).submission_id || (data as any).id || theId
 
   return (
-    <main className="page-wrap" style={{ maxWidth: "none", width: "95%" }}>
+    <main className="page-wrap correction">
       <h1 className="page-title">CORRECTION</h1>
       <section className="panel" style={{ position: "relative" }}>
         <p style={justify}>{start}</p>
