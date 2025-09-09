@@ -1,13 +1,10 @@
-// app/api/stripe/webhook/route.ts
 import Stripe from "stripe";
 
-// ⚠️ App Router : on lit le corps en brut (raw) → runtime Node (pas Edge)
 export const runtime = "nodejs";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
-  apiVersion: "2024-06-20",
+  apiVersion: "2023-10-16",
 });
-
 export async function POST(req: Request) {
   // 1) Lire le RAW body (obligatoire pour vérifier la signature)
   const body = await req.text();
