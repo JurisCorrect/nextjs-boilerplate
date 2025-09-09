@@ -9,7 +9,7 @@ type Props = { params: { id: string } }
 export default async function CasPratiqueViewPage({ params }: Props) {
   const theId = params.id
 
-  // ⬇️ on instancie le client ici (évite le crash si les env ne sont pas prêtes à l'import)
+  // instancie le client ici
   const supabase = getSupabase()
 
   const { data, error } = await supabase
