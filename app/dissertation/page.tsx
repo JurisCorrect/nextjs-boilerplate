@@ -91,6 +91,7 @@ export default function DissertationPage() {
               style={{ height: "2cm", minHeight: "2cm" }}
               value={sujet}
               onChange={(e) => setSujet(e.target.value)}
+              autoComplete="off"
             />
           </div>
 
