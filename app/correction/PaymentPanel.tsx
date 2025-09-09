@@ -2,7 +2,7 @@
 "use client"
 import { useState } from "react"
 
-type Props = { refId: string } // id de correction OU submission, utilisé par le webhook
+type Props = { refId: string }
 
 export default function PaymentPanel({ refId }: Props) {
   const [loading, setLoading] = useState<null | "one" | "sub">(null)
@@ -10,15 +10,11 @@ export default function PaymentPanel({ refId }: Props) {
   const startCheckout = async (mode: "payment" | "subscription") => {
     try {
       setLoading(mode === "payment" ? "one" : "sub")
-
       const priceId =
         mode === "payment"
           ? process.env.NEXT_PUBLIC_STRIPE_PRICE_ONE
           : process.env.NEXT_PUBLIC_STRIPE_PRICE_SUB
-
-      if (!priceId) {
-        throw new Error("Price ID manquant (variables Vercel).")
-      }
+      if (!priceId) throw new Error("Price ID manquant.")
 
       const res = await fetch("/api/checkout", {
         method: "POST",
@@ -32,8 +28,7 @@ export default function PaymentPanel({ refId }: Props) {
       })
       const data = await res.json()
       if (!res.ok || !data?.url) throw new Error(data?.error || "Erreur Checkout")
-
-      window.location.href = data.url // redirection Stripe Checkout
+      window.location.href = data.url
     } catch (e: any) {
       alert(e?.message || String(e))
     } finally {
@@ -41,18 +36,9 @@ export default function PaymentPanel({ refId }: Props) {
     }
   }
 
-  const Btn = ({
-    children,
-    onClick,
-    disabled,
-  }: {
-    children: React.ReactNode
-    onClick: () => void
-    disabled?: boolean
-  }) => (
+  const Btn = (props: any) => (
     <button
-      onClick={onClick}
-      disabled={!!disabled}
+      {...props}
       style={{
         width: "100%",
         display: "flex",
@@ -66,11 +52,9 @@ export default function PaymentPanel({ refId }: Props) {
         border: "1px solid rgba(255,255,255,0.08)",
         color: "#fff",
         fontWeight: 700,
-        cursor: disabled ? "not-allowed" : "pointer",
+        cursor: props.disabled ? "not-allowed" : "pointer",
       }}
-    >
-      {children}
-    </button>
+    />
   )
 
   return (
