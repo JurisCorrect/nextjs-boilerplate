@@ -1,13 +1,13 @@
 // app/cas-pratique/[id]/page.tsx
 import { supabase } from '@/app/lib/supabase'
-import PaymentPanel from '../../correction/PaymentPanel' // ajuste le chemin si besoin
+import PaymentPanel from '../../correction/PaymentPanel'
 
 export const dynamic = 'force-dynamic'
 
 type Props = { params: { id: string } }
 
 export default async function CasPratiqueViewPage({ params }: Props) {
-  const theId = params.id; // ← on récupère l'ID d'URL pour le passer au PaymentPanel
+  const theId = params.id;
 
   const { data, error } = await supabase
     .from('corrections')
@@ -17,11 +17,12 @@ export default async function CasPratiqueViewPage({ params }: Props) {
 
   if (error || !data) {
     return (
-      <main className="page-wrap">
+      <main className="page-wrap" style={{ maxWidth: 'none', width: '95%' }}>
         <p style={{ textAlign: 'justify' }}>❌ Erreur : correction introuvable.</p>
       </main>
     )
   }
+
   const result = data.result_json as any
   const body: string = result.normalizedBody || ''
   const globalComment: string = result.globalComment || ''
@@ -64,7 +65,7 @@ export default async function CasPratiqueViewPage({ params }: Props) {
   }
 
   return (
-    <main className="page-wrap">
+    <main className="page-wrap" style={{ maxWidth: 'none', width: '95%' }}>
       <h1 className="page-title">CORRECTION — CAS PRATIQUE</h1>
 
       <section className="panel" style={{ position: 'relative' }}>
@@ -92,9 +93,8 @@ export default async function CasPratiqueViewPage({ params }: Props) {
               Débloquer la correction
             </div>
             <div style={{ opacity: 0.95, marginBottom: 10 }}>
-              Accédez à l’intégralité de votre copie corrigée.
+              Accédez à l'intégralité de votre copie corrigée.
             </div>
-            {/* ⬇️ Prop refId ajoutée */}
             <PaymentPanel refId={theId} />
           </div>
         </div>
