@@ -599,3 +599,5 @@ main:not(.page-wrap) :is(#qui-suis-je, .qui-suis-je, [id*="qui-suis"], [class*="
   .nav{ --title-half: 5.9ch; }
 }
 .nav{ --brand-gap: 0.7cm; }   /* essaie 0.6–0.9cm */
+/* Écarte la loupe à ~1 cm du "J" */
+.nav{ --brand-gap: 1cm; }
