@@ -60,3 +60,10 @@ export async function POST(req: Request) {
     return Response.json({ error: err?.message || String(err) }, { status: 500 })
   }
 }
+// Dans app/api/checkout/route.ts, ajoutez ceci juste après la ligne const chosenPrice = ...
+console.log("=== DEBUG CHECKOUT ===")
+console.log("mode:", body.mode)
+console.log("priceOne from env:", priceOne)
+console.log("priceSub from env:", priceSub) 
+console.log("chosenPrice:", chosenPrice)
+console.log("======================")
