@@ -687,3 +687,10 @@ main:not(.page-wrap) :is(#qui-suis-je, .qui-suis-je, [id*="qui-suis"], [class*="
 @media (max-width: 640px){
   .nav { --loupe-title-half: 8.6ch; } /* un poil moins à gauche sur petits écrans */
 }
+/* === Centre la DERNIÈRE carte quand il en reste une seule sur une ligne === */
+.grid > .card:last-child{
+  grid-column: 1 / -1;     /* s'étend sur toute la rangée */
+  justify-self: center;    /* centrée */
+  max-width: 560px;        /* garde la même largeur visuelle qu'une carte normale */
+  width: 100%;
+}
