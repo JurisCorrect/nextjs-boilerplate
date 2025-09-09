@@ -32,7 +32,7 @@ export async function POST(req: Request) {
     }
 
     const normalizedBody =
-      (extracted || body.copie || "").trim() || "Document reçu, en attente d’extraction."
+      (extracted || body.copie || "").trim() || "Document reçu, en attente d'extraction."
 
     // submission
     const subIns = await supabase
@@ -53,15 +53,13 @@ export async function POST(req: Request) {
       )
     }
 
-    // correction + 4 forfaits (NOUVEAU : "Correction unique" en premier)
+    // correction avec les NOUVEAUX prix (5€ et 12,99€/mois)
     const result_json = {
       normalizedBody,
       globalComment: `Sujet reçu : ${body.sujet ?? ""}\n\nDébloquez la correction complète.`,
       pricing: [
-        { label: "Correction unique",        price: "3€" },
-        { label: "Pack 5 corrections",       price: "5€" },
-        { label: "Pack 10 corrections",      price: "8€" },
-        { label: "Illimité (mensuel)",       price: "13€ / mois" },
+        { label: "Correction unique",        price: "5€" },
+        { label: "Illimité (mensuel)",       price: "12,99€ / mois" },
       ],
     }
 
