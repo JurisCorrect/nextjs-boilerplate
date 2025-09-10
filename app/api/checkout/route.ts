@@ -17,6 +17,7 @@ type RequestBody = {
   mode: "payment" | "subscription"
   submissionId?: string
   userId?: string
+  userEmail?: string
   exerciseKind?: string
 }
 
@@ -78,8 +79,8 @@ export async function POST(req: Request) {
       }, { status: 500 })
     }
 
-    // URLs de retour
-    const successUrl = `https://nextjs-boilerplate-45ycu87p0-juris-correct.vercel.app/merci?session_id={CHECKOUT_SESSION_ID}`
+    // URLs de retour - CHANGÉ VERS LA NOUVELLE PAGE
+    const successUrl = `https://nextjs-boilerplate-45ycu87p0-juris-correct.vercel.app/paiement-confirme?session_id={CHECKOUT_SESSION_ID}`
     const cancelUrl = `https://nextjs-boilerplate-45ycu87p0-juris-correct.vercel.app/`
 
     console.log("🔗 URLs de retour:")
@@ -98,8 +99,12 @@ export async function POST(req: Request) {
       success_url: successUrl,
       cancel_url: cancelUrl,
       client_reference_id: body.submissionId || undefined,
+      customer_email: body.userEmail, // Email de l'utilisateur connecté
+      // Active Apple Pay, Google Pay et PayPal
+      payment_method_types: ['card', 'paypal'],
       metadata: {
         userId: body.userId || "",
+        userEmail: body.userEmail || "",
         exerciseKind: body.exerciseKind || "",
         productKind: body.mode === "payment" ? "one-shot" : "subscription",
         timestamp: new Date().toISOString(),
@@ -108,8 +113,16 @@ export async function POST(req: Request) {
 
     console.log("⚙️ Création session Stripe avec:", JSON.stringify(sessionParams, null, 2))
 
-    // Création de la session Stripe
-    const session = await stripe.checkout.sessions.create(sessionParams)
+    // Création de la session Stripe avec méthodes de paiement additionnelles
+    const session = await stripe.checkout.sessions.create({
+      ...sessionParams,
+      // Permet l'affichage automatique des wallets disponibles
+      payment_method_options: {
+        card: {
+          request_three_d_secure: 'automatic',
+        }
+      }
+    })
     
     console.log("✅ Session créée:", {
       id: session.id,
