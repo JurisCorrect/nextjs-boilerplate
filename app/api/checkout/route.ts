@@ -79,8 +79,8 @@ export async function POST(req: Request) {
     }
 
     // URLs de retour
-    const successUrl = `${siteUrl}/merci?session_id={CHECKOUT_SESSION_ID}`
-    const cancelUrl = `${siteUrl}/`
+    const successUrl = `https://nextjs-boilerplate-45ycu87p0-juris-correct.vercel.app/merci?session_id={CHECKOUT_SESSION_ID}`
+    const cancelUrl = `https://nextjs-boilerplate-45ycu87p0-juris-correct.vercel.app/`
 
     console.log("🔗 URLs de retour:")
     console.log("  Success:", successUrl)
