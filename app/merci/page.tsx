@@ -1,0 +1,116 @@
+"use client"
+import { Suspense } from 'react'
+import { useSearchParams } from 'next/navigation'
+
+function MerciContent() {
+  const searchParams = useSearchParams()
+  const sessionId = searchParams.get('session_id')
+  
+  return (
+    <main className="page-wrap">
+      <div style={{
+        textAlign: 'center',
+        padding: '60px 20px',
+        maxWidth: '700px',
+        margin: '0 auto'
+      }}>
+        <h1 style={{
+          fontSize: '3rem',
+          fontWeight: 'bold',
+          color: '#ffffff',
+          marginBottom: '20px'
+        }}>
+          Paiement réussi !
+        </h1>
+        
+        <p style={{
+          fontSize: '1.3rem',
+          color: '#ffffff',
+          marginBottom: '40px',
+          opacity: 0.9
+        }}>
+          Merci pour votre achat. Votre paiement a été traité avec succès.
+        </p>
+
+        <div style={{
+          backgroundColor: 'rgba(255, 255, 255, 0.1)',
+          backdropFilter: 'blur(10px)',
+          borderRadius: '16px',
+          padding: '30px',
+          marginBottom: '40px'
+        }}>
+          <h3 style={{
+            color: '#ffffff',
+            fontSize: '1.3rem',
+            marginBottom: '20px'
+          }}>
+            Que se passe-t-il maintenant ?
+          </h3>
+          <div style={{
+            color: '#ffffff',
+            lineHeight: 1.8,
+            fontSize: '1.1rem'
+          }}>
+            <div style={{ marginBottom: '8px' }}>Vous recevrez un email de confirmation</div>
+            <div style={{ marginBottom: '8px' }}>Votre correction est accessible immédiatement</div>
+            <div>Contactez notre support si besoin</div>
+          </div>
+        </div>
+
+        <div style={{
+          display: 'flex',
+          gap: '20px',
+          justifyContent: 'center',
+          marginBottom: '40px'
+        }}>
+          <a 
+            href={sessionId ? `/correction-complete?session_id=${sessionId}` : '/'}
+            style={{
+              backgroundColor: '#ffffff',
+              color: '#7b1e3a',
+              padding: '16px 32px',
+              borderRadius: '12px',
+              textDecoration: 'none',
+              fontWeight: '700',
+              fontSize: '1.1rem'
+            }}
+          >
+            Voir la correction
+          </a>
+          
+          <a 
+            href="/"
+            style={{
+              backgroundColor: 'rgba(255, 255, 255, 0.15)',
+              color: '#ffffff',
+              padding: '16px 32px',
+              borderRadius: '12px',
+              textDecoration: 'none',
+              fontWeight: '600'
+            }}
+          >
+            Retour à l'accueil
+          </a>
+        </div>
+
+        <div style={{
+          backgroundColor: 'rgba(255, 255, 255, 0.1)',
+          borderRadius: '12px',
+          padding: '20px',
+          color: '#ffffff'
+        }}>
+          <strong>Besoin d'aide ?</strong><br />
+          Contactez-nous à <a href="mailto:marie.terki@icloud.com" style={{color: '#ffffff'}}>marie.terki@icloud.com</a>
+        </div>
+      </div>
+    </main>
+  )
+}
+
+export default function MerciPage() {
+  return (
+    <Suspense fallback={<div style={{color: '#ffffff', textAlign: 'center', padding: '60px'}}>Chargement...</div>}>
+      <MerciContent />
+    </Suspense>
+  )
+}
