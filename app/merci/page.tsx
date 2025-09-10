@@ -1,141 +1,63 @@
-// app/api/checkout/route.ts
-import Stripe from "stripe"
+export default function MerciPage() {
+  return (
+    <main className="page-wrap">
+      <div style={{
+        textAlign: 'center',
+        padding: '60px 20px',
+        color: '#ffffff'
+      }}>
+        <h1 style={{
+          fontSize: '3rem',
+          fontWeight: 'bold',
+          marginBottom: '20px'
+        }}>
+          Paiement réussi !
+        </h1>
+        
+        <p style={{
+          fontSize: '1.3rem',
+          marginBottom: '40px',
+          opacity: 0.9
+        }}>
+          Merci pour votre achat. Votre paiement a été traité avec succès.
+        </p>
 
-export const runtime = "nodejs"
-export const dynamic = "force-dynamic"
+        <div style={{ marginBottom: '40px' }}>
+          <a 
+            href="/correction-complete"
+            style={{
+              backgroundColor: '#ffffff',
+              color: '#7b1e3a',
+              padding: '16px 32px',
+              borderRadius: '12px',
+              textDecoration: 'none',
+              fontWeight: '700',
+              fontSize: '1.1rem',
+              marginRight: '15px'
+            }}
+          >
+            Voir la correction
+          </a>
+          
+          <a 
+            href="/"
+            style={{
+              backgroundColor: 'rgba(255, 255, 255, 0.15)',
+              color: '#ffffff',
+              padding: '16px 32px',
+              borderRadius: '12px',
+              textDecoration: 'none',
+              fontWeight: '600'
+            }}
+          >
+            Retour à l'accueil
+          </a>
+        </div>
 
-const secretKey = process.env.STRIPE_SECRET_KEY
-if (!secretKey) {
-  throw new Error("STRIPE_SECRET_KEY manquant dans les variables d'environnement")
-}
-
-const stripe = new Stripe(secretKey, { 
-  apiVersion: "2023-10-16" 
-})
-
-type RequestBody = {
-  mode: "payment" | "subscription"
-  submissionId?: string
-  userId?: string
-  userEmail?: string
-  exerciseKind?: string
-}
-
-export async function POST(req: Request) {
-  console.log("🔧 API Checkout appelée")
-  
-  try {
-    const body = (await req.json()) as RequestBody
-    console.log("📥 Body reçu:", JSON.stringify(body, null, 2))
-    
-    // Validation du mode
-    if (!body?.mode || !["payment", "subscription"].includes(body.mode)) {
-      console.log("❌ Mode invalide:", body?.mode)
-      return Response.json({ 
-        error: "Mode requis: 'payment' ou 'subscription'" 
-      }, { status: 400 })
-    }
-
-    // Variables d'environnement
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL
-    const priceOne = process.env.NEXT_PUBLIC_STRIPE_PRICE_ONE  // 5€
-    const priceSub = process.env.NEXT_PUBLIC_STRIPE_PRICE_SUB  // 12,99€/mois
-
-    // Debug des variables
-    console.log("🔍 Variables d'environnement:")
-    console.log("  SITE_URL:", siteUrl)
-    console.log("  PRICE_ONE:", priceOne)
-    console.log("  PRICE_SUB:", priceSub)
-    console.log("  SECRET_KEY:", secretKey?.substring(0, 12) + "..." || "MANQUANT")
-
-    // Validation des variables
-    if (!siteUrl) {
-      return Response.json({ 
-        error: "NEXT_PUBLIC_SITE_URL manquant" 
-      }, { status: 500 })
-    }
-    
-    if (body.mode === "payment" && !priceOne) {
-      return Response.json({ 
-        error: "NEXT_PUBLIC_STRIPE_PRICE_ONE manquant" 
-      }, { status: 500 })
-    }
-    
-    if (body.mode === "subscription" && !priceSub) {
-      return Response.json({ 
-        error: "NEXT_PUBLIC_STRIPE_PRICE_SUB manquant" 
-      }, { status: 500 })
-    }
-
-    // Sélection du prix
-    const selectedPrice = body.mode === "payment" ? priceOne! : priceSub!
-    console.log("💰 Prix sélectionné:", selectedPrice)
-
-    // Validation du format Price ID
-    if (!selectedPrice.startsWith("price_")) {
-      console.log("❌ Format Price ID invalide:", selectedPrice)
-      return Response.json({ 
-        error: `ID invalide: ${selectedPrice}. Doit commencer par 'price_'` 
-      }, { status: 500 })
-    }
-
-    // URLs de retour - REDIRECTION VERS PAGE MERCI
-    const successUrl = `https://nextjs-boilerplate-45ycu87p0-juris-correct.vercel.app/merci?session_id={CHECKOUT_SESSION_ID}`
-    const cancelUrl = `https://nextjs-boilerplate-45ycu87p0-juris-correct.vercel.app/`
-
-    console.log("🔗 URLs de retour:")
-    console.log("  Success:", successUrl)
-    console.log("  Cancel:", cancelUrl)
-
-    // Création de la session Stripe
-    const session = await stripe.checkout.sessions.create({
-      mode: body.mode,
-      line_items: [
-        {
-          price: selectedPrice,
-          quantity: 1,
-        }
-      ],
-      success_url: successUrl,
-      cancel_url: cancelUrl,
-      client_reference_id: body.submissionId || undefined,
-      customer_email: body.userEmail,
-      payment_method_types: ['card', 'paypal'] as any,
-      metadata: {
-        userId: body.userId || "",
-        userEmail: body.userEmail || "",
-        exerciseKind: body.exerciseKind || "",
-        productKind: body.mode === "payment" ? "one-shot" : "subscription",
-        timestamp: new Date().toISOString(),
-      },
-    })
-    
-    console.log("✅ Session créée:", {
-      id: session.id,
-      hasUrl: !!session.url,
-      mode: session.mode,
-    })
-
-    if (!session.url) {
-      throw new Error("Stripe n'a pas retourné d'URL de redirection")
-    }
-
-    return Response.json({ 
-      url: session.url,
-      sessionId: session.id 
-    }, { status: 200 })
-
-  } catch (error: any) {
-    console.error("❌ Erreur API Checkout:")
-    console.error("  Message:", error.message)
-    console.error("  Type:", error.type || "inconnu")
-    console.error("  Code:", error.code || "inconnu")
-    console.error("  Stack:", error.stack)
-
-    return Response.json({ 
-      error: error.message || "Erreur interne du serveur",
-      type: error.type || "unknown_error",
-      code: error.code || "unknown_code"
-    }, { status: 500 })
-  }
+        <p style={{ opacity: 0.8 }}>
+          Contactez-nous à <a href="mailto:marie.terki@icloud.com" style={{color: '#ffffff'}}>marie.terki@icloud.com</a>
+        </p>
+      </div>
+    </main>
+  )
 }
