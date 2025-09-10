@@ -1,6 +1,6 @@
 // app/merci/page.tsx
 "use client"
-import { Suspense, useEffect, useState } from 'react'
+import { Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 
 function MerciContent() {
@@ -89,12 +89,14 @@ function MerciContent() {
               cursor: 'pointer'
             }}
             onMouseOver={(e) => {
-              e.target.style.transform = 'translateY(-2px)'
-              e.target.style.boxShadow = '0 6px 20px rgba(0,0,0,0.3)'
+              const target = e.target as HTMLElement
+              target.style.transform = 'translateY(-2px)'
+              target.style.boxShadow = '0 6px 20px rgba(0,0,0,0.3)'
             }}
             onMouseOut={(e) => {
-              e.target.style.transform = 'translateY(0)'
-              e.target.style.boxShadow = '0 4px 15px rgba(0,0,0,0.2)'
+              const target = e.target as HTMLElement
+              target.style.transform = 'translateY(0)'
+              target.style.boxShadow = '0 4px 15px rgba(0,0,0,0.2)'
             }}
           >
             Voir la correction
