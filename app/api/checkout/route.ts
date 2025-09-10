@@ -79,41 +79,15 @@ export async function POST(req: Request) {
       }, { status: 500 })
     }
 
-    // URLs de retour - CHANGÉ VERS LA NOUVELLE PAGE
-    const successUrl = `https://nextjs-boilerplate-45ycu87p0-juris-correct.vercel.app/paiement-confirme?session_id={CHECKOUT_SESSION_ID}`
+    // URLs de retour - REDIRECTION VERS ACCUEIL AVEC PARAMETRE
+    const successUrl = `https://nextjs-boilerplate-45ycu87p0-juris-correct.vercel.app/?payment_success=true&session_id={CHECKOUT_SESSION_ID}`
     const cancelUrl = `https://nextjs-boilerplate-45ycu87p0-juris-correct.vercel.app/`
 
     console.log("🔗 URLs de retour:")
     console.log("  Success:", successUrl)
     console.log("  Cancel:", cancelUrl)
 
-    // Paramètres de la session Stripe
-    const sessionParams = {
-      mode: body.mode,
-      line_items: [
-        {
-          price: selectedPrice,
-          quantity: 1,
-        }
-      ],
-      success_url: successUrl,
-      cancel_url: cancelUrl,
-      client_reference_id: body.submissionId || undefined,
-      customer_email: body.userEmail, // Email de l'utilisateur connecté
-      // Active Apple Pay, Google Pay et PayPal
-      payment_method_types: ['card', 'paypal'],
-      metadata: {
-        userId: body.userId || "",
-        userEmail: body.userEmail || "",
-        exerciseKind: body.exerciseKind || "",
-        productKind: body.mode === "payment" ? "one-shot" : "subscription",
-        timestamp: new Date().toISOString(),
-      },
-    }
-
-    console.log("⚙️ Création session Stripe avec:", JSON.stringify(sessionParams, null, 2))
-
-    // Création de la session Stripe avec méthodes de paiement additionnelles
+    // Création de la session Stripe
     const session = await stripe.checkout.sessions.create({
       mode: body.mode,
       line_items: [
@@ -126,7 +100,7 @@ export async function POST(req: Request) {
       cancel_url: cancelUrl,
       client_reference_id: body.submissionId || undefined,
       customer_email: body.userEmail,
-      payment_method_types: ['card', 'paypal'] as any, // Force le type pour éviter l'erreur TS
+      payment_method_types: ['card', 'paypal'] as any,
       metadata: {
         userId: body.userId || "",
         userEmail: body.userEmail || "",
