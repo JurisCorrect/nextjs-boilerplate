@@ -45,7 +45,7 @@ export async function POST(req: Request) {
     console.log("  SITE_URL:", siteUrl)
     console.log("  PRICE_ONE:", priceOne)
     console.log("  PRICE_SUB:", priceSub)
-    console.log("  SECRET_KEY:", secretKey.substring(0, 12) + "...")
+    console.log("  SECRET_KEY:", secretKey?.substring(0, 12) + "..." || "MANQUANT")
 
     // Validation des variables
     if (!siteUrl) {
