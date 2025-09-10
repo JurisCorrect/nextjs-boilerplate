@@ -115,13 +115,25 @@ export async function POST(req: Request) {
 
     // Création de la session Stripe avec méthodes de paiement additionnelles
     const session = await stripe.checkout.sessions.create({
-      ...sessionParams,
-      // Permet l'affichage automatique des wallets disponibles
-      payment_method_options: {
-        card: {
-          request_three_d_secure: 'automatic',
+      mode: body.mode,
+      line_items: [
+        {
+          price: selectedPrice,
+          quantity: 1,
         }
-      }
+      ],
+      success_url: successUrl,
+      cancel_url: cancelUrl,
+      client_reference_id: body.submissionId || undefined,
+      customer_email: body.userEmail,
+      payment_method_types: ['card', 'paypal'] as any, // Force le type pour éviter l'erreur TS
+      metadata: {
+        userId: body.userId || "",
+        userEmail: body.userEmail || "",
+        exerciseKind: body.exerciseKind || "",
+        productKind: body.mode === "payment" ? "one-shot" : "subscription",
+        timestamp: new Date().toISOString(),
+      },
     })
     
     console.log("✅ Session créée:", {
