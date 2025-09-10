@@ -1,63 +1,33 @@
+// app/merci/page.tsx
 export default function MerciPage() {
   return (
-    <main className="page-wrap">
-      <div style={{
-        textAlign: 'center',
-        padding: '60px 20px',
-        color: '#ffffff'
-      }}>
-        <h1 style={{
-          fontSize: '3rem',
-          fontWeight: 'bold',
-          marginBottom: '20px'
-        }}>
-          Paiement réussi !
-        </h1>
-        
-        <p style={{
-          fontSize: '1.3rem',
-          marginBottom: '40px',
-          opacity: 0.9
-        }}>
-          Merci pour votre achat. Votre paiement a été traité avec succès.
-        </p>
-
-        <div style={{ marginBottom: '40px' }}>
-          <a 
-            href="/correction-complete"
-            style={{
-              backgroundColor: '#ffffff',
-              color: '#7b1e3a',
-              padding: '16px 32px',
-              borderRadius: '12px',
-              textDecoration: 'none',
-              fontWeight: '700',
-              fontSize: '1.1rem',
-              marginRight: '15px'
-            }}
-          >
-            Voir la correction
-          </a>
-          
-          <a 
-            href="/"
-            style={{
-              backgroundColor: 'rgba(255, 255, 255, 0.15)',
-              color: '#ffffff',
-              padding: '16px 32px',
-              borderRadius: '12px',
-              textDecoration: 'none',
-              fontWeight: '600'
-            }}
-          >
-            Retour à l'accueil
-          </a>
-        </div>
-
-        <p style={{ opacity: 0.8 }}>
-          Contactez-nous à <a href="mailto:marie.terki@icloud.com" style={{color: '#ffffff'}}>marie.terki@icloud.com</a>
-        </p>
+    <div style={{
+      minHeight: '100vh',
+      background: '#7b1e3a',
+      color: '#fff',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      textAlign: 'center',
+      padding: 24
+    }}>
+      <div>
+        <h1 style={{ fontSize: 32, marginBottom: 16 }}>Paiement réussi !</h1>
+        <p style={{ marginBottom: 24 }}>Merci pour votre achat.</p>
+        <a
+          href="/correction-complete"
+          style={{
+            background: '#fff',
+            color: '#7b1e3a',
+            padding: '12px 20px',
+            borderRadius: 10,
+            textDecoration: 'none',
+            fontWeight: 700
+          }}
+        >
+          Voir la correction
+        </a>
       </div>
-    </main>
+    </div>
   )
 }
