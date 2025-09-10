@@ -114,10 +114,12 @@ function MerciContent() {
               border: '2px solid rgba(255, 255, 255, 0.3)'
             }}
             onMouseOver={(e) => {
-              e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.25)'
+              const target = e.target as HTMLElement
+              target.style.backgroundColor = 'rgba(255, 255, 255, 0.25)'
             }}
             onMouseOut={(e) => {
-              e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.15)'
+              const target = e.target as HTMLElement
+              target.style.backgroundColor = 'rgba(255, 255, 255, 0.15)'
             }}
           >
             Retour à l'accueil
