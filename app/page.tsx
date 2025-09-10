@@ -1,99 +1,8 @@
 // app/page.tsx
-"use client"
 import Link from "next/link"
-import { useSearchParams } from 'next/navigation'
-import { Suspense } from 'react'
 
-function HomeContent() {
-  const searchParams = useSearchParams()
-  const paymentSuccess = searchParams.get('payment_success')
-  
-  // Si paiement réussi, afficher la confirmation
-  if (paymentSuccess) {
-    return (
-      <main className="page-wrap">
-        <div style={{
-          textAlign: 'center',
-          padding: '60px 20px',
-          maxWidth: '700px',
-          margin: '0 auto',
-          color: '#ffffff'
-        }}>
-          <h1 style={{
-            fontSize: '3rem',
-            fontWeight: 'bold',
-            marginBottom: '20px'
-          }}>
-            Paiement réussi !
-          </h1>
-          
-          <p style={{
-            fontSize: '1.3rem',
-            marginBottom: '40px',
-            opacity: 0.9
-          }}>
-            Merci pour votre achat. Votre paiement a été traité avec succès.
-          </p>
-
-          <div style={{
-            backgroundColor: 'rgba(255, 255, 255, 0.1)',
-            borderRadius: '16px',
-            padding: '30px',
-            marginBottom: '40px'
-          }}>
-            <div style={{ lineHeight: 1.8, fontSize: '1.1rem' }}>
-              <div style={{ marginBottom: '8px' }}>Vous recevrez un email de confirmation</div>
-              <div style={{ marginBottom: '8px' }}>Votre correction est accessible immédiatement</div>
-              <div>Contactez notre support si besoin</div>
-            </div>
-          </div>
-
-          <div style={{ marginBottom: '40px' }}>
-            <a 
-              href="/correction-complete"
-              style={{
-                backgroundColor: '#ffffff',
-                color: '#7b1e3a',
-                padding: '16px 32px',
-                borderRadius: '12px',
-                textDecoration: 'none',
-                fontWeight: '700',
-                fontSize: '1.1rem',
-                marginRight: '15px'
-              }}
-            >
-              Voir la correction
-            </a>
-            
-            <a 
-              href="/"
-              style={{
-                backgroundColor: 'rgba(255, 255, 255, 0.15)',
-                color: '#ffffff',
-                padding: '16px 32px',
-                borderRadius: '12px',
-                textDecoration: 'none',
-                fontWeight: '600'
-              }}
-            >
-              Retour à l'accueil
-            </a>
-          </div>
-
-          <div style={{
-            backgroundColor: 'rgba(255, 255, 255, 0.1)',
-            borderRadius: '12px',
-            padding: '20px'
-          }}>
-            <strong>Besoin d'aide ?</strong><br />
-            Contactez-nous à <a href="mailto:marie.terki@icloud.com" style={{color: '#ffffff'}}>marie.terki@icloud.com</a>
-          </div>
-        </div>
-      </main>
-    )
-  }
-
-  // Page d'accueil normale
+export default function Home() {
+  // Pastilles de la nav (alignées à droite)
   const pill: React.CSSProperties = {
     display: "inline-flex",
     alignItems: "center",
@@ -167,6 +76,9 @@ function HomeContent() {
           <span className="card-arrow">→</span>
         </Link>
       </section>
+
+      {/* ===== TARIFS SUPPRIMÉS - maintenant sur page dédiée ===== */}
+      {/* Section tarifs supprimée car bouton Tarifs ajouté dans navigation */}
 
       {/* ===== AVIS / BIO ===== */}
       <section className="container" id="avis" style={{ scrollMarginTop: 90 }}>
@@ -304,13 +216,5 @@ function HomeContent() {
         </div>
       </section>
     </main>
-  )
-}
-
-export default function Home() {
-  return (
-    <Suspense fallback={<div>Chargement...</div>}>
-      <HomeContent />
-    </Suspense>
   )
 }
