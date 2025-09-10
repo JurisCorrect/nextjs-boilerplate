@@ -15,7 +15,6 @@ function MerciContent() {
         maxWidth: '700px',
         margin: '0 auto'
       }}>
-        
         <h1 style={{
           fontSize: '3rem',
           fontWeight: 'bold',
@@ -74,7 +73,7 @@ function MerciContent() {
           marginBottom: '40px'
         }}>
           <a 
-            href={sessionId ? `/correction-complete?session_id=${sessionId}` : '/corrections'}
+            href={sessionId ? `/correction-complete?session_id=${sessionId}` : '/'}
             style={{
               backgroundColor: '#ffffff',
               color: '#7b1e3a',
@@ -83,20 +82,7 @@ function MerciContent() {
               textDecoration: 'none',
               fontWeight: '700',
               fontSize: '1.1rem',
-              transition: 'all 0.3s ease',
-              boxShadow: '0 4px 15px rgba(0,0,0,0.2)',
-              border: 'none',
-              cursor: 'pointer'
-            }}
-            onMouseOver={(e) => {
-              const target = e.target as HTMLElement
-              target.style.transform = 'translateY(-2px)'
-              target.style.boxShadow = '0 6px 20px rgba(0,0,0,0.3)'
-            }}
-            onMouseOut={(e) => {
-              const target = e.target as HTMLElement
-              target.style.transform = 'translateY(0)'
-              target.style.boxShadow = '0 4px 15px rgba(0,0,0,0.2)'
+              boxShadow: '0 4px 15px rgba(0,0,0,0.2)'
             }}
           >
             Voir la correction
@@ -112,16 +98,7 @@ function MerciContent() {
               textDecoration: 'none',
               fontWeight: '600',
               fontSize: '1.1rem',
-              transition: 'all 0.3s ease',
               border: '2px solid rgba(255, 255, 255, 0.3)'
-            }}
-            onMouseOver={(e) => {
-              const target = e.target as HTMLElement
-              target.style.backgroundColor = 'rgba(255, 255, 255, 0.25)'
-            }}
-            onMouseOut={(e) => {
-              const target = e.target as HTMLElement
-              target.style.backgroundColor = 'rgba(255, 255, 255, 0.15)'
             }}
           >
             Retour à l'accueil
