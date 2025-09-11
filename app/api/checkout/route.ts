@@ -19,11 +19,16 @@ type RequestBody = {
   exerciseKind?: string
 }
 
-// GET TEMPORAIRE: affiche les URLs calculées (pratique pour vérifier en prod)
-export async function GET(req: Request) {
-  const proto = req.headers.get("x-forwarded-proto") ?? "https"
-  const host = req.headers.get("host") ?? ""
-  const base = `${proto}://${host}`.replace(/\/$/, "")
+// ⚓️ Ton domaine de production (forcé pour éviter les 404 après paiement)
+const PROD_HOST = "nextjs-boilerplate-45ycu87p0-juris-correct.vercel.app"
+
+function getProdBase() {
+  return `https://${PROD_HOST}`
+}
+
+// Route GET de debug (facultatif mais très utile)
+export async function GET() {
+  const base = getProdBase()
   return Response.json({
     base,
     successUrl: `${base}/merci?session_id={CHECKOUT_SESSION_ID}`,
@@ -38,15 +43,11 @@ export async function POST(req: Request) {
       return Response.json({ error: "Mode requis: 'payment' ou 'subscription'" }, { status: 400 })
     }
 
-    // ⚡️ On reconstruit la base directement depuis la requête (aucune ENV requise)
-    const proto = req.headers.get("x-forwarded-proto") ?? "https"
-    const host = req.headers.get("host") ?? ""
-    const base = `${proto}://${host}`.replace(/\/$/, "")
-
-    // Prices depuis ENV (obligatoire) — mais l’URL n’en dépend pas.
-    const priceOne = process.env.NEXT_PUBLIC_STRIPE_PRICE_ONE
-    const priceSub = process.env.NEXT_PUBLIC_STRIPE_PRICE_SUB
+    // IDs de prix Stripe depuis l'env (obligatoires)
+    const priceOne = process.env.NEXT_PUBLIC_STRIPE_PRICE_ONE   // 5€
+    const priceSub = process.env.NEXT_PUBLIC_STRIPE_PRICE_SUB   // 12,99€/mois
     const selectedPrice = body.mode === "payment" ? priceOne : priceSub
+
     if (!selectedPrice) {
       return Response.json({ error: `Price ID manquant pour ${body.mode}` }, { status: 500 })
     }
@@ -54,8 +55,10 @@ export async function POST(req: Request) {
       return Response.json({ error: `ID invalide: ${selectedPrice}` }, { status: 500 })
     }
 
+    // 🔒 On force toujours le domaine de PROD pour la redirection
+    const base = getProdBase()
     const successUrl = `${base}/merci?session_id={CHECKOUT_SESSION_ID}`
-    const cancelUrl = `${base}/`
+    const cancelUrl  = `${base}/`
 
     const params: Stripe.Checkout.SessionCreateParams = {
       mode: body.mode,
@@ -64,7 +67,8 @@ export async function POST(req: Request) {
       cancel_url: cancelUrl,
       client_reference_id: body.submissionId,
       customer_email: body.userEmail,
-      payment_method_types: ["card"], // Apple Pay/Google Pay via "Wallets" dans le Dashboard
+      // Apple Pay / Google Pay s'activent via Dashboard (Wallets). Laisser "card".
+      payment_method_types: ["card"],
       metadata: {
         userId: body.userId ?? "",
         userEmail: body.userEmail ?? "",
