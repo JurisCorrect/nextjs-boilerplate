@@ -19,22 +19,9 @@ type RequestBody = {
   exerciseKind?: string
 }
 
-// ⚓️ Ton domaine de production (forcé pour éviter les 404 après paiement)
+// ⚓️ Domaine PROD forcé pour éviter les 404 après paiement
 const PROD_HOST = "nextjs-boilerplate-45ycu87p0-juris-correct.vercel.app"
-
-function getProdBase() {
-  return `https://${PROD_HOST}`
-}
-
-// Route GET de debug (facultatif mais très utile)
-export async function GET() {
-  const base = getProdBase()
-  return Response.json({
-    base,
-    successUrl: `${base}/merci?session_id={CHECKOUT_SESSION_ID}`,
-    cancelUrl: `${base}/`,
-  })
-}
+const PROD_BASE = `https://${PROD_HOST}`
 
 export async function POST(req: Request) {
   try {
@@ -43,11 +30,9 @@ export async function POST(req: Request) {
       return Response.json({ error: "Mode requis: 'payment' ou 'subscription'" }, { status: 400 })
     }
 
-    // IDs de prix Stripe depuis l'env (obligatoires)
     const priceOne = process.env.NEXT_PUBLIC_STRIPE_PRICE_ONE   // 5€
     const priceSub = process.env.NEXT_PUBLIC_STRIPE_PRICE_SUB   // 12,99€/mois
     const selectedPrice = body.mode === "payment" ? priceOne : priceSub
-
     if (!selectedPrice) {
       return Response.json({ error: `Price ID manquant pour ${body.mode}` }, { status: 500 })
     }
@@ -55,10 +40,8 @@ export async function POST(req: Request) {
       return Response.json({ error: `ID invalide: ${selectedPrice}` }, { status: 500 })
     }
 
-    // 🔒 On force toujours le domaine de PROD pour la redirection
-    const base = getProdBase()
-    const successUrl = `${base}/merci?session_id={CHECKOUT_SESSION_ID}`
-    const cancelUrl  = `${base}/`
+    const successUrl = `${PROD_BASE}/merci?session_id={CHECKOUT_SESSION_ID}`
+    const cancelUrl  = `${PROD_BASE}/`
 
     const params: Stripe.Checkout.SessionCreateParams = {
       mode: body.mode,
@@ -67,8 +50,7 @@ export async function POST(req: Request) {
       cancel_url: cancelUrl,
       client_reference_id: body.submissionId,
       customer_email: body.userEmail,
-      // Apple Pay / Google Pay s'activent via Dashboard (Wallets). Laisser "card".
-      payment_method_types: ["card"],
+      payment_method_types: ["card"], // Apple Pay/Google Pay via Dashboard (Wallets)
       metadata: {
         userId: body.userId ?? "",
         userEmail: body.userEmail ?? "",
