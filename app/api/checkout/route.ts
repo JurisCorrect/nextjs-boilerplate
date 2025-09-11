@@ -19,45 +19,44 @@ type RequestBody = {
   exerciseKind?: string
 }
 
+// GET TEMPORAIRE: affiche les URLs calculées (pratique pour vérifier en prod)
+export async function GET(req: Request) {
+  const proto = req.headers.get("x-forwarded-proto") ?? "https"
+  const host = req.headers.get("host") ?? ""
+  const base = `${proto}://${host}`.replace(/\/$/, "")
+  return Response.json({
+    base,
+    successUrl: `${base}/merci?session_id={CHECKOUT_SESSION_ID}`,
+    cancelUrl: `${base}/`,
+  })
+}
+
 export async function POST(req: Request) {
   try {
     const body = (await req.json()) as RequestBody
-
-    if (!body?.mode || (body.mode !== "payment" && body.mode !== "subscription")) {
-      return Response.json(
-        { error: "Mode requis: 'payment' ou 'subscription'" },
-        { status: 400 }
-      )
+    if (body.mode !== "payment" && body.mode !== "subscription") {
+      return Response.json({ error: "Mode requis: 'payment' ou 'subscription'" }, { status: 400 })
     }
 
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL
-    const priceOne = process.env.NEXT_PUBLIC_STRIPE_PRICE_ONE  // 5€
-    const priceSub = process.env.NEXT_PUBLIC_STRIPE_PRICE_SUB  // 12,99€/mois
+    // ⚡️ On reconstruit la base directement depuis la requête (aucune ENV requise)
+    const proto = req.headers.get("x-forwarded-proto") ?? "https"
+    const host = req.headers.get("host") ?? ""
+    const base = `${proto}://${host}`.replace(/\/$/, "")
 
-    if (!siteUrl) {
-      return Response.json({ error: "NEXT_PUBLIC_SITE_URL manquant" }, { status: 500 })
-    }
-
+    // Prices depuis ENV (obligatoire) — mais l’URL n’en dépend pas.
+    const priceOne = process.env.NEXT_PUBLIC_STRIPE_PRICE_ONE
+    const priceSub = process.env.NEXT_PUBLIC_STRIPE_PRICE_SUB
     const selectedPrice = body.mode === "payment" ? priceOne : priceSub
     if (!selectedPrice) {
-      return Response.json(
-        { error: `Price ID manquant pour le mode ${body.mode}` },
-        { status: 500 }
-      )
+      return Response.json({ error: `Price ID manquant pour ${body.mode}` }, { status: 500 })
     }
     if (!selectedPrice.startsWith("price_")) {
-      return Response.json(
-        { error: `ID invalide: ${selectedPrice}. Doit commencer par 'price_'` },
-        { status: 500 }
-      )
+      return Response.json({ error: `ID invalide: ${selectedPrice}` }, { status: 500 })
     }
 
-    // Toujours sans slash final, puis redirige vers /merci
-    const base = siteUrl.replace(/\/$/, "")
     const successUrl = `${base}/merci?session_id={CHECKOUT_SESSION_ID}`
     const cancelUrl = `${base}/`
 
-    // Tipage strict Stripe
     const params: Stripe.Checkout.SessionCreateParams = {
       mode: body.mode,
       line_items: [{ price: selectedPrice, quantity: 1 }],
@@ -65,32 +64,20 @@ export async function POST(req: Request) {
       cancel_url: cancelUrl,
       client_reference_id: body.submissionId,
       customer_email: body.userEmail,
-      // Apple Pay / Google Pay s’affichent avec 'card' si Wallets est activé dans le Dashboard.
-      payment_method_types: ["card"],
+      payment_method_types: ["card"], // Apple Pay/Google Pay via "Wallets" dans le Dashboard
       metadata: {
         userId: body.userId ?? "",
         userEmail: body.userEmail ?? "",
         exerciseKind: body.exerciseKind ?? "",
         productKind: body.mode === "payment" ? "one-shot" : "subscription",
-        timestamp: new Date().toISOString(),
       },
     }
 
     const session = await stripe.checkout.sessions.create(params)
-
-    if (!session.url) {
-      throw new Error("Stripe n'a pas retourné d'URL de redirection")
-    }
+    if (!session.url) throw new Error("Stripe n'a pas retourné d'URL")
 
     return Response.json({ url: session.url, sessionId: session.id }, { status: 200 })
-  } catch (error: any) {
-    return Response.json(
-      {
-        error: error?.message || "Erreur interne du serveur",
-        type: error?.type || "unknown_error",
-        code: error?.code || "unknown_code",
-      },
-      { status: 500 }
-    )
+  } catch (e: any) {
+    return Response.json({ error: e?.message || "Erreur interne du serveur" }, { status: 500 })
   }
 }
