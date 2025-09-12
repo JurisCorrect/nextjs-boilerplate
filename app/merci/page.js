@@ -11,7 +11,9 @@ export default function MerciPage() {
       padding: '24px'
     }}>
       <div style={{ maxWidth: '720px', width: '100%' }}>
-        <h1 style={{ fontSize: '36px', fontWeight: '800', marginBottom: '12px' }}>Paiement réussi !</h1>
+        <h1 style={{ fontSize: '36px', fontWeight: '800', marginBottom: '12px' }}>
+          Paiement réussi !
+        </h1>
         <p style={{ fontSize: '18px', lineHeight: '1.6', opacity: '0.95', marginBottom: '28px' }}>
           Merci pour votre achat. Votre paiement a bien été traité.
         </p>
