@@ -34,7 +34,7 @@ export default function MerciPage() {
             </div>
           </div>
 
-          <div>
+          <div style={{ display: 'flex', gap: 14, justifyContent: 'center', flexWrap: 'wrap' }}>
             
               href="/correction-complete"
               style={{
@@ -45,7 +45,6 @@ export default function MerciPage() {
                 textDecoration: 'none',
                 fontWeight: 800,
                 fontSize: 16,
-                marginRight: 14,
                 display: 'inline-block'
               }}
             >
