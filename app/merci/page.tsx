@@ -1,3 +1,5 @@
+import React from "react"
+
 export default function MerciPage() {
   return (
     <main className="page-wrap">
@@ -16,7 +18,7 @@ export default function MerciPage() {
           <p style={{ fontSize: 18, lineHeight: 1.6, opacity: 0.95, marginBottom: 28 }}>
             Merci pour votre achat. Votre paiement a bien été traité.
           </p>
-
+          
           <div style={{
             background: 'rgba(255,255,255,0.10)',
             border: '1px solid rgba(255,255,255,0.20)',
@@ -27,46 +29,29 @@ export default function MerciPage() {
             <h3 style={{ margin: 0, fontSize: 20, fontWeight: 700, marginBottom: 12 }}>
               Et maintenant ?
             </h3>
-            <div style={{ textAlign: 'left', lineHeight: 1.8, fontSize: 16 }}>
-              <div>• Un email de confirmation vous a été envoyé.</div>
-              <div>• Votre correction est maintenant accessible.</div>
-              <div>• Support : marie.terki@icloud.com</div>
-            </div>
+            <p style={{ textAlign: 'left', lineHeight: 1.8, fontSize: 16, margin: 0 }}>
+              Un email de confirmation vous a été envoyé.<br/>
+              Votre correction est maintenant accessible.<br/>
+              Support : marie.terki@icloud.com
+            </p>
           </div>
 
-          <div style={{ display: 'flex', gap: 14, justifyContent: 'center', flexWrap: 'wrap' }}>
-            
-              href="/correction-complete"
-              style={{
-                background: '#fff',
-                color: '#7b1e3a',
-                padding: '14px 20px',
-                borderRadius: 12,
-                textDecoration: 'none',
-                fontWeight: 800,
-                fontSize: 16,
-                display: 'inline-block'
-              }}
-            >
-              Voir la correction
-            </a>
-            
-              href="/"
-              style={{
-                background: 'transparent',
-                border: '2px solid rgba(255,255,255,0.35)',
-                color: '#fff',
-                padding: '12px 18px',
-                borderRadius: 12,
-                textDecoration: 'none',
-                fontWeight: 700,
-                fontSize: 16,
-                display: 'inline-block'
-              }}
-            >
-              Retour à l'accueil
-            </a>
-          </div>
+          
+            href="/correction-complete"
+            style={{
+              background: '#fff',
+              color: '#7b1e3a',
+              padding: '14px 20px',
+              borderRadius: 12,
+              textDecoration: 'none',
+              fontWeight: 700,
+              fontSize: 16,
+              marginRight: 14,
+              display: 'inline-block'
+            }}
+          >
+            Voir la correction
+          </a>
         </div>
       </div>
     </main>
