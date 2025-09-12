@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // si tu avais des options dans l'ancien fichier, on pourra les remettre ici
+  // Configuration de base
 };
 
-export default nextConfig;
+module.exports = nextConfig;
