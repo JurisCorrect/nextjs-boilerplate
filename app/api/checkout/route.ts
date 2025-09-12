@@ -32,7 +32,7 @@ export async function POST(req: Request) {
     if (!selectedPrice.startsWith("price_")) {
       return Response.json({ error: `ID invalide: ${selectedPrice}` }, { status: 500 })
     }
-    const successUrl = `${PROD_BASE}/merci?session_id={CHECKOUT_SESSION_ID}`
+    const successUrl = `${PROD_BASE}/merci-nouveau?session_id={CHECKOUT_SESSION_ID}`
     const cancelUrl  = `${PROD_BASE}/`
     const params: Stripe.Checkout.SessionCreateParams = {
       mode: body.mode,
