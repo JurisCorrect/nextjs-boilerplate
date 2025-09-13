@@ -157,7 +157,7 @@ export default function EspaceClientHome() {
               </div>
             </Link>
 
-            {/* Gestion de l’abonnement */}
+            {/* Gestion de l’abonnement (sans portail Stripe) */}
             <Link href="/espace-client/abonnement" style={tile}>
               <div style={{ color:BRAND, fontWeight:900, marginBottom:6 }}>Gestion de l’abonnement</div>
               <ul style={{ color:MUTED, fontSize:14, lineHeight:1.6, margin:'0 0 12px 18px' }}>
@@ -165,7 +165,7 @@ export default function EspaceClientHome() {
                 <li>Prochaine date de facturation</li>
                 <li>Historique des paiements</li>
                 <li>Changer de plan / Résilier</li>
-                <li>Portail client Stripe</li>
+                {/* Portail client Stripe — supprimé */}
               </ul>
               <div style={{ display:'flex', justifyContent:'flex-end' }}>
                 <div style={{
@@ -177,14 +177,14 @@ export default function EspaceClientHome() {
             </Link>
           </div>
 
-          {/* Ligne 2 : Mon compte en pleine largeur (rappel de la home) */}
+          {/* Ligne 2 : Mon compte (sans préférences de notification) */}
           <div style={{ marginTop:24 }}>
             <Link href="/espace-client/compte" style={tile}>
               <div style={{ color:BRAND, fontWeight:900, marginBottom:6 }}>Mon compte</div>
               <ul style={{ color:MUTED, fontSize:14, lineHeight:1.6, margin:'0 0 12px 18px' }}>
                 <li>Email de connexion</li>
                 <li>Changer le mot de passe</li>
-                <li>Préférences de notification email</li>
+                {/* Préférences de notification — supprimées */}
               </ul>
               <div style={{ display:'flex', justifyContent:'flex-end' }}>
                 <div style={{
