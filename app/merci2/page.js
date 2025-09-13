@@ -3,9 +3,6 @@
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 
-// on force le rendu dynamique; PAS d'export revalidate ici
-export const dynamic = 'force-dynamic'
-
 export default function Merci2Page() {
   const [corrLink, setCorrLink] = useState('/correction-complete')
   const [ver, setVer] = useState('')
@@ -55,7 +52,7 @@ export default function Merci2Page() {
             Merci pour votre achat. Votre paiement a bien été traité.
           </p>
 
-          <div style={{ ...card, padding:'16px', boxShadow:'none', border:'1px dashed rgba(0,0,0,.08)', marginTop:8 }}>
+        <div style={{ ...card, padding:'16px', boxShadow:'none', border:'1px dashed rgba(0,0,0,.08)', marginTop:8 }}>
             <h3 style={{ color:'#222', fontWeight:900, margin:'0 0 8px' }}>Que se passe-t-il maintenant ?</h3>
             <ul style={{ color:MUTED, margin:'0 0 8px 18px', lineHeight:1.7 }}>
               <li>Un email de confirmation vient de vous être envoyé.</li>
@@ -69,6 +66,7 @@ export default function Merci2Page() {
             <Link href="/login" style={ghost}>Accéder à mon compte</Link>
           </div>
 
+          {/* Badge version pour voir si la bonne build s’affiche */}
           <div style={{ marginTop:12, color:MUTED, fontSize:12 }}>
             version: <code>{ver}</code>
           </div>
