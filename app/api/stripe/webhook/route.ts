@@ -1,21 +1,20 @@
 import Stripe from "stripe"
 import { createClient } from "@supabase/supabase-js"
 
-export const runtime = "nodejs"          // pas d'Edge pour Stripe
-export const dynamic = "force-dynamic"   // évite la mise en cache
+export const runtime = "nodejs"
+export const dynamic = "force-dynamic"
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
   apiVersion: "2023-10-16",
 })
 
-// Client Supabase admin (Service Role) – côté serveur uniquement
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL as string,
-  process.env.SUPABASE_SERVICE_ROLE_KEY as string // ⚠️ SERVICE ROLE (secret)
+  process.env.SUPABASE_SERVICE_ROLE_KEY as string // SERVICE ROLE (secret, serveur uniquement)
 )
 
 export async function POST(req: Request) {
-  // 1) RAW body obligatoire pour vérifier la signature Stripe
+  // Stripe exige le RAW body
   const body = await req.text()
   const sig = req.headers.get("stripe-signature")
   if (!sig) return new Response("Missing stripe-signature", { status: 400 })
@@ -36,51 +35,46 @@ export async function POST(req: Request) {
       case "checkout.session.completed": {
         const session = event.data.object as Stripe.Checkout.Session
 
-        // Email du client côté Stripe (toujours présent si l'email a été saisi)
         const email =
           session.customer_details?.email ||
           (session.customer_email as string | null) ||
           null
 
-        // (Optionnel) ce que tu as passé dans /api/checkout
         const mode = session.mode // "payment" | "subscription"
         const submissionId =
           (session.client_reference_id as string | undefined) ||
           (session.metadata?.submissionId as string | undefined)
-        const userIdMeta = session.metadata?.userId as string | undefined
 
-        // === Création/Invitation de l'utilisateur Supabase ===
         if (email) {
-          // Déjà un user ?
-          const existing = await supabaseAdmin.auth.admin.getUserByEmail(email)
+          // On tente l’invitation systématiquement
+          const redirectTo = process.env.NEXT_PUBLIC_SITE_URL
+            ? `${process.env.NEXT_PUBLIC_SITE_URL}/login?email_confirmed=1`
+            : undefined
 
-          if (!existing?.data?.user) {
-            // Pas de compte → on ENVOIE une invitation "définir le mot de passe"
-            // Lien de redirection après set-password (facultatif)
-            const redirectTo =
-              (process.env.NEXT_PUBLIC_SITE_URL
-                ? `${process.env.NEXT_PUBLIC_SITE_URL}/login?email_confirmed=1`
-                : undefined)
-
-            await supabaseAdmin.auth.admin.inviteUserByEmail(email, {
+          const { error } = await supabaseAdmin.auth.admin.inviteUserByEmail(
+            email,
+            {
+              // méta optionnelle
               data: {
                 source: "stripe_checkout",
                 last_checkout_session: session.id,
                 mode,
                 submissionId: submissionId || null,
               },
-              // @ts-ignore - redirectTo est supporté par Supabase
-              redirectTo,
-            })
+              // TS ne connaît pas redirectTo sur inviteUserByEmail → cast
+            } as any
+          )
+
+          // Si l'utilisateur existe déjà, Supabase renvoie une erreur “already registered/exists”.
+          if (error && !/already|exist/i.test(error.message)) {
+            console.error("Invite error:", error.message)
           }
 
-          // (Optionnel) persister l’achat / déverrouiller l’accès
-          // Exemple :
-          // await supabaseAdmin.from("correction_access").insert({
+          // (Optionnel) déverrouiller l’accès / tracer l’achat dans ta DB :
+          // await supabaseAdmin.from("purchases").insert({
           //   email,
           //   session_id: session.id,
           //   submission_id: submissionId,
-          //   access: true,
           //   paid_at: new Date().toISOString(),
           // })
         }
@@ -97,7 +91,7 @@ export async function POST(req: Request) {
         const status = sub.status
         const currentPeriodEnd = sub.current_period_end
 
-        // (Optionnel) synchroniser l'abonnement dans ta DB
+        // (Optionnel) sync abonnement
         // await supabaseAdmin.from("subscriptions").upsert({
         //   stripe_customer_id: stripeCustomerId,
         //   stripe_subscription_id: stripeSubscriptionId,
