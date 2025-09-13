@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 export default function LoginPage() {
   const [tab, setTab] = useState('login') // 'login' | 'register'
@@ -15,6 +15,19 @@ export default function LoginPage() {
   const [regEmail, setRegEmail] = useState('')
   const [regPassword, setRegPassword] = useState('')
   const [regConfirm, setRegConfirm] = useState('')
+
+  // Affiche le message "Email confirmé" quand on revient du lien Supabase
+  useEffect(() => {
+    try {
+      const params = new URLSearchParams(window.location.search)
+      if (params.get('email_confirmed') === '1') {
+        setTab('login')
+        setMsg({ type: 'ok', text: 'Email confirmé ✅ Vous pouvez maintenant vous connecter.' })
+        // Nettoie l’URL (retire ?email_confirmed=1)
+        window.history.replaceState(null, '', window.location.pathname)
+      }
+    } catch {}
+  }, [])
 
   function Notice() {
     if (!msg) return null
@@ -37,7 +50,7 @@ export default function LoginPage() {
     setMsg(null)
     setBusy(true)
     try {
-      // ⚡ Lazy import = rien ne casse avant le clic
+      // ⚡ Lazy import pour éviter tout blocage avant l’action utilisateur
       const { createClient } = await import('@supabase/supabase-js')
       const url = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
       const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
@@ -49,8 +62,8 @@ export default function LoginPage() {
       })
       if (error) throw error
 
-      // Redirection après login
-      window.location.href = '/correction-complete'
+      // ➜ Redirection vers l’espace client après connexion
+      window.location.href = '/espace-client'
     } catch (err) {
       setMsg({ type: 'err', text: err?.message || 'Erreur de connexion' })
     } finally {
