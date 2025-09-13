@@ -1,24 +1,8 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
-import { createClient } from '@supabase/supabase-js'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useState } from 'react'
 
 export default function LoginPage() {
-  const router = useRouter()
-  const search = useSearchParams()
-
-  // ✅ JS pur (pas de "as string")
-  const supabase = useMemo(() => {
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL
-    const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-    // Affiche un message clair si les env vars manquent
-    if (!url || !key) {
-      console.warn('Supabase env vars manquantes. Ajoute NEXT_PUBLIC_SUPABASE_URL et NEXT_PUBLIC_SUPABASE_ANON_KEY dans Vercel.')
-    }
-    return createClient(url || '', key || '')
-  }, [])
-
   const [tab, setTab] = useState('login') // 'login' | 'register'
   const [busy, setBusy] = useState(false)
   const [msg, setMsg] = useState(null) // { type: 'ok'|'err', text: string }
@@ -32,24 +16,41 @@ export default function LoginPage() {
   const [regPassword, setRegPassword] = useState('')
   const [regConfirm, setRegConfirm] = useState('')
 
-  useEffect(() => {
-    if (search?.get('email_confirmed') === '1') {
-      setTab('login')
-      setMsg({ type: 'ok', text: 'Email confirmé ✅ Vous pouvez maintenant vous connecter.' })
+  function Notice() {
+    if (!msg) return null
+    const base = {
+      marginTop: 14,
+      padding: 12,
+      borderRadius: 8,
+      fontWeight: 600,
+      textAlign: 'center',
     }
-  }, [search])
+    const style =
+      msg.type === 'ok'
+        ? { ...base, color: '#2ed573', background: 'rgba(46,213,115,0.12)' }
+        : { ...base, color: '#ff6b6b', background: 'rgba(255,107,107,0.12)' }
+    return <div style={style}>{msg.text}</div>
+  }
 
   async function handleLogin(e) {
     e.preventDefault()
     setMsg(null)
     setBusy(true)
     try {
+      // ⚡ Lazy import = rien ne casse avant le clic
+      const { createClient } = await import('@supabase/supabase-js')
+      const url = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
+      const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
+      const supabase = createClient(url, key)
+
       const { error } = await supabase.auth.signInWithPassword({
         email: loginEmail.trim(),
-        password: loginPassword
+        password: loginPassword,
       })
       if (error) throw error
-      router.push('/correction-complete')
+
+      // Redirection après login
+      window.location.href = '/correction-complete'
     } catch (err) {
       setMsg({ type: 'err', text: err?.message || 'Erreur de connexion' })
     } finally {
@@ -72,17 +73,24 @@ export default function LoginPage() {
 
     setBusy(true)
     try {
+      const { createClient } = await import('@supabase/supabase-js')
+      const url = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
+      const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
+      const supabase = createClient(url, key)
+
       const emailRedirectTo = `${window.location.origin}/login?email_confirmed=1`
       const { error } = await supabase.auth.signUp({
         email: regEmail.trim(),
         password: regPassword,
-        options: { emailRedirectTo }
+        options: { emailRedirectTo },
       })
       if (error) throw error
 
       setMsg({
         type: 'ok',
-        text: "Compte créé 🎉 Vérifiez votre boîte mail et cliquez sur le lien de confirmation."
+        text:
+          'Compte créé 🎉 Vérifiez votre boîte mail et cliquez sur le lien de confirmation. ' +
+          'Vous serez redirigé(e) vers la page de connexion.',
       })
       setRegEmail('')
       setRegPassword('')
@@ -95,27 +103,11 @@ export default function LoginPage() {
     }
   }
 
-  function Notice() {
-    if (!msg) return null
-    const styleBase = {
-      marginTop: 14,
-      padding: 12,
-      borderRadius: 8,
-      fontWeight: 600,
-      textAlign: 'center'
-    }
-    const style =
-      msg.type === 'ok'
-        ? { ...styleBase, color: '#2ed573', background: 'rgba(46,213,115,0.12)' }
-        : { ...styleBase, color: '#ff6b6b', background: 'rgba(255,107,107,0.12)' }
-    return <div style={style}>{msg.text}</div>
-  }
-
   return (
     <main className="page-wrap">
       <h1 className="page-title">CONNEXION / INSCRIPTION</h1>
 
-      {/* Onglets (même style que ton site) */}
+      {/* Onglets */}
       <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 30 }}>
         <button
           type="button"
@@ -128,7 +120,7 @@ export default function LoginPage() {
             borderRadius: '8px 0 0 8px',
             cursor: 'pointer',
             fontWeight: 600,
-            fontSize: 16
+            fontSize: 16,
           }}
         >
           Se connecter
@@ -144,7 +136,7 @@ export default function LoginPage() {
             borderRadius: '0 8px 8px 0',
             cursor: 'pointer',
             fontWeight: 600,
-            fontSize: 16
+            fontSize: 16,
           }}
         >
           Créer un compte
