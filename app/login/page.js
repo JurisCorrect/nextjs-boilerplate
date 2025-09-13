@@ -8,18 +8,20 @@ export default function LoginPage() {
   const router = useRouter()
   const search = useSearchParams()
 
-  const supabase = useMemo(
-    () =>
-      createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL as string,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string
-      ),
-    []
-  )
+  // ✅ JS pur (pas de "as string")
+  const supabase = useMemo(() => {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    // Affiche un message clair si les env vars manquent
+    if (!url || !key) {
+      console.warn('Supabase env vars manquantes. Ajoute NEXT_PUBLIC_SUPABASE_URL et NEXT_PUBLIC_SUPABASE_ANON_KEY dans Vercel.')
+    }
+    return createClient(url || '', key || '')
+  }, [])
 
-  const [tab, setTab] = useState<'login' | 'register'>('login')
+  const [tab, setTab] = useState('login') // 'login' | 'register'
   const [busy, setBusy] = useState(false)
-  const [msg, setMsg] = useState<{ type: 'ok' | 'err'; text: string } | null>(null)
+  const [msg, setMsg] = useState(null) // { type: 'ok'|'err', text: string }
 
   // Champs login
   const [loginEmail, setLoginEmail] = useState('')
@@ -30,18 +32,14 @@ export default function LoginPage() {
   const [regPassword, setRegPassword] = useState('')
   const [regConfirm, setRegConfirm] = useState('')
 
-  // Quand l’email est confirmé par le lien Supabase :
   useEffect(() => {
     if (search?.get('email_confirmed') === '1') {
       setTab('login')
-      setMsg({
-        type: 'ok',
-        text: "Email confirmé ✅ Vous pouvez maintenant vous connecter."
-      })
+      setMsg({ type: 'ok', text: 'Email confirmé ✅ Vous pouvez maintenant vous connecter.' })
     }
   }, [search])
 
-  async function handleLogin(e: React.FormEvent) {
+  async function handleLogin(e) {
     e.preventDefault()
     setMsg(null)
     setBusy(true)
@@ -51,16 +49,15 @@ export default function LoginPage() {
         password: loginPassword
       })
       if (error) throw error
-      // Connexion OK → espace client
       router.push('/correction-complete')
-    } catch (err: any) {
+    } catch (err) {
       setMsg({ type: 'err', text: err?.message || 'Erreur de connexion' })
     } finally {
       setBusy(false)
     }
   }
 
-  async function handleRegister(e: React.FormEvent) {
+  async function handleRegister(e) {
     e.preventDefault()
     setMsg(null)
 
@@ -85,63 +82,74 @@ export default function LoginPage() {
 
       setMsg({
         type: 'ok',
-        text:
-          "Compte créé 🎉 Vérifiez votre boîte mail et cliquez sur le lien de confirmation. " +
-          "Vous serez redirigé(e) vers la page de connexion."
+        text: "Compte créé 🎉 Vérifiez votre boîte mail et cliquez sur le lien de confirmation."
       })
       setRegEmail('')
       setRegPassword('')
       setRegConfirm('')
       setTab('login')
-    } catch (err: any) {
-      // Exemple : “User already registered”
+    } catch (err) {
       setMsg({ type: 'err', text: err?.message || "Erreur lors de l'inscription" })
     } finally {
       setBusy(false)
     }
   }
 
-  // Styles messages (couleurs de ton site)
   function Notice() {
     if (!msg) return null
-    const base =
-      'margin-top:14px;padding:12px;border-radius:8px;font-weight:600;text-align:center;'
+    const styleBase = {
+      marginTop: 14,
+      padding: 12,
+      borderRadius: 8,
+      fontWeight: 600,
+      textAlign: 'center'
+    }
     const style =
       msg.type === 'ok'
-        ? base + 'color:#2ed573;background:rgba(46,213,115,0.12);'
-        : base + 'color:#ff6b6b;background:rgba(255,107,107,0.12);'
-    return <div style={{ cssText: style } as any}>{msg.text}</div>
-  }
-
-  // Boutons d’onglet cohérents avec tes couleurs/police
-  function Tabs() {
-    const active =
-      'background:#ffffff;color:#7b1e3a;padding:12px 24px;border:none;border-radius:8px 0 0 8px;cursor:pointer;font-weight:600;font-size:16px;'
-    const inactive =
-      'background:rgba(255,255,255,0.3);color:#ffffff;padding:12px 24px;border:none;border-radius:0 8px 8px 0;cursor:pointer;font-weight:600;font-size:16px;'
-    return (
-      <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 30 }}>
-        <button
-          onClick={() => setTab('login')}
-          style={tab === 'login' ? active : inactive.replace('0 8px 8px 0', '8px 0 0 8px')}
-        >
-          Se connecter
-        </button>
-        <button
-          onClick={() => setTab('register')}
-          style={tab === 'register' ? active.replace('8px 0 0 8px', '0 8px 8px 0') : inactive}
-        >
-          Créer un compte
-        </button>
-      </div>
-    )
+        ? { ...styleBase, color: '#2ed573', background: 'rgba(46,213,115,0.12)' }
+        : { ...styleBase, color: '#ff6b6b', background: 'rgba(255,107,107,0.12)' }
+    return <div style={style}>{msg.text}</div>
   }
 
   return (
     <main className="page-wrap">
       <h1 className="page-title">CONNEXION / INSCRIPTION</h1>
 
-      <Tabs />
+      {/* Onglets (même style que ton site) */}
+      <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 30 }}>
+        <button
+          type="button"
+          onClick={() => setTab('login')}
+          style={{
+            background: tab === 'login' ? '#ffffff' : 'rgba(255,255,255,0.3)',
+            color: tab === 'login' ? '#7b1e3a' : '#ffffff',
+            padding: '12px 24px',
+            border: 'none',
+            borderRadius: '8px 0 0 8px',
+            cursor: 'pointer',
+            fontWeight: 600,
+            fontSize: 16
+          }}
+        >
+          Se connecter
+        </button>
+        <button
+          type="button"
+          onClick={() => setTab('register')}
+          style={{
+            background: tab === 'register' ? '#ffffff' : 'rgba(255,255,255,0.3)',
+            color: tab === 'register' ? '#7b1e3a' : '#ffffff',
+            padding: '12px 24px',
+            border: 'none',
+            borderRadius: '0 8px 8px 0',
+            cursor: 'pointer',
+            fontWeight: 600,
+            fontSize: 16
+          }}
+        >
+          Créer un compte
+        </button>
+      </div>
 
       <section className="panel">
         {/* Connexion */}
