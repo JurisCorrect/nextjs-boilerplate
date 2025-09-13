@@ -7,16 +7,12 @@ export default function LoginPage() {
   const [busy, setBusy] = useState(false)
   const [msg, setMsg] = useState(null) // { type: 'ok'|'err', text: string }
 
-  // Champs login
-  const [loginEmail, setLoginEmail] = useState('')
-  const [loginPassword, setLoginPassword] = useState('')
+  // ENV injectées au build (client)
+  const ENV_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const ENV_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  const envOk = Boolean(ENV_URL && ENV_KEY)
 
-  // Champs register
-  const [regEmail, setRegEmail] = useState('')
-  const [regPassword, setRegPassword] = useState('')
-  const [regConfirm, setRegConfirm] = useState('')
-
-  // Affiche le message "Email confirmé" quand on revient du lien Supabase
+  // Affiche "Email confirmé" quand on revient du lien Supabase
   useEffect(() => {
     try {
       const params = new URLSearchParams(window.location.search)
@@ -45,23 +41,34 @@ export default function LoginPage() {
     return <div style={style}>{msg.text}</div>
   }
 
+  // Garde-fou centralisé : crée le client ou lance une erreur explicite
+  async function getSupabaseOrFail() {
+    const { createClient } = await import('@supabase/supabase-js')
+    const url = ENV_URL
+    const key = ENV_KEY
+    if (!url || !key) {
+      throw new Error(
+        "Configuration Supabase manquante.\n" +
+          "Dans Vercel → Project → Settings → Environment Variables, ajoute :\n" +
+          "• NEXT_PUBLIC_SUPABASE_URL (Project URL Supabase)\n" +
+          "• NEXT_PUBLIC_SUPABASE_ANON_KEY (anon public key)\n" +
+          "Puis redeploie avec “Clear build cache”."
+      )
+    }
+    return createClient(url, key)
+  }
+
   async function handleLogin(e) {
     e.preventDefault()
     setMsg(null)
     setBusy(true)
     try {
-      // ⚡ Lazy import pour éviter tout blocage avant l’action utilisateur
-      const { createClient } = await import('@supabase/supabase-js')
-      const url = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
-      const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
-      const supabase = createClient(url, key)
-
+      const supabase = await getSupabaseOrFail()
       const { error } = await supabase.auth.signInWithPassword({
         email: loginEmail.trim(),
         password: loginPassword,
       })
       if (error) throw error
-
       // ➜ Redirection vers l’espace client après connexion
       window.location.href = '/espace-client'
     } catch (err) {
@@ -86,11 +93,7 @@ export default function LoginPage() {
 
     setBusy(true)
     try {
-      const { createClient } = await import('@supabase/supabase-js')
-      const url = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
-      const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
-      const supabase = createClient(url, key)
-
+      const supabase = await getSupabaseOrFail()
       const emailRedirectTo = `${window.location.origin}/login?email_confirmed=1`
       const { error } = await supabase.auth.signUp({
         email: regEmail.trim(),
@@ -120,8 +123,29 @@ export default function LoginPage() {
     <main className="page-wrap">
       <h1 className="page-title">CONNEXION / INSCRIPTION</h1>
 
+      {/* Alerte ENV si manquantes */}
+      {!envOk && (
+        <div
+          style={{
+            margin: '12px 0 0',
+            padding: 12,
+            borderRadius: 8,
+            fontWeight: 600,
+            textAlign: 'center',
+            color: '#ff6b6b',
+            background: 'rgba(255,107,107,0.12)',
+          }}
+        >
+          Variables Supabase absentes côté client.
+          <br />
+          Ajoute <code>NEXT_PUBLIC_SUPABASE_URL</code> et{' '}
+          <code>NEXT_PUBLIC_SUPABASE_ANON_KEY</code> dans Vercel (Production + Preview),
+          puis redeploie avec “Clear build cache”.
+        </div>
+      )}
+
       {/* Onglets */}
-      <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 30 }}>
+      <div style={{ display: 'flex', justifyContent: 'center', margin: 30 }}>
         <button
           type="button"
           onClick={() => setTab('login')}
@@ -185,7 +209,7 @@ export default function LoginPage() {
               />
             </div>
             <div className="actions">
-              <button type="submit" className="btn-send" disabled={busy}>
+              <button type="submit" className="btn-send" disabled={busy || !envOk}>
                 {busy ? 'Connexion…' : 'SE CONNECTER'}
               </button>
             </div>
@@ -234,7 +258,7 @@ export default function LoginPage() {
               />
             </div>
             <div className="actions">
-              <button type="submit" className="btn-send" disabled={busy}>
+              <button type="submit" className="btn-send" disabled={busy || !envOk}>
                 {busy ? 'Création…' : 'CRÉER MON COMPTE'}
               </button>
             </div>
