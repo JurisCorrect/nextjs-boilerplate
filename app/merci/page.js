@@ -3,22 +3,25 @@
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 export default function MerciPage() {
   const [corrLink, setCorrLink] = useState('/correction-complete')
+  const [ver, setVer] = useState('')
 
-  // Si on reçoit un id dans l’URL (?id=... | ?submissionId=... | ?correctionId=...)
   useEffect(() => {
+    // 1) Détecte un ID dans l’URL pour "Voir la correction"
     try {
       const q = new URLSearchParams(window.location.search)
-      const id =
-        q.get('id') ||
-        q.get('submissionId') ||
-        q.get('correctionId')
+      const id = q.get('id') || q.get('submissionId') || q.get('correctionId')
       if (id) setCorrLink(`/correction/${encodeURIComponent(id)}`)
     } catch {}
+
+    // 2) Badge version (timestamp) pour vérifier que tu vois bien la dernière build
+    setVer(new Date().toLocaleString('fr-FR'))
   }, [])
 
-  // Design tokens (alignés à la home)
   const BRAND = 'var(--brand)'
   const BRAND2 = 'var(--brand-2)'
   const MUTED = 'var(--muted)'
@@ -50,7 +53,6 @@ export default function MerciPage() {
       <div style={{ position:'fixed', inset:0, background:'#fff', zIndex:0 }} />
 
       <div className="container" style={{ position:'relative', zIndex:1, padding:'24px 16px 40px', maxWidth:980, margin:'0 auto' }}>
-        {/* Carte principale */}
         <section style={{ ...card, marginTop:12 }}>
           <h1 style={{ color:BRAND, fontWeight:900, margin:'0 0 8px', lineHeight:1.05 }}>
             Paiement réussi 🎉
@@ -59,30 +61,25 @@ export default function MerciPage() {
             Merci pour votre achat. Votre paiement a bien été traité.
           </p>
 
-          {/* Bloc “et maintenant ?” */}
           <div style={{ ...card, padding:'16px', boxShadow:'none', border:'1px dashed rgba(0,0,0,.08)', marginTop:8 }}>
             <h3 style={{ color:'#222', fontWeight:900, margin:'0 0 8px' }}>Que se passe-t-il maintenant ?</h3>
             <ul style={{ color:MUTED, margin:'0 0 8px 18px', lineHeight:1.7 }}>
               <li>Un email de confirmation vient de vous être envoyé.</li>
               <li>Votre correction est accessible immédiatement.</li>
-              <li>En cas de besoin, contactez-nous à <a href="mailto:marie.terki@icloud.com" style={{ color:BRAND, fontWeight:700 }}>marie.terki@icloud.com</a>.</li>
+              <li>Besoin d’aide ? <a href="mailto:marie.terki@icloud.com" style={{ color:BRAND, fontWeight:700 }}>marie.terki@icloud.com</a></li>
             </ul>
           </div>
 
-          {/* Actions */}
           <div style={{ display:'flex', flexWrap:'wrap', gap:12, marginTop:18 }}>
             <a href={corrLink} style={cta}>Voir la correction</a>
             <Link href="/login" style={ghost}>Accéder à mon compte</Link>
           </div>
-        </section>
 
-        {/* Petit rappel support */}
-        <p style={{ color:MUTED, margin:'16px 0 0', textAlign:'center' }}>
-          Un souci ? Écrivez-nous :{' '}
-          <a href="mailto:marie.terki@icloud.com" style={{ color:BRAND, fontWeight:700, textDecoration:'underline', textUnderlineOffset:4 }}>
-            marie.terki@icloud.com
-          </a>
-        </p>
+          {/* Chip version (debug visuel) */}
+          <div style={{ marginTop:12, color:MUTED, fontSize:12 }}>
+            version: <code>{ver}</code>
+          </div>
+        </section>
       </div>
     </main>
   )
