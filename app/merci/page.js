@@ -3,10 +3,6 @@
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 
-// ✅ Segment options valides (PAS d'objet !) :
-export const dynamic = 'force-dynamic'
-export const revalidate = false
-
 export default function MerciPage() {
   const [corrLink, setCorrLink] = useState('/correction-complete')
   const [ver, setVer] = useState('')
@@ -14,10 +10,11 @@ export default function MerciPage() {
   useEffect(() => {
     try {
       const q = new URLSearchParams(window.location.search)
-      const sessionId = q.get('session_id') // Stripe envoie ?session_id=...
-      const id = q.get('id') || q.get('submissionId') || q.get('correctionId')
+      const id =
+        q.get('id') ||
+        q.get('submissionId') ||
+        q.get('correctionId')
       if (id) setCorrLink(`/correction/${encodeURIComponent(id)}`)
-      // sinon on garde /correction-complete
     } catch {}
     setVer(new Date().toLocaleString('fr-FR'))
   }, [])
@@ -73,7 +70,7 @@ export default function MerciPage() {
             <Link href="/login" style={ghost}>Accéder à mon compte</Link>
           </div>
 
-          {/* Petit badge version pour vérifier que tu vois bien la dernière build */}
+          {/* Badge version pour vérifier la build affichée */}
           <div style={{ marginTop:12, color:MUTED, fontSize:12 }}>
             version: <code>{ver}</code>
           </div>
