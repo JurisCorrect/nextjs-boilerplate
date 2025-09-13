@@ -1,21 +1,28 @@
 'use client'
 
-export const dynamic = 'force-dynamic'   // évite la pré-génération statique
-export const revalidate = 0              // pas de cache SSG
-
 import { useEffect, useState } from 'react'
 
 export default function LoginPage() {
+  // --- états (déclarés avant tout usage) ---
   const [tab, setTab] = useState('login') // 'login' | 'register'
   const [busy, setBusy] = useState(false)
   const [msg, setMsg] = useState(null) // { type: 'ok'|'err', text: string }
+
+  // Champs login
+  const [loginEmail, setLoginEmail] = useState('')
+  const [loginPassword, setLoginPassword] = useState('')
+
+  // Champs register
+  const [regEmail, setRegEmail] = useState('')
+  const [regPassword, setRegPassword] = useState('')
+  const [regConfirm, setRegConfirm] = useState('')
 
   // ENV injectées au build (client)
   const ENV_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
   const ENV_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
   const envOk = Boolean(ENV_URL && ENV_KEY)
 
-  // ⚠️ Garde SSR : si rendu côté serveur (prerender), ne touche à rien de dynamique
+  // ⚠️ Garde SSR : lors du prerender (server), on retourne un squelette
   if (typeof window === 'undefined') {
     return (
       <main className="page-wrap">
@@ -40,15 +47,6 @@ export default function LoginPage() {
     } catch {}
   }, [])
 
-  // Champs login
-  const [loginEmail, setLoginEmail] = useState('')
-  const [loginPassword, setLoginPassword] = useState('')
-
-  // Champs register
-  const [regEmail, setRegEmail] = useState('')
-  const [regPassword, setRegPassword] = useState('')
-  const [regConfirm, setRegConfirm] = useState('')
-
   function Notice() {
     if (!msg) return null
     const base = {
@@ -65,7 +63,7 @@ export default function LoginPage() {
     return <div style={style}>{msg.text}</div>
   }
 
-  // Garde-fou centralisé : crée le client ou lance une erreur explicite
+  // Garde-fou : crée le client ou affiche une erreur claire
   async function getSupabaseOrFail() {
     const { createClient } = await import('@supabase/supabase-js')
     const url = ENV_URL
@@ -93,7 +91,6 @@ export default function LoginPage() {
         password: loginPassword,
       })
       if (error) throw error
-      // ➜ Redirection vers l’espace client après connexion
       window.location.href = '/espace-client'
     } catch (err) {
       setMsg({ type: 'err', text: err?.message || 'Erreur de connexion' })
