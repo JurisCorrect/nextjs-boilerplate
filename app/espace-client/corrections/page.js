@@ -34,16 +34,15 @@ export default function CorrectionsPage() {
         setUser(data.user)
 
         // ---- CHARGER LES CORRECTIONS (table "corrections") ----
-        // Colonnes possibles : id, user_id, type, subject, title, submitted_at, pdf_url, storage_bucket, storage_path
+        // Colonnes lues : id, user_id, type, title, submitted_at, pdf_url, storage_bucket, storage_path
         const { data: list, error } = await s
           .from('corrections')
-          .select('id,type,subject,title,submitted_at,pdf_url,storage_bucket,storage_path')
+          .select('id,type,title,submitted_at,pdf_url,storage_bucket,storage_path')
           .eq('user_id', data.user.id)
           .order('submitted_at', { ascending: false })
           .limit(50)
 
         if (error) {
-          // Table manquante ou autre : on affiche un message soft mais on laisse l’UI
           setMsg({ type:'err', text: "Impossible de lire les corrections (table 'corrections' non trouvée ?)" })
           setRows([])
         } else {
@@ -93,7 +92,6 @@ export default function CorrectionsPage() {
     if (row?.storage_bucket && row?.storage_path) {
       try {
         const s = await getSupabase()
-        // crée un lien signé 60 min
         const { data, error } = await s.storage.from(row.storage_bucket).createSignedUrl(row.storage_path, 3600)
         if (!error && data?.signedUrl) return data.signedUrl
       } catch {}
@@ -157,10 +155,9 @@ export default function CorrectionsPage() {
 
             {/* Lignes */}
             {rows.map((r) => {
-              const titre =
-                r?.title ||
-                [typeLabel(r?.type), r?.subject].filter(Boolean).join(' — ') ||
-                'Correction'
+              const titre = (r?.title && r.title.trim().length > 0)
+                ? r.title
+                : (typeLabel(r?.type) || 'Correction')
               return (
                 <div key={r.id} style={{
                   display:'grid',
