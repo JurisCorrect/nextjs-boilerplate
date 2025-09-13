@@ -52,8 +52,14 @@ export default function EspaceClientHome() {
   }, [getSupabase])
 
   async function handleSignOut() {
-    try { const s = await getSupabase(); await s.auth.signOut(); window.location.href = '/login' }
-    catch { setMsg({ type:'err', text:'Déconnexion impossible' }) }
+    try {
+      const s = await getSupabase()
+      await s.auth.signOut()
+      // 👉 redirection vers la page d'accueil
+      window.location.href = '/'
+    } catch {
+      setMsg({ type:'err', text:'Déconnexion impossible' })
+    }
   }
 
   // === Design tokens (alignés à ta home) ===
