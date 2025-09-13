@@ -1,5 +1,8 @@
 'use client'
 
+export const dynamic = 'force-dynamic'   // évite la pré-génération statique
+export const revalidate = 0              // pas de cache SSG
+
 import { useEffect, useState } from 'react'
 
 export default function LoginPage() {
@@ -11,6 +14,18 @@ export default function LoginPage() {
   const ENV_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
   const ENV_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
   const envOk = Boolean(ENV_URL && ENV_KEY)
+
+  // ⚠️ Garde SSR : si rendu côté serveur (prerender), ne touche à rien de dynamique
+  if (typeof window === 'undefined') {
+    return (
+      <main className="page-wrap">
+        <h1 className="page-title">CONNEXION / INSCRIPTION</h1>
+        <section className="panel">
+          <p style={{ color: '#fff', opacity: .8 }}>Chargement…</p>
+        </section>
+      </main>
+    )
+  }
 
   // Affiche "Email confirmé" quand on revient du lien Supabase
   useEffect(() => {
@@ -24,6 +39,15 @@ export default function LoginPage() {
       }
     } catch {}
   }, [])
+
+  // Champs login
+  const [loginEmail, setLoginEmail] = useState('')
+  const [loginPassword, setLoginPassword] = useState('')
+
+  // Champs register
+  const [regEmail, setRegEmail] = useState('')
+  const [regPassword, setRegPassword] = useState('')
+  const [regConfirm, setRegConfirm] = useState('')
 
   function Notice() {
     if (!msg) return null
