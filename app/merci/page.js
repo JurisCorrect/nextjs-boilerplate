@@ -3,22 +3,22 @@
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 
+// ✅ Segment options valides (PAS d'objet !) :
 export const dynamic = 'force-dynamic'
-export const revalidate = 0
+export const revalidate = false
 
 export default function MerciPage() {
   const [corrLink, setCorrLink] = useState('/correction-complete')
   const [ver, setVer] = useState('')
 
   useEffect(() => {
-    // 1) Détecte un ID dans l’URL pour "Voir la correction"
     try {
       const q = new URLSearchParams(window.location.search)
+      const sessionId = q.get('session_id') // Stripe envoie ?session_id=...
       const id = q.get('id') || q.get('submissionId') || q.get('correctionId')
       if (id) setCorrLink(`/correction/${encodeURIComponent(id)}`)
+      // sinon on garde /correction-complete
     } catch {}
-
-    // 2) Badge version (timestamp) pour vérifier que tu vois bien la dernière build
     setVer(new Date().toLocaleString('fr-FR'))
   }, [])
 
@@ -49,9 +49,7 @@ export default function MerciPage() {
 
   return (
     <main style={{ background:'#fff', minHeight:'100vh' }}>
-      {/* Fond blanc plein écran */}
       <div style={{ position:'fixed', inset:0, background:'#fff', zIndex:0 }} />
-
       <div className="container" style={{ position:'relative', zIndex:1, padding:'24px 16px 40px', maxWidth:980, margin:'0 auto' }}>
         <section style={{ ...card, marginTop:12 }}>
           <h1 style={{ color:BRAND, fontWeight:900, margin:'0 0 8px', lineHeight:1.05 }}>
@@ -75,7 +73,7 @@ export default function MerciPage() {
             <Link href="/login" style={ghost}>Accéder à mon compte</Link>
           </div>
 
-          {/* Chip version (debug visuel) */}
+          {/* Petit badge version pour vérifier que tu vois bien la dernière build */}
           <div style={{ marginTop:12, color:MUTED, fontSize:12 }}>
             version: <code>{ver}</code>
           </div>
