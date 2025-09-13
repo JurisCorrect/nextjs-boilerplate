@@ -6,7 +6,7 @@ export default function EspaceClientPage() {
   // ---- STATE ----
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [msg, setMsg] = useState(null) // {type:'ok'|'err', text:string}
+  const [msg, setMsg] = useState(null) // {type:'ok'|'err', text}
 
   // ENV (garde-fou)
   const ENV_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -66,60 +66,24 @@ export default function EspaceClientPage() {
     }
   }
 
-  // ---- UI HELPERS ----
-  const ACCENT = '#7b1e3a'
+  // ---- DESIGN TOKENS ----
+  const ACCENT = '#7b1e3a' // ta couleur de marque
   const Glass = { background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:16 }
-  const Soft = { background:'linear-gradient(135deg, rgba(255,255,255,0.10), rgba(255,255,255,0.04))', borderRadius:20, border:'1px solid rgba(255,255,255,0.08)' }
-  const Chip = (text, tone='ok') => (
-    <span style={{
-      padding:'6px 10px', borderRadius:999, fontSize:12, fontWeight:700,
-      color: tone==='ok' ? '#2ed573' : tone==='warn' ? '#f1c40f' : '#ff6b6b',
-      background: tone==='ok' ? 'rgba(46,213,115,0.12)' : tone==='warn' ? 'rgba(241,196,15,0.12)' : 'rgba(255,107,107,0.12)'
-    }}>{text}</span>
-  )
-
-  function Card({ children, style }) {
-    return <div style={{ ...Soft, padding:16, ...style }}>{children}</div>
-  }
-
-  function Section({ title, right, children, style }) {
-    return (
-      <section className="panel" style={{ ...Glass, padding:20, ...style }}>
-        <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:14 }}>
-          <h2 style={{ color:'#fff', fontSize:18, fontWeight:800, letterSpacing:.3 }}>{title}</h2>
-          {right}
-        </div>
-        {children}
-      </section>
-    )
-  }
-
-  function Stat({ label, value, sub }) {
-    return (
-      <Card>
-        <div style={{ color:'#fff', opacity:.8, fontSize:12, marginBottom:6 }}>{label}</div>
-        <div style={{ color:'#fff', fontSize:22, fontWeight:800, marginBottom:4 }}>{value}</div>
-        {sub && <div style={{ color:'#fff', opacity:.6, fontSize:12 }}>{sub}</div>}
-      </Card>
-    )
-  }
+  const Soft = { background:'linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02))', borderRadius:20, border:'1px solid rgba(255,255,255,0.08)' }
+  const Tile = { background:'#fafafa0f', border:'1px solid rgba(255,255,255,0.1)', borderRadius:14, padding:18 }
+  const LinkLike = { color:'#fff', fontWeight:800, textDecoration:'underline', textDecorationThickness:2, textUnderlineOffset:4 }
 
   const initials = (user?.email || 'U').slice(0,1).toUpperCase()
   const createdAt = user?.created_at ? new Date(user.created_at).toLocaleDateString('fr-FR') : '—'
 
   // ---- PLACEHOLDERS (à brancher plus tard) ----
-  const subscriptionStatus = 'Inconnu' // quand branché à Stripe: 'Actif' / 'Inactif'
-  const subscriptionTone = 'warn'      // 'ok'|'warn'|'err'
-  const totalCorrections = 2           // exemple
-  const lastCorrection = '12/09/2025'  // exemple
-
+  const subscriptionStatus = 'A configurer' // ex: 'Actif' / 'Inactif'
   const mockCorrections = [
-    { id: 'c1', type: 'Dissertation', date: '12/09/2025', status: 'Corrigée' },
-    { id: 'c2', type: 'Cas pratique', date: '05/09/2025', status: 'Corrigé' },
-    { id: 'c3', type: 'Commentaire', date: '29/08/2025', status: 'En attente' },
+    { id:'1', title:'Dissertation', date:'12/09/2025', status:'Corrigée' },
+    { id:'2', title:'Cas pratique', date:'05/09/2025', status:'Corrigé' },
+    { id:'3', title:'Commentaire', date:'29/08/2025', status:'En attente' },
   ]
 
-  // ---- RENDER ----
   if (loading) {
     return (
       <main className="page-wrap">
@@ -132,147 +96,143 @@ export default function EspaceClientPage() {
   }
 
   return (
-    <main className="page-wrap">
-      {/* HEADER MODERNE */}
+    <main className="page-wrap" style={{ maxWidth:1120, margin:'0 auto' }}>
+      {/* BARRE ACTIONS (en haut à droite) */}
+      <div style={{ display:'flex', justifyContent:'flex-end', gap:10, marginBottom:8 }}>
+        <button onClick={handleSignOut} className="btn-send" style={{ background:'#fff', color:ACCENT, border:'none' }}>
+          ME DÉCONNECTER
+        </button>
+      </div>
+
+      {/* HERO : Titre à gauche / Carte à droite */}
       <div
         style={{
-          ...Soft,
-          padding:24,
-          marginBottom:20,
           display:'grid',
-          gridTemplateColumns:'auto 1fr auto',
-          gap:16,
-          alignItems:'center'
+          gridTemplateColumns:'minmax(280px, 1fr) 320px',
+          gap:20,
+          alignItems:'center',
+          marginBottom:18
         }}
       >
-        <div
-          aria-hidden
-          style={{
-            width:56, height:56, borderRadius:'50%',
-            display:'grid', placeItems:'center',
-            background:'#fff',
-            color:ACCENT, fontWeight:900, fontSize:22,
-            boxShadow:'0 10px 30px rgba(0,0,0,0.15)'
-          }}
-        >
-          {initials}
-        </div>
-
         <div>
-          <div style={{ color:'#fff', fontSize:18, fontWeight:800 }}>
-            Bonjour {user?.email}
-          </div>
-          <div style={{ color:'#fff', opacity:.7, fontSize:13 }}>
-            Membre depuis le {createdAt}
-          </div>
+          <h1 className="page-title" style={{ lineHeight:1.05, marginBottom:8 }}>
+            Bienvenue sur<br/>votre compte <span style={{ color:'#fff', background:'#ffffff22', padding:'0 6px', borderRadius:8 }}>JurisCorrect</span>
+          </h1>
+          <p style={{ color:'#fff', opacity:.85, maxWidth:640 }}>
+            Ravi de vous revoir <strong>{user?.email}</strong>. Retrouvez toutes vos corrections, gérez votre abonnement
+            et vos informations de compte en un seul endroit.
+          </p>
+          <p style={{ marginTop:8 }}>
+            <a href="#profil" style={{ ...LinkLike, color:'#ffffff' }}>Gérer le compte</a>
+          </p>
         </div>
 
-        <div style={{ display:'flex', gap:10 }}>
-          <button
-            onClick={handleSignOut}
-            className="btn-send"
-            style={{ background:'#ffffff', color:ACCENT, border:'none' }}
-          >
-            ME DÉCONNECTER
-          </button>
+        {/* Carte “membre” à droite */}
+        <div style={{ ...Soft, padding:18, height:160, display:'grid', gridTemplateRows:'auto 1fr auto', boxShadow:'0 10px 30px rgba(0,0,0,0.15)' }}>
+          <div style={{ fontWeight:900, color:'#fff' }}>Votre carte membre</div>
+          <div style={{
+            background:`linear-gradient(135deg, ${ACCENT}, #a43a57)`,
+            borderRadius:12, padding:14, color:'#fff', display:'grid', alignContent:'space-between'
+          }}>
+            <div style={{ fontSize:12, opacity:.9 }}>Titulaire</div>
+            <div style={{ fontWeight:800, fontSize:16 }}>{user?.email}</div>
+            <div style={{ fontSize:12, opacity:.85 }}>Depuis le {createdAt}</div>
+          </div>
+          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginTop:10 }}>
+            <span style={{ fontSize:12, color:'#fff', opacity:.7 }}>ID membre</span>
+            <span style={{ fontWeight:800, color:'#fff' }}>•••• •••• ••••</span>
+          </div>
         </div>
       </div>
 
-      {/* BANDEAU ENV (si manquantes) */}
+      {/* Bandeau ENV si besoin */}
       {!envOk && (
-        <div
-          style={{
-            margin:'-8px 0 16px',
-            padding:12,
-            borderRadius:12,
-            color:'#ff6b6b',
-            background:'rgba(255,107,107,0.12)',
-            border:'1px solid rgba(255,107,107,0.25)',
-            fontWeight:700,
-            textAlign:'center'
-          }}
-        >
-          Variables Supabase absentes côté client.
-          Ajoute <code>NEXT_PUBLIC_SUPABASE_URL</code> et <code>NEXT_PUBLIC_SUPABASE_ANON_KEY</code> dans Vercel (Preview + Prod), puis redeploie.
+        <div style={{ margin:'0 0 16px', padding:12, borderRadius:12, color:'#ff6b6b',
+          background:'rgba(255,107,107,0.12)', border:'1px solid rgba(255,107,107,0.25)', fontWeight:700 }}>
+          Variables Supabase absentes côté client. Ajoute <code>NEXT_PUBLIC_SUPABASE_URL</code> et <code>NEXT_PUBLIC_SUPABASE_ANON_KEY</code> dans Vercel (Preview + Prod), puis redeploie.
         </div>
       )}
 
-      {/* STATS GRID */}
-      <div
-        style={{
-          display:'grid',
-          gridTemplateColumns:'repeat(auto-fit, minmax(200px, 1fr))',
-          gap:14,
-          marginBottom:20
-        }}
-      >
-        <Stat label="Statut abonnement" value={<span>{Chip(subscriptionStatus, subscriptionTone)}</span>} sub="Via Stripe Customer Portal" />
-        <Stat label="Corrections totales" value={totalCorrections} sub="Achetées sur votre compte" />
-        <Stat label="Dernière correction" value={lastCorrection} sub="Mise à jour" />
+      {/* SECTION : Votre espace personnel */}
+      <h2 style={{ color:'#fff', fontSize:22, fontWeight:900, margin:'8px 0 10px' }}>Votre espace personnel</h2>
+
+      <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(260px, 1fr))', gap:14, marginBottom:18 }}>
+        {/* Tuile 1 : Historique de corrections */}
+        <a href="/correction-complete" style={{ ...Tile, textDecoration:'none' }}>
+          <div style={{ color:'#fff', fontWeight:900, marginBottom:6, textDecoration:'underline', textUnderlineOffset:4 }}>Historique de corrections</div>
+          <div style={{ color:'#fff', opacity:.8, fontSize:14, minHeight:40 }}>
+            Consultez toutes vos corrections et reçus au même endroit.
+          </div>
+          <div style={{ marginTop:14, display:'flex', justifyContent:'flex-end' }}>
+            <div style={{ width:34, height:34, borderRadius:'50%', background:'#ffffff', color:ACCENT, display:'grid', placeItems:'center', fontWeight:900 }}>
+              →
+            </div>
+          </div>
+        </a>
+
+        {/* Tuile 2 : Abonnement */}
+        <a href="#" onClick={(e)=>e.preventDefault()} style={{ ...Tile, textDecoration:'none' }}>
+          <div style={{ color:'#fff', fontWeight:900, marginBottom:6, textDecoration:'underline', textUnderlineOffset:4 }}>Abonnement</div>
+          <div style={{ color:'#fff', opacity:.8, fontSize:14, minHeight:40 }}>
+            Gérez l’offre, le moyen de paiement et l’annulation via le portail Stripe.
+          </div>
+          <div style={{ marginTop:14, display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+            <span style={{ padding:'6px 10px', borderRadius:999, color:'#f1c40f', background:'rgba(241,196,15,0.12)', fontWeight:800, fontSize:12 }}>
+              {subscriptionStatus}
+            </span>
+            <div style={{ width:34, height:34, borderRadius:'50%', background:'#ffffff', color:ACCENT, display:'grid', placeItems:'center', fontWeight:900 }}>
+              →
+            </div>
+          </div>
+        </a>
+
+        {/* Tuile 3 : Outils & documents */}
+        <a href="/correction-complete" style={{ ...Tile, textDecoration:'none' }}>
+          <div style={{ color:'#fff', fontWeight:900, marginBottom:6, textDecoration:'underline', textUnderlineOffset:4 }}>Outils & documents</div>
+          <div style={{ color:'#fff', opacity:.8, fontSize:14, minHeight:40 }}>
+            Accédez rapidement à vos documents, modèles et ressources utiles.
+          </div>
+          <div style={{ marginTop:14, display:'flex', justifyContent:'flex-end' }}>
+            <div style={{ width:34, height:34, borderRadius:'50%', background:'#ffffff', color:ACCENT, display:'grid', placeItems:'center', fontWeight:900 }}>
+              →
+            </div>
+          </div>
+        </a>
       </div>
 
-      {/* ABONNEMENT */}
-      <Section
-        title="Mon abonnement"
-        right={
-          <button
-            className="btn-send"
-            disabled
-            title="Portail Stripe à brancher"
-            style={{ opacity:.8 }}
-          >
-            GÉRER MON ABONNEMENT
-          </button>
-        }
-        style={{ marginBottom:18 }}
-      >
-        <p style={{ color:'#fff', opacity:.85, margin:'6px 0 14px' }}>
-          Gérer l’abonnement (changement d’offre, annulation, moyen de paiement) depuis le portail client Stripe.
-        </p>
-        <div style={{ display:'flex', gap:10, flexWrap:'wrap' }}>
-          <span>{Chip('Portail non connecté', 'warn')}</span>
-          <span>{Chip('Sécurisé', 'ok')}</span>
+      {/* SECTION : Mes corrections (aperçu) */}
+      <section className="panel" style={{ ...Glass, padding:18, marginBottom:18 }}>
+        <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:12 }}>
+          <h3 style={{ color:'#fff', fontSize:18, fontWeight:900 }}>Mes corrections</h3>
+          <a className="btn-send" href="/correction-complete" style={{ background:'#fff', color:ACCENT, border:'none' }}>TOUT VOIR</a>
         </div>
-      </Section>
 
-      {/* MES CORRECTIONS */}
-      <Section
-        title="Mes corrections"
-        right={
-          <a className="btn-send" href="/correction-complete" style={{ background:'#fff', color:ACCENT, border:'none' }}>
-            VOIR LA DERNIÈRE
-          </a>
-        }
-      >
-        <div
-          style={{
-            display:'grid',
-            gridTemplateColumns:'repeat(auto-fit, minmax(240px, 1fr))',
-            gap:14
-          }}
-        >
-          {mockCorrections.map((c) => (
-            <Card key={c.id}>
-              <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:8 }}>
-                <div style={{ color:'#fff', fontWeight:800 }}>{c.type}</div>
-                {Chip(c.status, c.status.toLowerCase().includes('attente') ? 'warn' : 'ok')}
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(260px, 1fr))', gap:12 }}>
+          {mockCorrections.map((c)=>(
+            <div key={c.id} style={{ ...Soft, padding:14 }}>
+              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:8 }}>
+                <div style={{ color:'#fff', fontWeight:800 }}>{c.title}</div>
+                <span style={{
+                  padding:'4px 8px', borderRadius:999, fontSize:12, fontWeight:800,
+                  color: c.status.includes('attente') ? '#f1c40f' : '#2ed573',
+                  background: c.status.includes('attente') ? 'rgba(241,196,15,0.12)' : 'rgba(46,213,115,0.12)'
+                }}>{c.status}</span>
               </div>
-              <div style={{ color:'#fff', opacity:.7, fontSize:13, marginBottom:10 }}>
-                Achetée le {c.date}
-              </div>
+              <div style={{ color:'#fff', opacity:.7, fontSize:13, marginBottom:10 }}>Achetée le {c.date}</div>
               <div style={{ display:'flex', gap:8 }}>
                 <a className="btn-send" href="/correction-complete">VOIR</a>
-                <button className="btn-send" style={{ background:'transparent', border:`1px dashed rgba(255,255,255,0.35)` }}>
+                <button className="btn-send" style={{ background:'transparent', border:'1px dashed rgba(255,255,255,0.35)' }}>
                   TÉLÉCHARGER
                 </button>
               </div>
-            </Card>
+            </div>
           ))}
         </div>
-      </Section>
+      </section>
 
-      {/* PROFIL */}
-      <Section title="Mon profil" style={{ marginTop:18 }}>
+      {/* SECTION : Profil */}
+      <section id="profil" className="panel" style={{ ...Glass, padding:18 }}>
+        <h3 style={{ color:'#fff', fontSize:18, fontWeight:900, marginBottom:10 }}>Mon profil</h3>
         <div className="field" style={{ marginBottom:10 }}>
           <label style={{ color:'#fff', opacity:.85 }}>Email</label>
           <input className="input" value={user?.email || ''} readOnly />
@@ -281,13 +241,13 @@ export default function EspaceClientPage() {
           <button className="btn-send" disabled style={{ opacity:.8 }} title="Bientôt">
             MODIFIER MON MOT DE PASSE
           </button>
-          <button className="btn-send" onClick={handleSignOut}>
+          <button className="btn-send" onClick={handleSignOut} style={{ background:'#fff', color:ACCENT, border:'none' }}>
             ME DÉCONNECTER
           </button>
         </div>
-      </Section>
+      </section>
 
-      {/* TOAST MESSAGE */}
+      {/* TOAST */}
       {msg && (
         <div style={{
           position:'fixed', right:16, bottom:16, zIndex:50,
