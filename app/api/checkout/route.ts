@@ -38,6 +38,11 @@ export async function POST(req: Request) {
       "http://localhost:3000"
 
     // ✅ nouvelle route de remerciements
+    const site =
+     (process.env.NEXT_PUBLIC_SITE_URL && process.env.NEXT_PUBLIC_SITE_URL.replace(/\/$/, "")) ||
+     (process.env.VERCEL_URL && `https://${process.env.VERCEL_URL.replace(/\/$/, "")}`) ||
+     "http://localhost:3000"
+
     const successUrl = `${site}/merci2?session_id={CHECKOUT_SESSION_ID}`
     const cancelUrl  = `${site}/`
 
