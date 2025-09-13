@@ -5,16 +5,19 @@ import { useEffect, useMemo, useState } from 'react'
 
 export default function ComptePage() {
   const [user, setUser] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [msg, setMsg] = useState(null)
-  const [newPwd, setNewPwd] = useState('')
-  const [notif, setNotif] = useState(true) // placeholder local
+  const [busy, setBusy] = useState(false)
+  const [msg, setMsg] = useState(null) // {type:'ok'|'err', text:string}
+  const [pwd1, setPwd1] = useState('')
+  const [pwd2, setPwd2] = useState('')
 
   const ENV_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
   const ENV_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
   const envOk = Boolean(ENV_URL && ENV_KEY)
 
-  if (typeof window === 'undefined') return <main style={{ background:'#fff', minHeight:'100vh' }} />
+  // client-only guard
+  if (typeof window === 'undefined') {
+    return <main style={{ background:'#fff', minHeight:'100vh' }} />
+  }
 
   const getSupabase = useMemo(() => async () => {
     const { createClient } = await import('@supabase/supabase-js')
@@ -30,14 +33,37 @@ export default function ComptePage() {
         const { data } = await s.auth.getUser()
         if (!mounted) return
         if (!data?.user) { window.location.href = '/login'; return }
-        setUser(data.user); setLoading(false)
-      } catch (e) { setMsg({ type:'err', text:e.message }); setLoading(false) }
+        setUser(data.user)
+      } catch (e) {
+        setMsg({ type:'err', text: e?.message || 'Erreur chargement compte' })
+      }
     })()
     return () => { mounted = false }
   }, [getSupabase])
 
+  async function handleChangePassword(e) {
+    e.preventDefault()
+    setMsg(null)
+
+    if (pwd1.length < 8) { setMsg({ type:'err', text:'Mot de passe ≥ 8 caractères' }); return }
+    if (pwd1 !== pwd2)   { setMsg({ type:'err', text:'Mot de passe différent' }); return }
+
+    setBusy(true)
+    try {
+      const s = await getSupabase()
+      const { error } = await s.auth.updateUser({ password: pwd1 })
+      if (error) throw error
+      setMsg({ type:'ok', text:'Mot de passe mis à jour ✅' })
+      setPwd1(''); setPwd2('')
+    } catch (err) {
+      setMsg({ type:'err', text: err?.message || 'Erreur lors de la mise à jour' })
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  // tokens style (alignés à ta home)
   const BRAND = 'var(--brand)'
-  const BRAND2 = 'var(--brand-2)'
   const MUTED = 'var(--muted)'
   const cta = {
     display:'inline-flex', alignItems:'center', gap:8,
@@ -51,19 +77,6 @@ export default function ComptePage() {
     boxShadow:'0 10px 30px rgba(0,0,0,.08)', border:'1px solid rgba(0,0,0,.04)'
   }
 
-  async function updatePassword(e) {
-    e.preventDefault()
-    setMsg(null)
-    if (newPwd.length < 8) { setMsg({ type:'err', text:'Le mot de passe doit contenir au moins 8 caractères' }); return }
-    try {
-      const s = await getSupabase()
-      const { error } = await s.auth.updateUser({ password: newPwd })
-      if (error) throw error
-      setNewPwd('')
-      setMsg({ type:'ok', text:'Mot de passe mis à jour ✅' })
-    } catch (e) { setMsg({ type:'err', text:e.message || 'Erreur' }) }
-  }
-
   return (
     <main style={{ background:'#fff', minHeight:'100vh' }}>
       <div className="container" style={{ padding:'20px 16px 0' }}>
@@ -73,56 +86,43 @@ export default function ComptePage() {
             <Link href="/espace-client" style={cta}>← Retour</Link>
           </div>
           <p style={{ color:MUTED, margin:'8px 0 0' }}>
-            Gérez votre email de connexion, mot de passe et préférences de notification.
+            Gérez votre email de connexion et votre mot de passe.
           </p>
         </section>
       </div>
 
-      <div className="container" style={{ padding:'18px 16px 44px' }}>
-        {/* Email de connexion (lecture seule) */}
-        <section style={{ ...card, marginBottom:18 }}>
-          <h3 style={{ color:BRAND, fontSize:18, fontWeight:900, margin:'0 0 10px' }}>Email de connexion</h3>
-          <input className="input" value={user?.email || ''} readOnly
-                 style={{ width:'100%', background:'#fff', border:'1px solid rgba(0,0,0,.12)', color:'#222' }} />
-          <p style={{ color:MUTED, marginTop:8, fontSize:13 }}>
-            Pour changer d’email, contactez le support.
-          </p>
+      <div className="container" style={{ padding:'18px 16px 44px', display:'grid', gap:18, gridTemplateColumns:'1fr', maxWidth:980, margin:'0 auto' }}>
+        {/* Email (lecture seule) */}
+        <section style={{ ...card }}>
+          <h3 style={{ color:BRAND, fontWeight:900, marginTop:0, marginBottom:14 }}>Email de connexion</h3>
+          <div className="field" style={{ margin:0 }}>
+            <label htmlFor="email">Adresse email</label>
+            <input id="email" className="input" type="email" value={user?.email || ''} readOnly />
+          </div>
+          <p style={{ color:MUTED, marginTop:10 }}>Pour modifier l’email, contactez-nous : <a href="mailto:marie.terki@icloud.com" style={{ color:BRAND, fontWeight:700 }}>marie.terki@icloud.com</a></p>
         </section>
 
-        {/* Changer le mot de passe */}
-        <section style={{ ...card, marginBottom:18 }}>
-          <h3 style={{ color:BRAND, fontSize:18, fontWeight:900, margin:'0 0 10px' }}>Changer le mot de passe</h3>
-          <form onSubmit={updatePassword} className="form">
-            <div className="field" style={{ marginBottom:10 }}>
-              <label style={{ color:'#222', fontWeight:700 }}>Nouveau mot de passe</label>
-              <input className="input" type="password" required minLength={8}
-                     value={newPwd} onChange={e=>setNewPwd(e.target.value)}
-                     placeholder="Minimum 8 caractères"
-                     style={{ width:'100%', background:'#fff', border:'1px solid rgba(0,0,0,.12)', color:'#222' }} />
+        {/* Changer mot de passe */}
+        <section style={{ ...card }}>
+          <h3 style={{ color:BRAND, fontWeight:900, marginTop:0, marginBottom:14 }}>Changer le mot de passe</h3>
+          <form className="form" onSubmit={handleChangePassword} noValidate>
+            <div className="field">
+              <label htmlFor="pwd1">Nouveau mot de passe</label>
+              <input id="pwd1" className="input" type="password" minLength={8} value={pwd1} onChange={(e)=>setPwd1(e.target.value)} placeholder="Minimum 8 caractères" required />
+            </div>
+            <div className="field">
+              <label htmlFor="pwd2">Confirmer le mot de passe</label>
+              <input id="pwd2" className="input" type="password" value={pwd2} onChange={(e)=>setPwd2(e.target.value)} placeholder="Retapez le mot de passe" required />
             </div>
             <div className="actions">
-              <button className="btn-send" type="submit" style={cta}>Mettre à jour</button>
+              <button type="submit" className="btn-send" disabled={busy}>
+                {busy ? 'Mise à jour…' : 'ENREGISTRER'}
+              </button>
             </div>
           </form>
         </section>
 
-        {/* Préférences de notification (placeholder) */}
-        <section style={{ ...card }}>
-          <h3 style={{ color:BRAND, fontSize:18, fontWeight:900, margin:'0 0 10px' }}>Préférences de notification</h3>
-          <label style={{ color:'#222', display:'flex', alignItems:'center', gap:8 }}>
-            <input type="checkbox" checked={notif} onChange={()=>setNotif(!notif)} />
-            Recevoir un email quand une correction est prête
-          </label>
-          <p style={{ color:MUTED, marginTop:8, fontSize:13 }}>
-            (Placeholder — à brancher à ta base plus tard)
-          </p>
-        </section>
-
-        {!envOk && (
-          <p style={{ color:'#b71c1c', marginTop:12 }}>
-            Variables Supabase absentes. Ajoute <code>NEXT_PUBLIC_SUPABASE_URL</code> et <code>NEXT_PUBLIC_SUPABASE_ANON_KEY</code> dans Vercel.
-          </p>
-        )}
+        {/* ✅ Section "Préférences de notification" SUPPRIMÉE */}
       </div>
 
       {msg && (
@@ -132,6 +132,12 @@ export default function ComptePage() {
           background: msg.type==='ok' ? 'rgba(46,125,50,0.12)' : 'rgba(183,28,28,0.12)',
           color: msg.type==='ok' ? '#2e7d32' : '#b71c1c', fontWeight:700
         }}>{msg.text}</div>
+      )}
+
+      {!envOk && (
+        <div style={{ maxWidth:980, margin:'10px auto', color:'#b71c1c' }}>
+          Variables Supabase absentes. Ajoute <code>NEXT_PUBLIC_SUPABASE_URL</code> et <code>NEXT_PUBLIC_SUPABASE_ANON_KEY</code> dans Vercel.
+        </div>
       )}
     </main>
   )
