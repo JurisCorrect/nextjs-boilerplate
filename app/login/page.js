@@ -1,12 +1,13 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { ForgotPasswordInline } from '@/components/ForgotPasswordInline'
 
 export default function LoginPage() {
-  // --- états (déclarés avant tout usage) ---
-  const [tab, setTab] = useState('login') // 'login' | 'register' | 'reset'
+  // --- états ---
+  const [tab, setTab] = useState<'login' | 'register'>('login')
   const [busy, setBusy] = useState(false)
-  const [msg, setMsg] = useState(null) // { type: 'ok'|'err', text: string }
+  const [msg, setMsg] = useState<{ type: 'ok' | 'err'; text: string } | null>(null)
 
   // Champs login
   const [loginEmail, setLoginEmail] = useState('')
@@ -17,21 +18,18 @@ export default function LoginPage() {
   const [regPassword, setRegPassword] = useState('')
   const [regConfirm, setRegConfirm] = useState('')
 
-  // Champ reset password
-  const [resetEmail, setResetEmail] = useState('')
-
   // ENV injectées au build (client)
   const ENV_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
   const ENV_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
   const envOk = Boolean(ENV_URL && ENV_KEY)
 
-  // ⚠️ Garde SSR : lors du prerender (server), on retourne un squelette
+  // Garde SSR (squelette pendant le prerender)
   if (typeof window === 'undefined') {
     return (
       <main className="page-wrap">
         <h1 className="page-title">CONNEXION / INSCRIPTION</h1>
         <section className="panel">
-          <p style={{ color: '#fff', opacity: .8 }}>Chargement…</p>
+          <p style={{ color: '#fff', opacity: 0.8 }}>Chargement…</p>
         </section>
       </main>
     )
@@ -44,7 +42,6 @@ export default function LoginPage() {
       if (params.get('email_confirmed') === '1') {
         setTab('login')
         setMsg({ type: 'ok', text: 'Email confirmé ✅ Vous pouvez maintenant vous connecter.' })
-        // Nettoie l'URL (retire ?email_confirmed=1)
         window.history.replaceState(null, '', window.location.pathname)
       }
     } catch {}
@@ -52,7 +49,7 @@ export default function LoginPage() {
 
   function Notice() {
     if (!msg) return null
-    const base = {
+    const base: React.CSSProperties = {
       marginTop: 14,
       padding: 12,
       borderRadius: 8,
@@ -66,7 +63,7 @@ export default function LoginPage() {
     return <div style={style}>{msg.text}</div>
   }
 
-  // Garde-fou : crée le client ou affiche une erreur claire
+  // Supabase client helper
   async function getSupabaseOrFail() {
     const { createClient } = await import('@supabase/supabase-js')
     const url = ENV_URL
@@ -83,7 +80,7 @@ export default function LoginPage() {
     return createClient(url, key)
   }
 
-  async function handleLogin(e) {
+  async function handleLogin(e: React.FormEvent) {
     e.preventDefault()
     setMsg(null)
     setBusy(true)
@@ -95,14 +92,14 @@ export default function LoginPage() {
       })
       if (error) throw error
       window.location.href = '/espace-client'
-    } catch (err) {
+    } catch (err: any) {
       setMsg({ type: 'err', text: err?.message || 'Erreur de connexion' })
     } finally {
       setBusy(false)
     }
   }
 
-  async function handleRegister(e) {
+  async function handleRegister(e: React.FormEvent) {
     e.preventDefault()
     setMsg(null)
 
@@ -136,38 +133,8 @@ export default function LoginPage() {
       setRegPassword('')
       setRegConfirm('')
       setTab('login')
-    } catch (err) {
+    } catch (err: any) {
       setMsg({ type: 'err', text: err?.message || "Erreur lors de l'inscription" })
-    } finally {
-      setBusy(false)
-    }
-  }
-
-  async function handleResetPassword(e) {
-    e.preventDefault()
-    setMsg(null)
-
-    if (!resetEmail.trim()) {
-      setMsg({ type: 'err', text: 'Veuillez saisir votre adresse email' })
-      return
-    }
-
-    setBusy(true)
-    try {
-      const supabase = await getSupabaseOrFail()
-      const { error } = await supabase.auth.resetPasswordForEmail(resetEmail.trim(), {
-        redirectTo: `${window.location.origin}/reset-password`
-      })
-      if (error) throw error
-
-      setMsg({
-        type: 'ok',
-        text: 'Email de réinitialisation envoyé ! Vérifiez votre boîte mail (et les spams).'
-      })
-      setResetEmail('')
-      setTimeout(() => setTab('login'), 3000)
-    } catch (err) {
-      setMsg({ type: 'err', text: err?.message || "Erreur lors de l'envoi" })
     } finally {
       setBusy(false)
     }
@@ -262,31 +229,18 @@ export default function LoginPage() {
                 placeholder="Votre mot de passe"
               />
             </div>
+
             <div className="actions">
               <button type="submit" className="btn-send" disabled={busy || !envOk}>
                 {busy ? 'Connexion…' : 'SE CONNECTER'}
               </button>
             </div>
-            
-            {/* Lien mot de passe oublié */}
+
+            {/* Forgot password inline */}
             <div style={{ textAlign: 'center', marginTop: 16 }}>
-              <button
-                type="button"
-                onClick={() => setTab('reset')}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  color: '#ffffff',
-                  textDecoration: 'underline',
-                  cursor: 'pointer',
-                  fontSize: 14,
-                  opacity: 0.8
-                }}
-              >
-                Mot de passe oublié ?
-              </button>
+              <ForgotPasswordInline />
             </div>
-            
+
             <Notice />
           </form>
         )}
@@ -336,53 +290,6 @@ export default function LoginPage() {
                 {busy ? 'Création…' : 'CRÉER MON COMPTE'}
               </button>
             </div>
-            <Notice />
-          </form>
-        )}
-
-        {/* Réinitialisation mot de passe */}
-        {tab === 'reset' && (
-          <form className="form" onSubmit={handleResetPassword}>
-            <p style={{ color: '#fff', opacity: 0.9, marginBottom: 20, textAlign: 'center' }}>
-              Saisissez votre email pour recevoir un lien de réinitialisation.
-            </p>
-            
-            <div className="field">
-              <label htmlFor="reset-email">Email</label>
-              <input
-                id="reset-email"
-                type="email"
-                className="input"
-                required
-                value={resetEmail}
-                onChange={(e) => setResetEmail(e.target.value)}
-                placeholder="votre@email.com"
-              />
-            </div>
-            <div className="actions">
-              <button type="submit" className="btn-send" disabled={busy || !envOk}>
-                {busy ? 'Envoi…' : 'ENVOYER LE LIEN'}
-              </button>
-            </div>
-            
-            {/* Retour à la connexion */}
-            <div style={{ textAlign: 'center', marginTop: 16 }}>
-              <button
-                type="button"
-                onClick={() => setTab('login')}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  color: '#ffffff',
-                  cursor: 'pointer',
-                  fontSize: 14,
-                  opacity: 0.8
-                }}
-              >
-                ← Retour à la connexion
-              </button>
-            </div>
-            
             <Notice />
           </form>
         )}
