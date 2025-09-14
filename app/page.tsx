@@ -46,11 +46,11 @@ export default function Home() {
       <div className="container">
         <section className="presentation card-glass" style={{ marginInline: "auto" }}>
           <p>
-            En droit, la méthodologie compte plus que tout dans la note — et c’est pourtant la plus difficile à acquérir.
+            En droit, la méthodologie compte plus que tout dans la note, et c’est pourtant la plus difficile à acquérir.
             JURISCORRECT propose une correction de A à Z&nbsp;: il identifie précisément ce qui ne va pas dans votre copie,
             explique pourquoi et vous montre comment corriger le tir, pour travailler vos points faibles et progresser
             réellement. Cette correction automatisée s’appuie sur ma base de données personnelle, alignée sur les
-            méthodologies universitaires — un socle introuvable dans les IA généralistes actuelles. JURISCORRECT est
+            méthodologies universitaires, un socle introuvable dans les IA généralistes actuelles. JURISCORRECT est
             un produit unique, pensé pour faire gagner des points grâce à la méthode.
           </p>
         </section>
