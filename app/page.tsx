@@ -22,6 +22,22 @@ export default function Home() {
     boxShadow: "0 12px 30px rgba(123,30,58,.35)",
   }
 
+  // Badge accent (utilisé pour "Qui suis-je ?" et "Pour aller plus loin…")
+  const badge: React.CSSProperties = {
+    display: "inline-block",
+    verticalAlign: "baseline",
+    marginRight: 10,
+    padding: "4px 10px",
+    borderRadius: 8,
+    fontWeight: 900,
+    fontSize: "0.95rem",
+    letterSpacing: ".2px",
+    whiteSpace: "nowrap",
+    color: "#fff",
+    background: "linear-gradient(180deg, var(--brand) 0%, var(--brand-2) 100%)",
+    boxShadow: "0 8px 20px rgba(123,30,58,.35)",
+  }
+
   return (
     <main>
       {/* ===== NAV (droite, avec Tarifs + Se connecter) ===== */}
@@ -77,9 +93,6 @@ export default function Home() {
         </Link>
       </section>
 
-      {/* ===== TARIFS SUPPRIMÉS - maintenant sur page dédiée ===== */}
-      {/* Section tarifs supprimée car bouton Tarifs ajouté dans navigation */}
-
       {/* ===== AVIS / BIO ===== */}
       <section className="container" id="avis" style={{ scrollMarginTop: 90 }}>
         <div
@@ -98,30 +111,13 @@ export default function Home() {
           }}>
             {/* Texte à gauche */}
             <div style={{ flex: "1 1 auto" }}>
-              <p style={{ 
-                color: "var(--muted)", 
-                lineHeight: 1.7, 
-                margin: 0, 
-                textAlign: "justify" 
+              <p style={{
+                color: "var(--muted)",
+                lineHeight: 1.7,
+                margin: 0,
+                textAlign: "justify"
               }}>
-                <span
-                  style={{
-                    display: "inline-block",
-                    verticalAlign: "baseline",
-                    marginRight: 10,
-                    padding: "4px 10px",
-                    borderRadius: 8,
-                    fontWeight: 900,
-                    fontSize: "0.95rem",
-                    letterSpacing: ".2px",
-                    whiteSpace: "nowrap",
-                    color: "#fff",
-                    background: "linear-gradient(180deg, var(--brand) 0%, var(--brand-2) 100%)",
-                    boxShadow: "0 8px 20px rgba(123,30,58,.35)",
-                  }}
-                >
-                  Qui suis-je ?
-                </span>
+                <span style={badge}>Qui suis-je ?</span>
                 Doctorante en droit international pénal et professeur particulier depuis quatre ans, j'ai effectué un parcours
                 universitaire rigoureux, validé mention bien à chaque étape. Après une licence à l'université de Créteil,
                 j'ai obtenu deux masters : un master 1 et 2 de droit international et droit comparé à Nanterre, puis un master 1
@@ -173,30 +169,13 @@ export default function Home() {
             marginBottom: 16,
             marginTop: 0
           }}>
-            <span
-              style={{
-                display: "inline-block",
-                verticalAlign: "baseline",
-                marginRight: 10,
-                padding: "4px 10px",
-                borderRadius: 8,
-                fontWeight: 900,
-                fontSize: "0.95rem",
-                letterSpacing: ".2px",
-                whiteSpace: "nowrap",
-                color: "#fff",
-                background: "linear-gradient(180deg, var(--brand) 0%, var(--brand-2) 100%)",
-                boxShadow: "0 8px 20px rgba(123,30,58,.35)",
-              }}
-            >
-              Pour aller plus loin...
-            </span>
+            <span style={badge}>Pour aller plus loin...</span>
           </h3>
-          <p style={{ 
-            color: "var(--muted)", 
-            lineHeight: 1.7, 
-            margin: 0, 
-            textAlign: "justify" 
+          <p style={{
+            color: "var(--muted)",
+            lineHeight: 1.7,
+            margin: 0,
+            textAlign: "justify"
           }}>
             Au-delà de l'outil JURISCORRECT, je propose également un accompagnement personnalisé sous forme de cours particuliers. 
             Ces sessions permettent un suivi individualisé, des explications détaillées de la méthodologie juridique et un 
