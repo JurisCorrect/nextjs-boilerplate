@@ -4,7 +4,7 @@ import React, { Suspense, useEffect, useMemo, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { createClient } from "@supabase/supabase-js";
 
-// Empêche le prerender/SSG
+// empêcher le prerender/SSG pour cette page
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
@@ -26,6 +26,7 @@ function Inner() {
   const [pwd, setPwd] = useState("");
   const [pwd2, setPwd2] = useState("");
 
+  // ?code=... ou #code=...
   const codeFromUrl = useMemo(() => {
     const queryCode = searchParams.get("code");
     if (queryCode) return queryCode;
@@ -34,6 +35,7 @@ function Inner() {
     return h.get("code");
   }, [searchParams]);
 
+  // type=invite|recovery (query ou hash)
   const typeFromUrl = useMemo(() => {
     const qType = (searchParams.get("type") || "").toLowerCase();
     if (qType === "invite" || qType === "recovery") return qType;
@@ -153,9 +155,13 @@ function Inner() {
 
 export default function Page() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center px-4">
-      <p className="text-sm text-gray-600">Chargement…</p>
-    </Suspense>}>
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center px-4">
+          <p className="text-sm text-gray-600">Chargement…</p>
+        </div>
+      }
+    >
       <Inner />
     </Suspense>
   );
