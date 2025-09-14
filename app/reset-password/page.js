@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 
 export default function ResetPasswordPage() {
   const [password, setPassword] = useState('')
@@ -49,7 +49,7 @@ export default function ResetPasswordPage() {
       const supabase = await getSupabaseOrFail()
       const { error } = await supabase.auth.updateUser({ password })
       if (error) throw error
-      
+
       setMsg({ type: 'ok', text: 'Mot de passe mis à jour avec succès !' })
       setTimeout(() => {
         window.location.href = '/espace-client'
