@@ -2,6 +2,10 @@
 import Link from "next/link"
 
 export default function Home() {
+  // Accent fixé (sans variables CSS)
+  const ACCENT_GRADIENT = "linear-gradient(180deg, #7b1e3a 0%, #962746 100%)"
+  const ACCENT_SHADOW = "0 8px 20px rgba(123,30,58,.35)"
+
   // Pastilles de la nav (alignées à droite)
   const pill: React.CSSProperties = {
     display: "inline-flex",
@@ -18,7 +22,7 @@ export default function Home() {
   }
   const cta: React.CSSProperties = {
     ...pill,
-    background: "linear-gradient(180deg, var(--brand) 0%, var(--brand-2) 100%)",
+    background: ACCENT_GRADIENT,
     boxShadow: "0 12px 30px rgba(123,30,58,.35)",
   }
 
@@ -34,8 +38,8 @@ export default function Home() {
     letterSpacing: ".2px",
     whiteSpace: "nowrap",
     color: "#fff",
-    background: "linear-gradient(180deg, var(--brand) 0%, var(--brand-2) 100%)",
-    boxShadow: "0 8px 20px rgba(123,30,58,.35)",
+    background: ACCENT_GRADIENT,
+    boxShadow: ACCENT_SHADOW,
   }
 
   return (
@@ -54,9 +58,7 @@ export default function Home() {
       </header>
 
       {/* ===== HERO (titre supprimé car maintenant dans nav) ===== */}
-      <section className="hero">
-        {/* Le titre est maintenant géré par le CSS dans .nav::before */}
-      </section>
+      <section className="hero">{/* titre géré par CSS dans .nav::before */}</section>
 
       {/* ===== PRÉSENTATION (resserrée) ===== */}
       <div className="container">
@@ -72,20 +74,18 @@ export default function Home() {
         </section>
       </div>
 
-      {/* ===== CARTES EXERCICES (directement visibles) ===== */}
+      {/* ===== CARTES EXERCICES ===== */}
       <section className="grid">
         <Link href="/dissertation" className="card">
           <span className="card-emoji">📚</span>
           <span className="card-title">DISSERTATION JURIDIQUE</span>
           <span className="card-arrow">→</span>
         </Link>
-
         <Link href="/commentaire" className="card">
           <span className="card-emoji">⚖️</span>
           <span className="card-title">COMMENTAIRE D&apos;ARRÊT / FICHE D&apos;ARRÊT</span>
           <span className="card-arrow">→</span>
         </Link>
-
         <Link href="/cas-pratique" className="card">
           <span className="card-emoji">📝</span>
           <span className="card-title">CAS PRATIQUE</span>
@@ -95,28 +95,11 @@ export default function Home() {
 
       {/* ===== AVIS / BIO ===== */}
       <section className="container" id="avis" style={{ scrollMarginTop: 90 }}>
-        <div
-          className="card-glass"
-          style={{
-            maxWidth: 980,
-            margin: "16px auto 36px",
-            padding: "clamp(16px, 2.4vw, 24px)",
-          }}
-        >
-          <div style={{
-            display: "flex",
-            flexDirection: "row",
-            gap: 20,
-            alignItems: "flex-start"
-          }}>
+        <div className="card-glass" style={{ maxWidth: 980, margin: "16px auto 36px", padding: "clamp(16px, 2.4vw, 24px)" }}>
+          <div style={{ display: "flex", flexDirection: "row", gap: 20, alignItems: "flex-start" }}>
             {/* Texte à gauche */}
             <div style={{ flex: "1 1 auto" }}>
-              <p style={{
-                color: "var(--muted)",
-                lineHeight: 1.7,
-                margin: 0,
-                textAlign: "justify"
-              }}>
+              <p style={{ color: "var(--muted)", lineHeight: 1.7, margin: 0, textAlign: "justify" }}>
                 <span style={badge}>Qui suis-je ?</span>
                 Doctorante en droit international pénal et professeur particulier depuis quatre ans, j'ai effectué un parcours
                 universitaire rigoureux, validé mention bien à chaque étape. Après une licence à l'université de Créteil,
@@ -130,21 +113,13 @@ export default function Home() {
             </div>
 
             {/* Photo à droite */}
-            <div style={{
-              flex: "0 0 180px",
-              display: "flex",
-              justifyContent: "center"
-            }}>
+            <div style={{ flex: "0 0 180px", display: "flex", justifyContent: "center" }}>
               <img
                 src="/marie.jpg"
                 alt="Marie"
                 style={{
-                  width: 180,
-                  height: 180,
-                  borderRadius: "50%",
-                  objectFit: "cover",
-                  border: "2px solid rgba(255,255,255,.7)",
-                  boxShadow: "0 8px 24px rgba(0,0,0,.35)",
+                  width: 180, height: 180, borderRadius: "50%", objectFit: "cover",
+                  border: "2px solid rgba(255,255,255,.7)", boxShadow: "0 8px 24px rgba(0,0,0,.35)",
                 }}
               />
             </div>
@@ -154,29 +129,11 @@ export default function Home() {
 
       {/* ===== POUR ALLER PLUS LOIN ===== */}
       <section className="container" style={{ marginBottom: 40 }}>
-        <div
-          className="card-glass"
-          style={{
-            maxWidth: 980,
-            margin: "0 auto",
-            padding: "clamp(16px, 2.4vw, 24px)",
-          }}
-        >
-          <h3 style={{
-            color: "#fff",
-            fontSize: "1.2rem",
-            fontWeight: 800,
-            marginBottom: 16,
-            marginTop: 0
-          }}>
+        <div className="card-glass" style={{ maxWidth: 980, margin: "0 auto", padding: "clamp(16px, 2.4vw, 24px)" }}>
+          <h3 style={{ color: "#fff", fontSize: "1.2rem", fontWeight: 800, marginBottom: 16, marginTop: 0 }}>
             <span style={badge}>Pour aller plus loin...</span>
           </h3>
-          <p style={{
-            color: "var(--muted)",
-            lineHeight: 1.7,
-            margin: 0,
-            textAlign: "justify"
-          }}>
+          <p style={{ color: "var(--muted)", lineHeight: 1.7, margin: 0, textAlign: "justify" }}>
             Au-delà de l'outil JURISCORRECT, je propose également un accompagnement personnalisé sous forme de cours particuliers. 
             Ces sessions permettent un suivi individualisé, des explications détaillées de la méthodologie juridique et un 
             entraînement adapté à vos besoins spécifiques. Que vous souhaitiez préparer un examen, améliorer vos techniques 
@@ -184,11 +141,7 @@ export default function Home() {
             pédagogie éprouvée et des résultats concrets.
             <br /><br />
             Pour toute demande d'information ou pour planifier un accompagnement personnalisé, contactez-moi directement : 
-            <a href="mailto:marie.terki@icloud.com" style={{
-              color: "var(--brand)",
-              textDecoration: "none",
-              fontWeight: 700
-            }}>
+            <a href="mailto:marie.terki@icloud.com" style={{ color: "#7b1e3a", textDecoration: "none", fontWeight: 700 }}>
               <strong>marie.terki@icloud.com</strong>
             </a>
           </p>
