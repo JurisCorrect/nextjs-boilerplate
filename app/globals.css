@@ -712,4 +712,3 @@ main:not(.page-wrap) :is(#qui-suis-je, .qui-suis-je, [id*="qui-suis"], [class*="
   display: block !important;
 }
 #qsj-badge { color: #fff !important; }
-
