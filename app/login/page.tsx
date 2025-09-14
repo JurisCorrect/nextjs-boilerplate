@@ -1,13 +1,13 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { ForgotPasswordInline } from '@/components/ForgotPasswordInline'
+import { ForgotPasswordInline } from '@/components/ForgotPasswordInline' // OK même si .tsx
 
 export default function LoginPage() {
   // --- états ---
-  const [tab, setTab] = useState<'login' | 'register'>('login')
+  const [tab, setTab] = useState('login') // 'login' | 'register'
   const [busy, setBusy] = useState(false)
-  const [msg, setMsg] = useState<{ type: 'ok' | 'err'; text: string } | null>(null)
+  const [msg, setMsg] = useState(null) // { type: 'ok'|'err', text: string } | null
 
   // Champs login
   const [loginEmail, setLoginEmail] = useState('')
@@ -49,7 +49,7 @@ export default function LoginPage() {
 
   function Notice() {
     if (!msg) return null
-    const base: React.CSSProperties = {
+    const base = {
       marginTop: 14,
       padding: 12,
       borderRadius: 8,
@@ -80,7 +80,7 @@ export default function LoginPage() {
     return createClient(url, key)
   }
 
-  async function handleLogin(e: React.FormEvent) {
+  async function handleLogin(e) {
     e.preventDefault()
     setMsg(null)
     setBusy(true)
@@ -92,14 +92,14 @@ export default function LoginPage() {
       })
       if (error) throw error
       window.location.href = '/espace-client'
-    } catch (err: any) {
+    } catch (err) {
       setMsg({ type: 'err', text: err?.message || 'Erreur de connexion' })
     } finally {
       setBusy(false)
     }
   }
 
-  async function handleRegister(e: React.FormEvent) {
+  async function handleRegister(e) {
     e.preventDefault()
     setMsg(null)
 
@@ -133,7 +133,7 @@ export default function LoginPage() {
       setRegPassword('')
       setRegConfirm('')
       setTab('login')
-    } catch (err: any) {
+    } catch (err) {
       setMsg({ type: 'err', text: err?.message || "Erreur lors de l'inscription" })
     } finally {
       setBusy(false)
