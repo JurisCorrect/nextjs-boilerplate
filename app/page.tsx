@@ -46,12 +46,12 @@ export default function Home() {
       <div className="container">
         <section className="presentation card-glass" style={{ marginInline: "auto" }}>
           <p>
-            JURISCORRECT est un outil de correction automatisée fondé sur la base de données d'un professeur particulier.
-            Contrairement aux IA génératives, qui ne sont pas conçues pour corriger les devoirs juridiques et qui ignorent
-            la méthodologie extrêmement particulière de cette discipline, JURISCORRECT ne fait jamais le devoir à la place
-            de l'étudiant : il corrige, explique et guide. Grâce à une méthodologie rigoureuse et des critères pédagogiques
-            précis, l'étudiant reçoit une correction fiable et personnalisée qui lui permet d'intégrer et de maîtriser
-            progressivement la méthodologie juridique.
+            En droit, la méthodologie compte plus que tout dans la note — et c’est pourtant la plus difficile à acquérir.
+            JURISCORRECT propose une correction de A à Z&nbsp;: il identifie précisément ce qui ne va pas dans votre copie,
+            explique pourquoi et vous montre comment corriger le tir, pour travailler vos points faibles et progresser
+            réellement. Cette correction automatisée s’appuie sur ma base de données personnelle, alignée sur les
+            méthodologies universitaires — un socle introuvable dans les IA généralistes actuelles. JURISCORRECT est
+            un produit unique, pensé pour faire gagner des points grâce à la méthode.
           </p>
         </section>
       </div>
@@ -102,7 +102,7 @@ export default function Home() {
                 textAlign: "justify" 
               }}>
                 <span
-                  id="qsj-badge"        // ← juste cet id ajouté
+                  id="qsj-badge"
                   className="badge-accent"
                   data-badge="accent"
                   style={{
@@ -206,7 +206,7 @@ export default function Home() {
             de dissertation ou perfectionner vos commentaires d'arrêt, je vous accompagne dans votre progression avec une 
             pédagogie éprouvée et des résultats concrets.
             <br /><br />
-            Pour toute demande d'information ou pour planifier un accompagnement personnalisé, contactez-moi directement : 
+            Pour toute demande d'information ou pour planifier un accompagnement personnalisé, contactez-moi directement  : 
             <a href="mailto:marie.terki@icloud.com" style={{
               color: "var(--brand)",
               textDecoration: "none",
