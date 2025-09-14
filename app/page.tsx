@@ -23,7 +23,7 @@ export default function Home() {
 
   return (
     <main>
-      {/* ===== NAV ===== */}
+      {/* NAV */}
       <header className="nav nav-blur">
         <div className="container" style={{ display: "flex", justifyContent: "flex-end", alignItems: "center" }}>
           <nav className="nav-links" style={{ display: "flex", gap: 12, alignItems: "center" }}>
@@ -33,10 +33,10 @@ export default function Home() {
         </div>
       </header>
 
-      {/* ===== HERO ===== */}
-      <section className="hero">{/* Titre via CSS */}</section>
+      {/* HERO */}
+      <section className="hero" />
 
-      {/* ===== PRÉSENTATION ===== */}
+      {/* PRÉSENTATION */}
       <div className="container">
         <section className="presentation card-glass" style={{ marginInline: "auto" }}>
           <p>
@@ -45,7 +45,7 @@ export default function Home() {
         </section>
       </div>
 
-      {/* ===== CARTES EXERCICES ===== */}
+      {/* CARTES EXERCICES */}
       <section className="grid">
         <Link href="/dissertation" className="card">
           <span className="card-emoji">📚</span>
@@ -64,33 +64,31 @@ export default function Home() {
         </Link>
       </section>
 
-      {/* ===== AVIS / BIO ===== */}
+      {/* AVIS / BIO */}
       <section className="container" id="avis" style={{ scrollMarginTop: 90 }}>
         <div className="card-glass" style={{ maxWidth: 980, margin: "16px auto 36px", padding: "clamp(16px, 2.4vw, 24px)" }}>
           <div style={{ display: "flex", flexDirection: "row", gap: 20, alignItems: "flex-start" }}>
-            {/* Texte à gauche */}
             <div style={{ flex: "1 1 auto" }}>
-              <p style={{ color: "var(--muted)", lineHeight: 1.7, margin: 0, textAlign: "justify" }}>
+              {/* Titre + badge */}
+              <h3 style={{ margin: 0, marginBottom: 12 }}>
                 <span className="badge-accent">Qui suis-je ?</span>
+              </h3>
+              <p style={{ color: "var(--muted)", lineHeight: 1.7, margin: 0, textAlign: "justify" }}>
                 Doctorante en droit international pénal et professeur particulier depuis quatre ans, j'ai effectué…
               </p>
             </div>
-            {/* Photo à droite */}
             <div style={{ flex: "0 0 180px", display: "flex", justifyContent: "center" }}>
               <img
-                src="/marie.jpg"
-                alt="Marie"
-                style={{
-                  width: 180, height: 180, borderRadius: "50%", objectFit: "cover",
-                  border: "2px solid rgba(255,255,255,.7)", boxShadow: "0 8px 24px rgba(0,0,0,.35)",
-                }}
+                src="/marie.jpg" alt="Marie"
+                style={{ width: 180, height: 180, borderRadius: "50%", objectFit: "cover",
+                         border: "2px solid rgba(255,255,255,.7)", boxShadow: "0 8px 24px rgba(0,0,0,.35)" }}
               />
             </div>
           </div>
         </div>
       </section>
 
-      {/* ===== POUR ALLER PLUS LOIN ===== */}
+      {/* POUR ALLER PLUS LOIN */}
       <section className="container" style={{ marginBottom: 40 }}>
         <div className="card-glass" style={{ maxWidth: 980, margin: "0 auto", padding: "clamp(16px, 2.4vw, 24px)" }}>
           <h3 style={{ color: "#fff", fontSize: "1.2rem", fontWeight: 800, marginBottom: 16, marginTop: 0 }}>
@@ -106,24 +104,6 @@ export default function Home() {
           </p>
         </div>
       </section>
-
-      {/* ---------- Override global pour forcer la pastille bordeaux ---------- */}
-      <style jsx global>{`
-        .badge-accent {
-          display: inline-block;
-          vertical-align: baseline;
-          margin-right: 10px;
-          padding: 4px 10px;
-          border-radius: 8px;
-          font-weight: 900;
-          font-size: 0.95rem;
-          letter-spacing: .2px;
-          white-space: nowrap;
-          color: #fff !important;
-          background: linear-gradient(180deg, #7b1e3a 0%, #962746 100%) !important;
-          box-shadow: 0 8px 20px rgba(123,30,58,.35);
-        }
-      `}</style>
     </main>
   )
 }
