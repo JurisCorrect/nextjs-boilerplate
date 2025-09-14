@@ -1,10 +1,11 @@
-import dynamic from "next/dynamic";
+import NextDynamic from "next/dynamic";
 
-export const dynamic = "force-dynamic"; // pas de revalidate ici
+// Config côté server
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
-// Charge le composant client uniquement côté navigateur (pas de SSR)
-// -> pas besoin de <Suspense>, pas d’erreur useSearchParams
-const Client = dynamic(() => import("./Client"), {
+// Charge le composant client uniquement côté navigateur (CSR)
+const Client = NextDynamic(() => import("./Client"), {
   ssr: false,
   loading: () => (
     <div className="min-h-screen flex items-center justify-center px-4">
