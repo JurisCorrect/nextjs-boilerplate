@@ -22,12 +22,9 @@ export default function AuthCallbackPage() {
   const [pwd, setPwd] = useState("");
   const [pwd2, setPwd2] = useState("");
 
-  // Récupère ?code=... ou #code=... (selon la version de Supabase / email)
   const codeFromUrl = useMemo(() => {
     const queryCode = searchParams.get("code");
     if (queryCode) return queryCode;
-
-    // Certains liens Supabase mettent les params dans le hash
     const hash = typeof window !== "undefined" ? window.location.hash.replace(/^#/, "") : "";
     const h = new URLSearchParams(hash);
     return h.get("code");
@@ -36,11 +33,10 @@ export default function AuthCallbackPage() {
   const typeFromUrl = useMemo(() => {
     const qType = (searchParams.get("type") || "").toLowerCase();
     if (qType === "invite" || qType === "recovery") return qType;
-
     const hash = typeof window !== "undefined" ? window.location.hash.replace(/^#/, "") : "";
     const hType = (new URLSearchParams(hash).get("type") || "").toLowerCase();
     if (hType === "invite" || hType === "recovery") return hType;
-    return "invite"; // défaut
+    return "invite";
   }, [searchParams]);
 
   useEffect(() => {
@@ -51,17 +47,13 @@ export default function AuthCallbackPage() {
           setPhase("error");
           return;
         }
-
         setFlowType(typeFromUrl as "invite" | "recovery");
         const { error } = await supabase.auth.exchangeCodeForSession(codeFromUrl);
-
         if (error) {
           setErrorMsg(error.message || "Impossible de valider le lien.");
           setPhase("error");
           return;
         }
-
-        // Auth OK → Afficher le formulaire pour définir le mot de passe
         setPhase("ready");
       } catch (e: any) {
         setErrorMsg(e?.message || "Erreur inconnue.");
@@ -80,7 +72,6 @@ export default function AuthCallbackPage() {
       setErrorMsg("Les mots de passe ne correspondent pas.");
       return;
     }
-
     setPhase("saving");
     const { error } = await supabase.auth.updateUser({ password: pwd });
     if (error) {
@@ -89,16 +80,15 @@ export default function AuthCallbackPage() {
       return;
     }
     setPhase("done");
-    // Redirige où tu veux (dashboard, espace perso, etc.)
     setTimeout(() => router.replace("/"), 1200);
   }
+
+  const showForm = phase === "ready" || phase === "saving";
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4">
       <div className="w-full max-w-md rounded-2xl shadow border border-gray-200 p-6">
-        {phase === "loading" && (
-          <p className="text-sm text-gray-600">Vérification du lien…</p>
-        )}
+        {phase === "loading" && <p className="text-sm text-gray-600">Vérification du lien…</p>}
 
         {phase === "error" && (
           <div>
@@ -107,7 +97,7 @@ export default function AuthCallbackPage() {
           </div>
         )}
 
-        {phase === "ready" && (
+        {showForm && (
           <form onSubmit={onSubmit} className="space-y-4">
             <h1 className="text-xl font-semibold">
               {flowType === "recovery" ? "Réinitialiser votre mot de passe" : "Définir votre mot de passe"}
@@ -149,9 +139,7 @@ export default function AuthCallbackPage() {
           </form>
         )}
 
-        {phase === "done" && (
-          <p className="text-sm text-green-700">Mot de passe enregistré. Redirection…</p>
-        )}
+        {phase === "done" && <p className="text-sm text-green-700">Mot de passe enregistré. Redirection…</p>}
       </div>
     </div>
   );
