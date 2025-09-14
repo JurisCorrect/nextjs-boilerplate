@@ -1,9 +1,7 @@
-// app/merci/page.tsx
+// app/merci/page.js
 import { redirect } from 'next/navigation'
 
-type SearchParams = { [key: string]: string | string[] | undefined }
-
-export default function Merci({ searchParams }: { searchParams?: SearchParams }) {
+export default function Merci({ searchParams }) {
   const qs = new URLSearchParams()
   const sp = searchParams ?? {}
 
