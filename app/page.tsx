@@ -102,6 +102,7 @@ export default function Home() {
                 textAlign: "justify" 
               }}>
                 <span
+                  id="qsj-badge"                 {/* ← id ajouté */}
                   className="badge-accent"
                   data-badge="accent"
                   style={{
@@ -216,6 +217,9 @@ export default function Home() {
           </p>
         </div>
       </section>
+
+      {/* Forçage ciblé de la couleur du texte du badge "Qui suis-je ?" */}
+      <style>{`#qsj-badge { color: #fff !important; }`}</style>
     </main>
   )
 }
