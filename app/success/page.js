@@ -1,11 +1,16 @@
-// app/success/page.js
+// app/success/page.tsx
 import { redirect } from 'next/navigation'
 
-export default function Success({ searchParams }) {
+type SearchParams = { [key: string]: string | string[] | undefined }
+
+export default function Success({ searchParams }: { searchParams?: SearchParams }) {
   const qs = new URLSearchParams()
-  for (const [k, v] of Object.entries(searchParams || {})) {
-    if (Array.isArray(v)) v.forEach(val => qs.append(k, val))
-    else if (v != null) qs.set(k, v)
+  const sp = searchParams ?? {}
+
+  for (const [k, v] of Object.entries(sp)) {
+    if (Array.isArray(v)) v.forEach(val => qs.append(k, String(val)))
+    else if (v != null) qs.set(k, String(v))
   }
+
   redirect(`/merci2${qs.toString() ? `?${qs.toString()}` : ''}`)
 }
