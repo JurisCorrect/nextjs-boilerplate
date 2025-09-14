@@ -77,7 +77,7 @@ export default function LoginPage() {
           "Dans Vercel → Project → Settings → Environment Variables, ajoute :\n" +
           "• NEXT_PUBLIC_SUPABASE_URL (Project URL Supabase)\n" +
           "• NEXT_PUBLIC_SUPABASE_ANON_KEY (anon public key)\n" +
-          "Puis redeploie avec "Clear build cache"."
+          'Puis redeploie avec "Clear build cache".'
       )
     }
     return createClient(url, key)
