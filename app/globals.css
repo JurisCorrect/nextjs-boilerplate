@@ -694,3 +694,21 @@ main:not(.page-wrap) :is(#qui-suis-je, .qui-suis-je, [id*="qui-suis"], [class*="
   max-width: 560px;        /* garde la même largeur visuelle qu'une carte normale */
   width: 100%;
 }
+/* Pastille bordeaux — gagne sur tout */
+.badge-accent[data-badge="accent"] {
+  color: #fff !important;
+  background-image: linear-gradient(180deg, #7b1e3a 0%, #962746 100%) !important;
+  /* si un style met un "background-color" noir, on s'en fiche : l'image passe au-dessus */
+  box-shadow: 0 8px 20px rgba(123,30,58,.35) !important;
+}
+
+/* Si un style global coupe les paragraphes dans .card-glass (ellipsis / line-clamp), on le neutralise */
+.card-glass p {
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  -webkit-line-clamp: unset !important;
+  line-clamp: unset !important;
+  display: block !important;
+}
+
