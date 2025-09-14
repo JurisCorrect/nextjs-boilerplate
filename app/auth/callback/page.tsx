@@ -1,20 +1,18 @@
-import React, { Suspense } from "react";
-import Client from "./Client";
+import dynamic from "next/dynamic";
 
-// ❗ Config de segment : à mettre côté server
-export const dynamic = "force-dynamic";
-export const revalidate = false;
+export const dynamic = "force-dynamic"; // pas de revalidate ici
+
+// Charge le composant client uniquement côté navigateur (pas de SSR)
+// -> pas besoin de <Suspense>, pas d’erreur useSearchParams
+const Client = dynamic(() => import("./Client"), {
+  ssr: false,
+  loading: () => (
+    <div className="min-h-screen flex items-center justify-center px-4">
+      <p className="text-sm text-gray-600">Chargement…</p>
+    </div>
+  ),
+});
 
 export default function Page() {
-  return (
-    <Suspense
-      fallback={
-        <div className="min-h-screen flex items-center justify-center px-4">
-          <p className="text-sm text-gray-600">Chargement…</p>
-        </div>
-      }
-    >
-      <Client />
-    </Suspense>
-  );
+  return <Client />;
 }
