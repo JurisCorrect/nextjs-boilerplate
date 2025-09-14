@@ -236,9 +236,9 @@ export default function LoginPage() {
               </button>
             </div>
 
-            {/* Mot de passe oublié inline */}
+            {/* Mot de passe oublié inline — on passe l’email saisi */}
             <div style={{ textAlign: 'center', marginTop: 16 }}>
-              <ForgotPasswordInline />
+              <ForgotPasswordInline emailFromLogin={loginEmail} />
             </div>
 
             <Notice />
