@@ -102,7 +102,8 @@ export default function Home() {
                 textAlign: "justify" 
               }}>
                 <span
-                  className="badge-accent"        // ← ajouté
+                  className="badge-accent"
+                  data-badge="accent"
                   style={{
                     display: "inline-block",
                     verticalAlign: "baseline",
@@ -172,7 +173,8 @@ export default function Home() {
             marginTop: 0
           }}>
             <span
-              className="badge-accent"          // ← ajouté
+              className="badge-accent"
+              data-badge="accent"
               style={{
                 display: "inline-block",
                 verticalAlign: "baseline",
