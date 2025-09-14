@@ -2,11 +2,6 @@
 import Link from "next/link"
 
 export default function Home() {
-  // Accent fixé (sans variables CSS)
-  const ACCENT_GRADIENT = "linear-gradient(180deg, #7b1e3a 0%, #962746 100%)"
-  const ACCENT_SHADOW = "0 8px 20px rgba(123,30,58,.35)"
-
-  // Pastilles de la nav (alignées à droite)
   const pill: React.CSSProperties = {
     display: "inline-flex",
     alignItems: "center",
@@ -22,34 +17,15 @@ export default function Home() {
   }
   const cta: React.CSSProperties = {
     ...pill,
-    background: ACCENT_GRADIENT,
+    background: "linear-gradient(180deg, #7b1e3a 0%, #962746 100%)",
     boxShadow: "0 12px 30px rgba(123,30,58,.35)",
-  }
-
-  // Badge accent (utilisé pour "Qui suis-je ?" et "Pour aller plus loin…")
-  const badge: React.CSSProperties = {
-    display: "inline-block",
-    verticalAlign: "baseline",
-    marginRight: 10,
-    padding: "4px 10px",
-    borderRadius: 8,
-    fontWeight: 900,
-    fontSize: "0.95rem",
-    letterSpacing: ".2px",
-    whiteSpace: "nowrap",
-    color: "#fff",
-    background: ACCENT_GRADIENT,
-    boxShadow: ACCENT_SHADOW,
   }
 
   return (
     <main>
-      {/* ===== NAV (droite, avec Tarifs + Se connecter) ===== */}
+      {/* ===== NAV ===== */}
       <header className="nav nav-blur">
-        <div
-          className="container"
-          style={{ display: "flex", justifyContent: "flex-end", alignItems: "center" }}
-        >
+        <div className="container" style={{ display: "flex", justifyContent: "flex-end", alignItems: "center" }}>
           <nav className="nav-links" style={{ display: "flex", gap: 12, alignItems: "center" }}>
             <Link href="/tarifs" className="nav-link" style={pill}>Tarifs</Link>
             <Link href="/login" className="btn-login" style={cta}>Se connecter</Link>
@@ -57,19 +33,14 @@ export default function Home() {
         </div>
       </header>
 
-      {/* ===== HERO (titre supprimé car maintenant dans nav) ===== */}
-      <section className="hero">{/* titre géré par CSS dans .nav::before */}</section>
+      {/* ===== HERO ===== */}
+      <section className="hero">{/* Titre via CSS */}</section>
 
-      {/* ===== PRÉSENTATION (resserrée) ===== */}
+      {/* ===== PRÉSENTATION ===== */}
       <div className="container">
         <section className="presentation card-glass" style={{ marginInline: "auto" }}>
           <p>
-            JURISCORRECT est un outil de correction automatisée fondé sur la base de données d'un professeur particulier.
-            Contrairement aux IA génératives, qui ne sont pas conçues pour corriger les devoirs juridiques et qui ignorent
-            la méthodologie extrêmement particulière de cette discipline, JURISCORRECT ne fait jamais le devoir à la place
-            de l'étudiant : il corrige, explique et guide. Grâce à une méthodologie rigoureuse et des critères pédagogiques
-            précis, l'étudiant reçoit une correction fiable et personnalisée qui lui permet d'intégrer et de maîtriser
-            progressivement la méthodologie juridique.
+            JURISCORRECT est un outil de correction automatisée fondé sur la base de données d'un professeur particulier…
           </p>
         </section>
       </div>
@@ -100,18 +71,10 @@ export default function Home() {
             {/* Texte à gauche */}
             <div style={{ flex: "1 1 auto" }}>
               <p style={{ color: "var(--muted)", lineHeight: 1.7, margin: 0, textAlign: "justify" }}>
-                <span style={badge}>Qui suis-je ?</span>
-                Doctorante en droit international pénal et professeur particulier depuis quatre ans, j'ai effectué un parcours
-                universitaire rigoureux, validé mention bien à chaque étape. Après une licence à l'université de Créteil,
-                j'ai obtenu deux masters : un master 1 et 2 de droit international et droit comparé à Nanterre, puis un master 1
-                et 2 de droit pénal et sciences criminelles à Toulouse. Au fil de mes années d'enseignement, j'ai constaté que le
-                plus grand défi des étudiants en droit était la maîtrise de la méthodologie. C'est pourquoi j'ai créé JURISCORRECT :
-                pour démocratiser l'accès à une correction de qualité et permettre à chaque étudiant de progresser efficacement.
-                Il s'agit de ma correction basée sur mes critères et non pas ceux d'Internet. Avec quatre ans d'expérience et un
-                taux de réussite de 100 % parmi mes élèves, je mets aujourd'hui mon expertise à votre service à travers cet outil.
+                <span className="badge-accent">Qui suis-je ?</span>
+                Doctorante en droit international pénal et professeur particulier depuis quatre ans, j'ai effectué…
               </p>
             </div>
-
             {/* Photo à droite */}
             <div style={{ flex: "0 0 180px", display: "flex", justifyContent: "center" }}>
               <img
@@ -131,22 +94,36 @@ export default function Home() {
       <section className="container" style={{ marginBottom: 40 }}>
         <div className="card-glass" style={{ maxWidth: 980, margin: "0 auto", padding: "clamp(16px, 2.4vw, 24px)" }}>
           <h3 style={{ color: "#fff", fontSize: "1.2rem", fontWeight: 800, marginBottom: 16, marginTop: 0 }}>
-            <span style={badge}>Pour aller plus loin...</span>
+            <span className="badge-accent">Pour aller plus loin...</span>
           </h3>
           <p style={{ color: "var(--muted)", lineHeight: 1.7, margin: 0, textAlign: "justify" }}>
-            Au-delà de l'outil JURISCORRECT, je propose également un accompagnement personnalisé sous forme de cours particuliers. 
-            Ces sessions permettent un suivi individualisé, des explications détaillées de la méthodologie juridique et un 
-            entraînement adapté à vos besoins spécifiques. Que vous souhaitiez préparer un examen, améliorer vos techniques 
-            de dissertation ou perfectionner vos commentaires d'arrêt, je vous accompagne dans votre progression avec une 
-            pédagogie éprouvée et des résultats concrets.
+            Au-delà de l'outil JURISCORRECT, je propose également un accompagnement personnalisé…
             <br /><br />
-            Pour toute demande d'information ou pour planifier un accompagnement personnalisé, contactez-moi directement : 
+            Pour toute demande :{" "}
             <a href="mailto:marie.terki@icloud.com" style={{ color: "#7b1e3a", textDecoration: "none", fontWeight: 700 }}>
               <strong>marie.terki@icloud.com</strong>
             </a>
           </p>
         </div>
       </section>
+
+      {/* ---------- Override global pour forcer la pastille bordeaux ---------- */}
+      <style jsx global>{`
+        .badge-accent {
+          display: inline-block;
+          vertical-align: baseline;
+          margin-right: 10px;
+          padding: 4px 10px;
+          border-radius: 8px;
+          font-weight: 900;
+          font-size: 0.95rem;
+          letter-spacing: .2px;
+          white-space: nowrap;
+          color: #fff !important;
+          background: linear-gradient(180deg, #7b1e3a 0%, #962746 100%) !important;
+          box-shadow: 0 8px 20px rgba(123,30,58,.35);
+        }
+      `}</style>
     </main>
   )
 }
