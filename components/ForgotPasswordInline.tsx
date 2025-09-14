@@ -1,7 +1,7 @@
 'use client'
 import { useMemo, useState } from 'react'
 
-type Props = { emailFromLogin?: string } // <-- optionnel
+type Props = { emailFromLogin?: string }
 
 export function ForgotPasswordInline({ emailFromLogin }: Props) {
   const [email, setEmail] = useState('')
@@ -22,7 +22,6 @@ export function ForgotPasswordInline({ emailFromLogin }: Props) {
       const { createClient } = await import('@supabase/supabase-js')
       if (!ENV_URL || !ENV_KEY) throw new Error('Configuration Supabase manquante')
       const supabase = createClient(ENV_URL, ENV_KEY)
-
       const origin = typeof window !== 'undefined' ? window.location.origin : ''
       const { error } = await supabase.auth.resetPasswordForEmail(effectiveEmail, {
         redirectTo: `${origin}/reset-password`,
@@ -66,40 +65,49 @@ export function ForgotPasswordInline({ emailFromLogin }: Props) {
         </div>
       )}
 
+      {/* DESIGN SEULEMENT */}
       <style jsx>{`
+        /* Tu peux surcharger la couleur d'accent ici si tu veux */
+        .fp-wrap { --accent:#7b1e3a; --accent-600:#691a33; --accent-ring:rgba(123,30,58,.35); }
+
         .fp-wrap{
           display:flex; align-items:center; gap:12px; flex-wrap:wrap; justify-content:center;
         }
+
         .fp-input{
           width:min(320px, 100%); padding:12px 14px; border-radius:12px;
-          background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.16);
-          color:#fff; outline:none; transition:box-shadow .2s, border-color .2s, background .2s;
+          background:rgba(0,0,0,0.04);
+          border:1px solid rgba(0,0,0,0.12);
+          color:inherit;
+          outline:none;
+          transition:box-shadow .2s, border-color .2s, background .2s;
         }
-        .fp-input::placeholder{ color:rgba(255,255,255,0.55); }
+        /* meilleure lisibilité si fond clair */
+        :global(.panel) & .fp-input { background: rgba(0,0,0,0.04); }
+        .fp-input::placeholder{ opacity:.6; }
         .fp-input:focus{
-          border-color:rgba(123,30,58,.45); box-shadow:0 0 0 6px rgba(123,30,58,.18);
-          background:rgba(255,255,255,0.08);
+          border-color:var(--accent);
+          box-shadow:0 0 0 6px var(--accent-ring);
+          background:rgba(0,0,0,0.02);
         }
 
         .fp-btn{
-          display:inline-flex; align-items:center; gap:10px; padding:12px 16px; border-radius:999px;
-          border:1px solid rgba(255,255,255,0.18);
-          background:linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.06));
+          display:inline-flex; align-items:center; gap:10px; padding:12px 18px; border-radius:999px;
+          border:1px solid transparent;
+          background:var(--accent);
           color:#fff; font-weight:700; letter-spacing:.2px; cursor:pointer;
-          transition:transform .15s, box-shadow .2s, border-color .2s, background .2s, opacity .2s;
-          backdrop-filter:saturate(1.1) blur(6px);
+          transition:transform .15s, box-shadow .2s, filter .2s, background .2s;
+          box-shadow:0 6px 18px rgba(0,0,0,.18);
         }
-        .fp-btn:hover{ transform:translateY(-1px); border-color:rgba(123,30,58,.5);
-          box-shadow:0 4px 18px rgba(0,0,0,.25), inset 0 0 0 1px rgba(123,30,58,.25);
-          background:linear-gradient(180deg, rgba(255,255,255,.16), rgba(255,255,255,.08));
-        }
+        .fp-btn:hover{ transform:translateY(-1px); background:var(--accent-600); }
+        .fp-btn:focus-visible{ outline:none; box-shadow:0 0 0 4px var(--accent-ring), 0 6px 18px rgba(0,0,0,.2); }
         .fp-btn[disabled]{ opacity:.6; cursor:not-allowed; transform:none; }
 
         .fp-note{
           width:100%; margin-top:10px; padding:10px 12px; border-radius:10px; font-weight:600; text-align:center;
         }
-        .fp-note.ok{ color:#2ed573; background:rgba(46,213,115,0.12); border:1px solid rgba(46,213,115,0.25); }
-        .fp-note.err{ color:#ff6b6b; background:rgba(255,107,107,0.12); border:1px solid rgba(255,107,107,0.25); }
+        .fp-note.ok{ color:#1b7f49; background:rgba(27,127,73,0.12); border:1px solid rgba(27,127,73,0.25); }
+        .fp-note.err{ color:#a63b3b; background:rgba(166,59,59,0.12); border:1px solid rgba(166,59,59,0.25); }
 
         @media (max-width: 420px){
           .fp-btn{ width:100%; justify-content:center }
