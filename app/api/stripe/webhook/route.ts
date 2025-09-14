@@ -79,22 +79,20 @@ export async function POST(req: Request) {
 
         try {
           const supabaseAdmin = await getSupabaseAdmin();
-          
-          // Générer un lien de récupération direct
-          const { data: linkData, error: linkErr } = await supabaseAdmin.auth.admin.generateLink({
-            type: "recovery",
-            email,
-            options: { redirectTo },
-          });
+          const { error } = await supabaseAdmin.auth.admin.inviteUserByEmail(email, { redirectTo });
 
-          if (linkErr) {
-            console.error("[webhook] generateLink error:", linkErr.message);
-          } else if (linkData?.properties?.action_link) {
-            console.log("LIEN DIRECT:", linkData.properties.action_link);
-            console.log(`Recovery link créé pour ${email}`);
+          if (error) {
+            const msg = (error as any)?.message || String(error);
+            if (/already/i.test(msg)) {
+              console.log(`[webhook] ${email} déjà inscrit → pas d'invitation ré-envoyée.`);
+            } else {
+              console.error("[webhook] inviteUserByEmail error:", msg);
+            }
+          } else {
+            console.log(`[webhook] Invitation Supabase envoyée à ${email}`);
           }
         } catch (e) {
-          console.error("[webhook] Exception:", e);
+          console.error("[webhook] Supabase invite exception:", e);
         }
 
         break;
