@@ -11,7 +11,7 @@ export default function PaymentPanel({ refId }: Props) {
   const startCheckout = async (mode: "payment" | "subscription") => {
     try {
       setLoading(mode === "payment" ? "one" : "sub")
-      setError(null) // Reset error
+      setError(null)
       
       const res = await fetch("/api/checkout", {
         method: "POST",
@@ -28,7 +28,13 @@ export default function PaymentPanel({ refId }: Props) {
         throw new Error(data?.error || "Erreur Checkout")
       }
       
-      window.location.href = data.url
+      // Redirection plus robuste pour éviter l'émoji "interdit"
+      const link = document.createElement('a')
+      link.href = data.url
+      link.target = '_self'
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
       
     } catch (e: any) {
       console.error("Erreur paiement:", e)
