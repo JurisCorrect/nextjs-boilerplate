@@ -5,6 +5,7 @@ import { Buffer } from "node:buffer";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
+// === ENV VARS ===
 const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY!;
 const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET;
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -19,6 +20,7 @@ if (!STRIPE_SECRET_KEY) throw new Error("STRIPE_SECRET_KEY manquant");
 
 const stripe = new Stripe(STRIPE_SECRET_KEY, { apiVersion: "2023-10-16" });
 
+// Supabase admin client créé à la demande
 async function getSupabaseAdmin() {
   if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
     throw new Error("SUPABASE service role manquant");
@@ -30,15 +32,21 @@ async function getSupabaseAdmin() {
 }
 
 export async function POST(req: Request) {
+  // 1) LIRE LE CORPS EN BRUT (RAW) — indispensable pour la signature Stripe
   const buf = Buffer.from(await req.arrayBuffer());
   const sig = req.headers.get("stripe-signature") || "";
 
+  // Debug minimal
   console.log("[webhook] sig présent ?", !!sig);
   console.log("[webhook] secret présent ?", !!STRIPE_WEBHOOK_SECRET);
+  if (STRIPE_WEBHOOK_SECRET) {
+    console.log("[webhook] whsec prefix:", STRIPE_WEBHOOK_SECRET.slice(0, 7));
+  }
 
   if (!sig) return new Response("Missing stripe-signature header", { status: 400 });
   if (!STRIPE_WEBHOOK_SECRET) return new Response("Missing STRIPE_WEBHOOK_SECRET env", { status: 400 });
 
+  // 2) CONSTRUIRE L'ÉVÉNEMENT SIGNÉ
   let event: Stripe.Event;
   try {
     event = stripe.webhooks.constructEvent(buf, sig, STRIPE_WEBHOOK_SECRET);
@@ -47,11 +55,13 @@ export async function POST(req: Request) {
     return new Response(`Webhook Error: ${err.message}`, { status: 400 });
   }
 
+  // 3) TRAITER L'ÉVÉNEMENT
   try {
     switch (event.type) {
       case "checkout.session.completed": {
         const session = event.data.object as Stripe.Checkout.Session;
 
+        // Tenter de récupérer un email fiable
         const email =
           session.customer_details?.email ||
           session.customer_email ||
@@ -64,12 +74,13 @@ export async function POST(req: Request) {
           break;
         }
 
+        // redirection vers une page qui gère exchangeCodeForSession + set password
         const redirectTo = `${SITE_URL}/auth/callback`;
 
         try {
           const supabaseAdmin = await getSupabaseAdmin();
           
-          // Générer un lien de récupération qui permet de définir le mot de passe
+          // Générer un lien de récupération direct (pas d'email, juste le lien dans les logs)
           const { data: linkData, error: linkErr } = await supabaseAdmin.auth.admin.generateLink({
             type: "recovery",
             email,
@@ -79,18 +90,25 @@ export async function POST(req: Request) {
           if (linkErr) {
             console.error("[webhook] generateLink error:", linkErr.message);
           } else if (linkData?.properties?.action_link) {
-            const actionLink = linkData.properties.action_link;
-            console.log("🔗 LIEN DIRECT:", actionLink);
+            console.log("🔗 LIEN DIRECT:", linkData.properties.action_link);
             console.log(`[webhook] Recovery link généré pour ${email}`);
           }
         } catch (e) {
           console.error("[webhook] Exception:", e);
         }
 
+        // TODO: déverrouiller l'accès produit côté DB si besoin
         break;
       }
 
+      // (Optionnel) autres événements abonnements :
+      // case "customer.subscription.created":
+      // case "customer.subscription.updated":
+      // case "customer.subscription.deleted":
+      //   break;
+
       default:
+        // no-op
         break;
     }
 
