@@ -43,12 +43,6 @@ export async function POST(req: Request) {
     console.log("[webhook] whsec prefix:", STRIPE_WEBHOOK_SECRET.slice(0, 7));
   }
 
-  // (Bypass TEMPORAIRE de secours en preview — à enlever après debug)
-  if (!STRIPE_WEBHOOK_SECRET && process.env.WEBHOOK_INSECURE === "1") {
-    console.warn("[webhook] ⚠️ Vérification désactivée (WEBHOOK_INSECURE=1)");
-    return new Response("ok (no verify)", { status: 200 });
-  }
-
   if (!sig) return new Response("Missing stripe-signature header", { status: 400 });
   if (!STRIPE_WEBHOOK_SECRET) return new Response("Missing STRIPE_WEBHOOK_SECRET env", { status: 400 });
 
@@ -80,7 +74,8 @@ export async function POST(req: Request) {
           break;
         }
 
-        const redirectTo = `${SITE_URL}/login?email_confirmed=1`;
+        // 👉 redirection vers une page qui gère exchangeCodeForSession + set password
+        const redirectTo = `${SITE_URL}/auth/callback`;
 
         try {
           const supabaseAdmin = await getSupabaseAdmin();
