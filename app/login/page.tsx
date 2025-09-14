@@ -1,13 +1,15 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { ForgotPasswordInline } from '@/components/ForgotPasswordInline' // OK même si .tsx
+import { ForgotPasswordInline } from '@/components/ForgotPasswordInline'
+
+type Msg = { type: 'ok' | 'err'; text: string }
 
 export default function LoginPage() {
   // --- états ---
-  const [tab, setTab] = useState('login') // 'login' | 'register'
+  const [tab, setTab] = useState<'login' | 'register'>('login')
   const [busy, setBusy] = useState(false)
-  const [msg, setMsg] = useState(null) // { type: 'ok'|'err', text: string } | null
+  const [msg, setMsg] = useState<Msg | null>(null)
 
   // Champs login
   const [loginEmail, setLoginEmail] = useState('')
@@ -18,12 +20,12 @@ export default function LoginPage() {
   const [regPassword, setRegPassword] = useState('')
   const [regConfirm, setRegConfirm] = useState('')
 
-  // ENV injectées au build (client)
+  // ENV client
   const ENV_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
   const ENV_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
   const envOk = Boolean(ENV_URL && ENV_KEY)
 
-  // Garde SSR (squelette pendant le prerender)
+  // Garde SSR
   if (typeof window === 'undefined') {
     return (
       <main className="page-wrap">
@@ -35,7 +37,7 @@ export default function LoginPage() {
     )
   }
 
-  // Affiche "Email confirmé" quand on revient du lien Supabase
+  // Affiche "Email confirmé" au retour du lien Supabase
   useEffect(() => {
     try {
       const params = new URLSearchParams(window.location.search)
@@ -49,7 +51,7 @@ export default function LoginPage() {
 
   function Notice() {
     if (!msg) return null
-    const base = {
+    const base: React.CSSProperties = {
       marginTop: 14,
       padding: 12,
       borderRadius: 8,
@@ -63,24 +65,22 @@ export default function LoginPage() {
     return <div style={style}>{msg.text}</div>
   }
 
-  // Supabase client helper
+  // Supabase helper
   async function getSupabaseOrFail() {
     const { createClient } = await import('@supabase/supabase-js')
-    const url = ENV_URL
-    const key = ENV_KEY
-    if (!url || !key) {
+    if (!ENV_URL || !ENV_KEY) {
       throw new Error(
         "Configuration Supabase manquante.\n" +
-          "Dans Vercel → Project → Settings → Environment Variables, ajoute :\n" +
-          "• NEXT_PUBLIC_SUPABASE_URL (Project URL Supabase)\n" +
-          "• NEXT_PUBLIC_SUPABASE_ANON_KEY (anon public key)\n" +
+          "Vercel → Project → Settings → Environment Variables :\n" +
+          "• NEXT_PUBLIC_SUPABASE_URL\n" +
+          "• NEXT_PUBLIC_SUPABASE_ANON_KEY\n" +
           "Puis redeploie."
       )
     }
-    return createClient(url, key)
+    return createClient(ENV_URL, ENV_KEY)
   }
 
-  async function handleLogin(e) {
+  async function handleLogin(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setMsg(null)
     setBusy(true)
@@ -92,14 +92,14 @@ export default function LoginPage() {
       })
       if (error) throw error
       window.location.href = '/espace-client'
-    } catch (err) {
+    } catch (err: any) {
       setMsg({ type: 'err', text: err?.message || 'Erreur de connexion' })
     } finally {
       setBusy(false)
     }
   }
 
-  async function handleRegister(e) {
+  async function handleRegister(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setMsg(null)
 
@@ -133,7 +133,7 @@ export default function LoginPage() {
       setRegPassword('')
       setRegConfirm('')
       setTab('login')
-    } catch (err) {
+    } catch (err: any) {
       setMsg({ type: 'err', text: err?.message || "Erreur lors de l'inscription" })
     } finally {
       setBusy(false)
@@ -236,7 +236,7 @@ export default function LoginPage() {
               </button>
             </div>
 
-            {/* Forgot password inline */}
+            {/* Mot de passe oublié inline */}
             <div style={{ textAlign: 'center', marginTop: 16 }}>
               <ForgotPasswordInline />
             </div>
