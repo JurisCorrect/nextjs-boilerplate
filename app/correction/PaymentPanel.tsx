@@ -9,10 +9,19 @@ export default function PaymentPanel({ refId }: Props) {
   const [error, setError] = useState<string | null>(null)
 
   const startCheckout = async (mode: "payment" | "subscription") => {
+    console.log("🚀 1. Début startCheckout, mode:", mode)
+    
+    if (loading !== null) {
+      console.log("❌ Déjà en cours de chargement, abandon")
+      return
+    }
+
     try {
+      console.log("⏳ 2. setLoading...")
       setLoading(mode === "payment" ? "one" : "sub")
       setError(null)
       
+      console.log("🔄 3. Avant fetch API")
       const res = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -22,24 +31,35 @@ export default function PaymentPanel({ refId }: Props) {
         }),
       })
       
+      console.log("📡 4. Fetch terminé, status:", res.status)
       const data = await res.json()
+      console.log("📦 5. Data reçue:", data)
       
       if (!res.ok || !data?.url) {
+        console.log("❌ 6. Erreur dans la réponse")
         throw new Error(data?.error || "Erreur Checkout")
       }
       
-      // Redirection plus robuste pour éviter l'émoji "interdit"
-      const link = document.createElement('a')
-      link.href = data.url
-      link.target = '_self'
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
+      console.log("✅ 7. Tout OK, URL:", data.url)
+      console.log("🔗 8. Avant redirection...")
+      
+      // Temporairement : juste alerter au lieu de rediriger
+      alert("REDIRECTION VERS: " + data.url)
+      console.log("🎯 9. Alert affiché, pas de redirection pour test")
+      
+      // Redirection commentée pour diagnostic
+      // const link = document.createElement('a')
+      // link.href = data.url
+      // link.target = '_self'
+      // document.body.appendChild(link)
+      // link.click()
+      // document.body.removeChild(link)
       
     } catch (e: any) {
-      console.error("Erreur paiement:", e)
+      console.error("💥 ERREUR dans catch:", e)
       setError(e?.message || "Erreur de connexion. Réessayez.")
     } finally {
+      console.log("🏁 10. Finally - reset loading")
       setLoading(null)
     }
   }
@@ -47,6 +67,10 @@ export default function PaymentPanel({ refId }: Props) {
   const Btn = (props: any) => (
     <button
       {...props}
+      onClick={(e) => {
+        console.log("👆 CLIC bouton détecté")
+        if (props.onClick) props.onClick(e)
+      }}
       style={{
         width: "100%",
         display: "flex",
