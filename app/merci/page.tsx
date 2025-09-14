@@ -1,9 +1,7 @@
-// app/merci/page.tsx
+// app/merci/page.js
 import { redirect } from 'next/navigation'
 
-export default function Merci({
-  searchParams,
-}: { searchParams: Record<string, string | string[] | undefined> }) {
+export default function Merci({ searchParams }) {
   const qs = new URLSearchParams()
   for (const [k, v] of Object.entries(searchParams || {})) {
     if (Array.isArray(v)) v.forEach(val => qs.append(k, val))
