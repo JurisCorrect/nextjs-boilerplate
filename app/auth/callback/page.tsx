@@ -1,8 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import React, { Suspense, useEffect, useMemo, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { createClient } from "@supabase/supabase-js";
+
+// Empêche le prerender/SSG
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -11,7 +15,7 @@ const supabase = createClient(
 
 type Phase = "loading" | "ready" | "saving" | "done" | "error";
 
-export default function AuthCallbackPage() {
+function Inner() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -48,12 +52,14 @@ export default function AuthCallbackPage() {
           return;
         }
         setFlowType(typeFromUrl as "invite" | "recovery");
+
         const { error } = await supabase.auth.exchangeCodeForSession(codeFromUrl);
         if (error) {
           setErrorMsg(error.message || "Impossible de valider le lien.");
           setPhase("error");
           return;
         }
+
         setPhase("ready");
       } catch (e: any) {
         setErrorMsg(e?.message || "Erreur inconnue.");
@@ -142,5 +148,15 @@ export default function AuthCallbackPage() {
         {phase === "done" && <p className="text-sm text-green-700">Mot de passe enregistré. Redirection…</p>}
       </div>
     </div>
+  );
+}
+
+export default function Page() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center px-4">
+      <p className="text-sm text-gray-600">Chargement…</p>
+    </Suspense>}>
+      <Inner />
+    </Suspense>
   );
 }
