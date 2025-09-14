@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 
 export default function LoginPage() {
   // --- états (déclarés avant tout usage) ---
-  const [tab, setTab] = useState('login') // 'login' | 'register'
+  const [tab, setTab] = useState('login') // 'login' | 'register' | 'reset'
   const [busy, setBusy] = useState(false)
   const [msg, setMsg] = useState(null) // { type: 'ok'|'err', text: string }
 
@@ -16,6 +16,9 @@ export default function LoginPage() {
   const [regEmail, setRegEmail] = useState('')
   const [regPassword, setRegPassword] = useState('')
   const [regConfirm, setRegConfirm] = useState('')
+
+  // Champ reset password
+  const [resetEmail, setResetEmail] = useState('')
 
   // ENV injectées au build (client)
   const ENV_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -41,7 +44,7 @@ export default function LoginPage() {
       if (params.get('email_confirmed') === '1') {
         setTab('login')
         setMsg({ type: 'ok', text: 'Email confirmé ✅ Vous pouvez maintenant vous connecter.' })
-        // Nettoie l’URL (retire ?email_confirmed=1)
+        // Nettoie l'URL (retire ?email_confirmed=1)
         window.history.replaceState(null, '', window.location.pathname)
       }
     } catch {}
@@ -74,7 +77,7 @@ export default function LoginPage() {
           "Dans Vercel → Project → Settings → Environment Variables, ajoute :\n" +
           "• NEXT_PUBLIC_SUPABASE_URL (Project URL Supabase)\n" +
           "• NEXT_PUBLIC_SUPABASE_ANON_KEY (anon public key)\n" +
-          "Puis redeploie avec “Clear build cache”."
+          "Puis redeploie avec "Clear build cache"."
       )
     }
     return createClient(url, key)
@@ -140,6 +143,36 @@ export default function LoginPage() {
     }
   }
 
+  async function handleResetPassword(e) {
+    e.preventDefault()
+    setMsg(null)
+
+    if (!resetEmail.trim()) {
+      setMsg({ type: 'err', text: 'Veuillez saisir votre adresse email' })
+      return
+    }
+
+    setBusy(true)
+    try {
+      const supabase = await getSupabaseOrFail()
+      const { error } = await supabase.auth.resetPasswordForEmail(resetEmail.trim(), {
+        redirectTo: `${window.location.origin}/reset-password`
+      })
+      if (error) throw error
+
+      setMsg({
+        type: 'ok',
+        text: 'Email de réinitialisation envoyé ! Vérifiez votre boîte mail (et les spams).'
+      })
+      setResetEmail('')
+      setTimeout(() => setTab('login'), 3000)
+    } catch (err) {
+      setMsg({ type: 'err', text: err?.message || "Erreur lors de l'envoi" })
+    } finally {
+      setBusy(false)
+    }
+  }
+
   return (
     <main className="page-wrap">
       <h1 className="page-title">CONNEXION / INSCRIPTION</h1>
@@ -161,7 +194,7 @@ export default function LoginPage() {
           <br />
           Ajoute <code>NEXT_PUBLIC_SUPABASE_URL</code> et{' '}
           <code>NEXT_PUBLIC_SUPABASE_ANON_KEY</code> dans Vercel (Production + Preview),
-          puis redeploie avec “Clear build cache”.
+          puis redeploie avec "Clear build cache".
         </div>
       )}
 
@@ -234,6 +267,26 @@ export default function LoginPage() {
                 {busy ? 'Connexion…' : 'SE CONNECTER'}
               </button>
             </div>
+            
+            {/* Lien mot de passe oublié */}
+            <div style={{ textAlign: 'center', marginTop: 16 }}>
+              <button
+                type="button"
+                onClick={() => setTab('reset')}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#ffffff',
+                  textDecoration: 'underline',
+                  cursor: 'pointer',
+                  fontSize: 14,
+                  opacity: 0.8
+                }}
+              >
+                Mot de passe oublié ?
+              </button>
+            </div>
+            
             <Notice />
           </form>
         )}
@@ -283,6 +336,53 @@ export default function LoginPage() {
                 {busy ? 'Création…' : 'CRÉER MON COMPTE'}
               </button>
             </div>
+            <Notice />
+          </form>
+        )}
+
+        {/* Réinitialisation mot de passe */}
+        {tab === 'reset' && (
+          <form className="form" onSubmit={handleResetPassword}>
+            <p style={{ color: '#fff', opacity: 0.9, marginBottom: 20, textAlign: 'center' }}>
+              Saisissez votre email pour recevoir un lien de réinitialisation.
+            </p>
+            
+            <div className="field">
+              <label htmlFor="reset-email">Email</label>
+              <input
+                id="reset-email"
+                type="email"
+                className="input"
+                required
+                value={resetEmail}
+                onChange={(e) => setResetEmail(e.target.value)}
+                placeholder="votre@email.com"
+              />
+            </div>
+            <div className="actions">
+              <button type="submit" className="btn-send" disabled={busy || !envOk}>
+                {busy ? 'Envoi…' : 'ENVOYER LE LIEN'}
+              </button>
+            </div>
+            
+            {/* Retour à la connexion */}
+            <div style={{ textAlign: 'center', marginTop: 16 }}>
+              <button
+                type="button"
+                onClick={() => setTab('login')}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#ffffff',
+                  cursor: 'pointer',
+                  fontSize: 14,
+                  opacity: 0.8
+                }}
+              >
+                ← Retour à la connexion
+              </button>
+            </div>
+            
             <Notice />
           </form>
         )}
