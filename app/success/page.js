@@ -1,9 +1,7 @@
-// app/success/page.tsx
+// app/success/page.js
 import { redirect } from 'next/navigation'
 
-type SearchParams = { [key: string]: string | string[] | undefined }
-
-export default function Success({ searchParams }: { searchParams?: SearchParams }) {
+export default function Success({ searchParams }) {
   const qs = new URLSearchParams()
   const sp = searchParams ?? {}
 
