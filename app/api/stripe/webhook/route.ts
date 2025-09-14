@@ -80,7 +80,7 @@ export async function POST(req: Request) {
         try {
           const supabaseAdmin = await getSupabaseAdmin();
           
-          // Générer un lien de récupération direct (pas d'email, juste le lien dans les logs)
+          // Générer un lien de récupération direct
           const { data: linkData, error: linkErr } = await supabaseAdmin.auth.admin.generateLink({
             type: "recovery",
             email,
@@ -90,22 +90,15 @@ export async function POST(req: Request) {
           if (linkErr) {
             console.error("[webhook] generateLink error:", linkErr.message);
           } else if (linkData?.properties?.action_link) {
-            console.log("🔗 LIEN DIRECT:", linkData.properties.action_link);
-            console.log(`[webhook] Recovery link généré pour ${email}`);
+            console.log("LIEN DIRECT:", linkData.properties.action_link);
+            console.log(`Recovery link créé pour ${email}`);
           }
         } catch (e) {
           console.error("[webhook] Exception:", e);
         }
 
-        // TODO: déverrouiller l'accès produit côté DB si besoin
         break;
       }
-
-      // (Optionnel) autres événements abonnements :
-      // case "customer.subscription.created":
-      // case "customer.subscription.updated":
-      // case "customer.subscription.deleted":
-      //   break;
 
       default:
         // no-op
