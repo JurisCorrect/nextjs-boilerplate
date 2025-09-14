@@ -102,7 +102,7 @@ export default function Home() {
                 textAlign: "justify" 
               }}>
                 <span
-                  id="qsj-badge"                 {/* ← id ajouté */}
+                  id="qsj-badge"        // ← juste cet id ajouté
                   className="badge-accent"
                   data-badge="accent"
                   style={{
