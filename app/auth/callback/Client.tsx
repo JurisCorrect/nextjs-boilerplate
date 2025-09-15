@@ -11,23 +11,25 @@ if (!supabaseUrl || !supabaseAnon) {
 }
 const supabase = createClient(supabaseUrl, supabaseAnon);
 
+type Phase = "loading" | "ready" | "saving" | "done" | "error";
+
 export default function CallbackClient() {
-  const [phase, setPhase] =
-    useState<"loading" | "ready" | "saving" | "done" | "error">("loading");
+  const [phase, setPhase] = useState<Phase>("loading");
   const [password, setPassword] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
 
+  // Gère ?code=... (OAuth/Invite) et #access_token=... (magic link)
   useEffect(() => {
     (async () => {
       try {
-        // Déjà connecté (cas #access_token) ?
+        // 1) Déjà connecté ? (cas lien avec #access_token)
         const { data: { session } } = await supabase.auth.getSession();
         if (session) {
           setPhase("ready");
           return;
         }
 
-        // Cas ?code=...
+        // 2) Cas ?code=... → on échange pour une session
         const url = new URL(window.location.href);
         const code = url.searchParams.get("code");
         if (code) {
@@ -37,16 +39,16 @@ export default function CallbackClient() {
           return;
         }
 
-        // Cas #access_token=... (format magic link supabase)
-        const hash = window.location.hash;
+        // 3) Cas #access_token=... dans le hash (format Supabase)
+        const hash = window.location.hash; // #access_token=...&refresh_token=...&type=invite
         if (hash && hash.includes("access_token=")) {
           const params = new URLSearchParams(hash.slice(1));
-          const access_token = params.get("access_token");
-          const refresh_token = params.get("refresh_token") || "";
-          if (access_token) {
+          const accessToken = params.get("access_token");
+          const refreshToken = params.get("refresh_token") || "";
+          if (accessToken) {
             const { data, error } = await supabase.auth.setSession({
-              access_token,
-              refresh_token,
+              access_token: accessToken,
+              refresh_token: refreshToken
             });
             if (error) throw error;
             if (data?.session) {
@@ -120,7 +122,9 @@ export default function CallbackClient() {
       <section style={CARD}>
         <div style={{ textAlign: "center", marginBottom: 18 }}>
           <h1 style={{ color: BRAND, margin: 0, fontWeight: 900 }}>Définir ton mot de passe</h1>
-          <p style={{ color: "#666", margin: "6px 0 0" }}>Tu es presque prêt·e à accéder à ton espace JurisCorrect ✨</p>
+          <p style={{ color: "#666", margin: "6px 0 0" }}>
+            Tu es presque prêt·e à accéder à ton espace JurisCorrect ✨
+          </p>
         </div>
 
         {phase === "loading" && <p style={{ textAlign: "center", color: "#666" }}>Chargement…</p>}
@@ -128,11 +132,15 @@ export default function CallbackClient() {
         {phase === "error" && (
           <div>
             <p style={{ color: "#dc2626", marginBottom: 12 }}>{errorMsg || "Une erreur est survenue."}</p>
-            <p style={{ color: "#666" }}>Réessaie avec le lien le plus récent depuis ton email. Pense à vérifier les <strong>courriers indésirables (spam)</strong>.</p>
+            <p style={{ color: "#666" }}>
+              Réessaie avec le lien le plus récent depuis ton email. Pense à vérifier les
+              <strong> courriers indésirables (spam)</strong>.
+            </p>
           </div>
         )}
 
-        {phase === "ready" && (
+        {/* ✅ On affiche le formulaire quand phase === "ready" OU "saving" */}
+        {(phase === "ready" || phase === "saving") && (
           <form onSubmit={onSubmit}>
             <label style={LABEL}>Nouveau mot de passe</label>
             <input
@@ -146,7 +154,11 @@ export default function CallbackClient() {
             />
             {errorMsg && <p style={{ color: "#dc2626", marginTop: 8 }}>{errorMsg}</p>}
             <div style={{ marginTop: 14 }}>
-              <button type="submit" style={BTN(phase === "saving")} disabled={phase === "saving"}>
+              <button
+                type="submit"
+                style={BTN(phase === "saving")}
+                disabled={phase === "saving"}
+              >
                 {phase === "saving" ? "Enregistrement…" : "Définir mon mot de passe 🔐"}
               </button>
             </div>
@@ -156,9 +168,22 @@ export default function CallbackClient() {
         {phase === "done" && (
           <div style={{ textAlign: "center" }}>
             <h2 style={{ color: "#059669", marginBottom: 8 }}>Mot de passe défini ✅</h2>
-            <p style={{ color: "#555" }}>Tu peux maintenant te connecter à ton espace et retrouver tes corrections.</p>
+            <p style={{ color: "#555" }}>
+              Tu peux maintenant te connecter à ton espace et retrouver tes corrections.
+            </p>
             <div style={{ marginTop: 12 }}>
-              <a href="/login" style={{ display: "inline-block", padding: "10px 16px", borderRadius: 12, background: BRAND, color: "#fff", textDecoration: "none", fontWeight: 800 }}>
+              <a
+                href="/login"
+                style={{
+                  display: "inline-block",
+                  padding: "10px 16px",
+                  borderRadius: 12,
+                  background: BRAND,
+                  color: "#fff",
+                  textDecoration: "none",
+                  fontWeight: 800,
+                }}
+              >
                 Accéder à mon compte 🚀
               </a>
             </div>
