@@ -991,3 +991,42 @@ input, select, textarea, button { font-size: 16px; }
     white-space:nowrap !important;
   }
 }
+/* === MOBILE ONLY — "Se connecter" sous le titre, aligné à droite === */
+@media (max-width: 600px) {
+  /* on réserve de l'espace pour le titre généré en ::before */
+  header.nav{
+    position: relative;
+    padding-top: 56px;         /* hauteur du titre */
+    padding-bottom: 8px;
+  }
+
+  /* le conteneur passe en colonne */
+  header.nav .container{
+    display: flex;
+    flex-direction: column;    /* << clé : nav passe sous le titre */
+    align-items: stretch;
+  }
+
+  /* la barre de liens prend toute la largeur et s'aligne à droite */
+  header.nav .nav-links{
+    order: 2;                  /* sous le titre */
+    width: 100%;
+    display: flex;
+    justify-content: flex-end; /* à droite */
+    gap: 12px;
+    flex-wrap: nowrap;
+  }
+
+  /* le bouton lui-même : stable et non rogné */
+  header.nav .nav-links .btn-login,
+  header.nav .nav-links a[href="/login"]{
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 16px !important;
+    border-radius: 999px !important;
+    min-width: 0 !important;
+    white-space: nowrap !important;
+    transform: none !important;
+  }
+}
