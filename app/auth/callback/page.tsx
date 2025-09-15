@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { createClient } from "@supabase/supabase-js";
 
 const supabase = createClient(
@@ -12,7 +12,6 @@ const supabase = createClient(
 type Phase = "loading" | "ready" | "saving" | "done" | "error";
 
 export default function Client() {
-  const searchParams = useSearchParams();
   const router = useRouter();
 
   const [phase, setPhase] = useState<Phase>("loading");
@@ -32,15 +31,18 @@ export default function Client() {
           return;
         }
 
-        // Sinon, essayer d'échanger le code
-        const queryCode = searchParams.get("code");
-        if (!queryCode) {
+        // Récupérer le code depuis l'URL côté client
+        const urlParams = new URLSearchParams(window.location.search);
+        const hashParams = new URLSearchParams(window.location.hash.replace('#', ''));
+        const code = urlParams.get("code") || hashParams.get("code");
+        
+        if (!code) {
           setErrorMsg("Lien invalide ou expiré (code manquant).");
           setPhase("error");
           return;
         }
 
-        const { error } = await supabase.auth.exchangeCodeForSession(queryCode);
+        const { error } = await supabase.auth.exchangeCodeForSession(code);
         if (error) {
           setErrorMsg(error.message || "Impossible de valider le lien.");
           setPhase("error");
@@ -53,7 +55,7 @@ export default function Client() {
         setPhase("error");
       }
     })();
-  }, [searchParams]);
+  }, []);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -66,6 +68,8 @@ export default function Client() {
       return;
     }
     setPhase("saving");
+    setErrorMsg(""); // Clear any previous errors
+    
     const { error } = await supabase.auth.updateUser({ password: pwd });
     if (error) {
       setErrorMsg(error.message);
