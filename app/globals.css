@@ -904,3 +904,66 @@ input, select, textarea, button { font-size: 16px; }
     box-shadow: 0 12px 30px rgba(123,30,58,.35);
   }
 }
+/* ==== PATCH MOBILE STRICT (≤600px) ==== */
+@media (max-width: 600px) {
+  /* 1) Bouton mobile sous le titre -> aligné à droite */
+  .mobile-login {
+    display: flex;               /* reste caché sur desktop par défaut */
+    justify-content: flex-end;   /* => à DROITE */
+    padding: 6px 14px 0 14px;    /* respire sans bouger le reste */
+  }
+  .mobile-login .btn-login {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border-radius: 999px;
+    font-weight: 800;
+    color: #fff;
+    text-decoration: none;
+    background: linear-gradient(180deg, var(--brand) 0%, var(--brand-2) 100%);
+    box-shadow: 0 12px 30px rgba(123,30,58,.35);
+  }
+
+  /* 2) Restaure l’alignement/centrage de la présentation */
+  .container .presentation.card-glass {
+    margin: 12px auto 0;      /* bien centrée */
+    max-width: 980px;         /* ne s’étale pas trop */
+  }
+  .container .presentation.card-glass p {
+    text-align: justify;
+    line-height: 1.7;
+    hyphens: auto;
+    text-wrap: pretty;
+  }
+
+  /* 3) Bloc “Qui suis-je ?” – texte centré + photo légère montée */
+  #avis .card-glass > div {
+    display: flex;
+    flex-direction: column;   /* photo au-dessus sur mobile */
+    align-items: center;
+    gap: 12px;
+  }
+  #qsj-badge {
+    display: inline-block;
+    margin: 0 auto 6px;       /* badge centré */
+  }
+  #avis .card-glass img {
+    width: 132px;
+    height: 132px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-top: -10px;        /* >>> remonte légèrement la bulle */
+    border: 2px solid rgba(255,255,255,.7);
+    box-shadow: 0 8px 24px rgba(0,0,0,.35);
+  }
+  #avis .card-glass p {
+    text-align: justify;
+    margin: 0;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+
+  /* 4) On garde le bouton du header masqué en mobile pour éviter le chevauchement */
+  .btn-login--header { display: none !important; }
+}
