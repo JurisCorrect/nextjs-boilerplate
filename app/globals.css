@@ -879,3 +879,28 @@ input, select, textarea, button { font-size: 16px; }
     box-shadow: 0 10px 24px rgba(123,30,58,.25);
   }
 }
+/* === Dupliquer/relocaliser le bouton "Se connecter" sur mobile === */
+.mobile-login { display: none; }
+
+@media (max-width: 600px) {
+  /* on masque le bouton du header uniquement sur mobile */
+  .btn-login--header { display: none !important; }
+
+  /* on affiche le bouton mobile juste sous le titre */
+  .mobile-login {
+    display: block;
+    padding: 0 14px 8px 14px; /* marge latérale comme le header */
+  }
+  .mobile-login .btn-login {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border-radius: 999px;
+    font-weight: 800;
+    text-decoration: none;
+    color: #fff;
+    background: linear-gradient(180deg, var(--brand) 0%, var(--brand-2) 100%);
+    box-shadow: 0 12px 30px rgba(123,30,58,.35);
+  }
+}
