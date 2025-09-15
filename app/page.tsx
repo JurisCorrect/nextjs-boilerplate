@@ -1,7 +1,33 @@
-// app/page.tsx
-import Link from "next/link"
+"use client";
+
+import Link from "next/link";
+import { useEffect } from "react";
+import { createClient } from "@supabase/supabase-js";
+import { useRouter } from "next/navigation";
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 export default function Home() {
+  const router = useRouter();
+
+  useEffect(() => {
+    const checkUserNeedsPassword = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+          console.log("Utilisateur connecté détecté, redirection vers /auth/callback");
+          router.push('/auth/callback');
+        }
+      } catch (error) {
+        console.log("Erreur vérification session:", error);
+      }
+    };
+    checkUserNeedsPassword();
+  }, [router]);
+
   // Pastilles de la nav (alignées à droite)
   const pill: React.CSSProperties = {
     display: "inline-flex",
@@ -46,10 +72,10 @@ export default function Home() {
       <div className="container">
         <section className="presentation card-glass" style={{ marginInline: "auto" }}>
           <p>
-            En droit, la méthodologie compte plus que tout dans la note, et c’est pourtant la plus difficile à acquérir.
+            En droit, la méthodologie compte plus que tout dans la note, et c'est pourtant la plus difficile à acquérir.
             JURISCORRECT propose une correction de A à Z&nbsp;: il identifie précisément ce qui ne va pas dans votre copie,
             explique pourquoi et vous montre comment corriger le tir, pour travailler vos points faibles et progresser
-            réellement. Cette correction automatisée s’appuie sur ma base de données personnelle, alignée sur les
+            réellement. Cette correction automatisée s'appuie sur ma base de données personnelle, alignée sur les
             méthodologies universitaires, un socle introuvable dans les IA généralistes actuelles. JURISCORRECT est
             un produit unique, pensé pour faire gagner des points grâce à la méthode.
           </p>
