@@ -74,7 +74,7 @@ export default function Home() {
         {isMobile && (
           <div style={{
             position: 'absolute',
-            top: '50px',
+            top: '90px',
             right: '16px',
             zIndex: 10
           }}>
