@@ -106,7 +106,7 @@ export default async function CorrectionPage({ params }: Props) {
               Débloquer la correction
             </div>
             <div style={{ opacity: 0.95, marginBottom: 12 }}>
-              Accédez à l'intégralité de votre copie corrigée.
+              Accède à l'intégralité de ta copie corrigée.
             </div>
             <PaymentPanel refId={refId} />
           </div>
