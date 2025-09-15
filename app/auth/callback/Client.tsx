@@ -1,295 +1,208 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { createClient } from "@supabase/supabase-js";
 
+// ⚠️ Assure-toi d'avoir ces vars côté Vercel
 const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 );
 
-type Phase = "loading" | "ready" | "saving" | "done" | "error";
+export default function CallbackClient() {
+  const [phase, setPhase] = useState("loading"); // loading | ready | saving | done | error
+  const [password, setPassword] = useState("");
+  const [errorMsg, setErrorMsg] = useState("");
 
-export default function Client() {
-  const router = useRouter();
-
-  const [phase, setPhase] = useState<Phase>("loading");
-  const [errorMsg, setErrorMsg] = useState<string>("");
-  const [pwd, setPwd] = useState("");
-  const [pwd2, setPwd2] = useState("");
-
+  // Parse ?code=... OU #access_token=...
   useEffect(() => {
     (async () => {
       try {
+        // Si l'utilisateur est déjà connecté (ex: lien avec #access_token)
         const { data: { session } } = await supabase.auth.getSession();
-        
         if (session) {
-          console.log("Utilisateur déjà connecté, affichage du formulaire");
           setPhase("ready");
           return;
         }
 
-        const urlParams = new URLSearchParams(window.location.search);
-        const hashParams = new URLSearchParams(window.location.hash.replace('#', ''));
-        const code = urlParams.get("code") || hashParams.get("code");
-        
-        if (!code) {
-          setErrorMsg("Lien invalide ou expiré.");
-          setPhase("error");
+        // Sinon, on regarde s'il y a un "code" (OAuth/SSO/Invite)
+        const url = new URL(window.location.href);
+        const code = url.searchParams.get("code");
+        if (code) {
+          const { error } = await supabase.auth.exchangeCodeForSession(code);
+          if (error) throw error;
+          setPhase("ready");
           return;
         }
 
-        const { error } = await supabase.auth.exchangeCodeForSession(code);
-        if (error) {
-          setErrorMsg(error.message || "Impossible de valider le lien.");
-          setPhase("error");
-          return;
+        // Sinon, on tente de lire un #access_token dans le hash (format magic link supabase)
+        const hash = window.location.hash; // #access_token=...&type=invite...
+        if (hash && hash.includes("access_token=")) {
+          const params = new URLSearchParams(hash.slice(1));
+          const accessToken = params.get("access_token");
+          const refreshToken = params.get("refresh_token");
+          if (accessToken) {
+            // On "hydrate" la session localement
+            const { data, error } = await supabase.auth.setSession({
+              access_token: accessToken,
+              refresh_token: refreshToken || ""
+            });
+            if (error) throw error;
+            if (data?.session) {
+              setPhase("ready");
+              return;
+            }
+          }
         }
 
-        setPhase("ready");
-      } catch (e: any) {
+        // Rien trouvé → lien invalide
+        setErrorMsg("Lien invalide ou expiré.");
+        setPhase("error");
+      } catch (e) {
         setErrorMsg(e?.message || "Erreur inconnue.");
         setPhase("error");
       }
     })();
   }, []);
 
-  async function onSubmit(e: React.FormEvent) {
+  async function onSubmit(e) {
     e.preventDefault();
-    if (pwd.length < 8) {
+    if (!password || password.length < 8) {
       setErrorMsg("Le mot de passe doit contenir au moins 8 caractères.");
       return;
     }
-    if (pwd !== pwd2) {
-      setErrorMsg("Les mots de passe ne correspondent pas.");
-      return;
+    try {
+      setPhase("saving");
+      const { error } = await supabase.auth.updateUser({ password });
+      if (error) throw error;
+      setPhase("done");
+    } catch (e) {
+      setErrorMsg(e?.message || "Impossible de définir le mot de passe.");
+      setPhase("error");
     }
-    setPhase("saving");
-    setErrorMsg("");
-    
-    const { error } = await supabase.auth.updateUser({ password: pwd });
-    if (error) {
-      setErrorMsg(error.message);
-      setPhase("ready");
-      return;
-    }
-    setPhase("done");
-    setTimeout(() => router.replace("/espace-client"), 2000);
   }
 
-  const showForm = phase === "ready" || phase === "saving";
+  // ======= STYLE (mêmes tons que ton site) =======
+  const BRAND = "#7b1e3a";
+  const BG_GRAD = "linear-gradient(135deg, #7b1e3a 0%, #5c1629 50%, #4a1220 100%)";
+  const CARD = {
+    width: "100%",
+    maxWidth: 520,
+    background: "#fff",
+    borderRadius: 16,
+    padding: "clamp(18px, 2.4vw, 26px)",
+    boxShadow: "0 10px 30px rgba(0,0,0,.12)",
+    border: "1px solid rgba(0,0,0,.06)"
+  };
+  const LABEL = { display: "block", color: BRAND, fontWeight: 700, marginBottom: 8 };
+  const INPUT = {
+    width: "100%",
+    padding: "12px 14px",
+    borderRadius: 12,
+    border: "1px solid #ddd",
+    outline: "none",
+    fontSize: 16
+  };
+  const BTN = (disabled) => ({
+    width: "100%",
+    padding: "12px 16px",
+    borderRadius: 12,
+    border: "none",
+    fontWeight: 800,
+    background: disabled ? "rgba(123,30,58,.7)" : BRAND,
+    color: "#fff",
+    cursor: disabled ? "not-allowed" : "pointer",
+    boxShadow: "0 12px 30px rgba(123,30,58,.25)"
+  });
 
   return (
-    <main style={{ 
-      minHeight: "100vh", 
-      background: "linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      padding: "20px"
-    }}>
-      <div style={{
-        width: "100%",
-        maxWidth: "480px",
-        background: "rgba(255,255,255,.08)",
-        backdropFilter: "blur(12px)",
-        border: "1px solid rgba(255,255,255,.12)",
-        borderRadius: "20px",
-        padding: "40px 32px",
-        boxShadow: "0 20px 40px rgba(0,0,0,.3)"
-      }}>
+    <main
+      style={{
+        minHeight: "100vh",
+        background: BG_GRAD,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: 20
+      }}
+    >
+      <section style={CARD}>
+        {/* Header */}
+        <div style={{ textAlign: "center", marginBottom: 18 }}>
+          <h1 style={{ color: BRAND, margin: 0, fontWeight: 900 }}>Définir ton mot de passe</h1>
+          <p style={{ color: "#666", margin: "6px 0 0" }}>
+            Tu es presque prêt·e à accéder à ton espace JurisCorrect ✨
+          </p>
+        </div>
+
+        {/* Loading */}
         {phase === "loading" && (
-          <div style={{ textAlign: "center" }}>
-            <h1 style={{ 
-              color: "#fff", 
-              fontSize: "1.5rem", 
-              fontWeight: 800, 
-              marginBottom: "16px" 
-            }}>
-              Vérification...
-            </h1>
-            <p style={{ color: "rgba(255,255,255,.7)", fontSize: "0.95rem" }}>
-              Validation de votre lien d'invitation
-            </p>
-          </div>
+          <p style={{ textAlign: "center", color: "#666" }}>Chargement…</p>
         )}
 
+        {/* Error */}
         {phase === "error" && (
-          <div style={{ textAlign: "center" }}>
-            <h1 style={{ 
-              color: "#ff6b6b", 
-              fontSize: "1.5rem", 
-              fontWeight: 800, 
-              marginBottom: "16px" 
-            }}>
-              Lien invalide
-            </h1>
-            <p style={{ color: "rgba(255,255,255,.7)", fontSize: "0.95rem" }}>
-              {errorMsg}
+          <div>
+            <p style={{ color: "#dc2626", marginBottom: 12 }}>
+              {errorMsg || "Une erreur est survenue."}
+            </p>
+            <p style={{ color: "#666" }}>
+              Réessaie avec le lien le plus récent depuis ton email. Pense à vérifier les
+              <strong> courriers indésirables (spam)</strong>.
             </p>
           </div>
         )}
 
-        {showForm && (
-          <>
-            <div style={{ textAlign: "center", marginBottom: "32px" }}>
-              <h1 style={{ 
-                color: "#fff", 
-                fontSize: "1.8rem", 
-                fontWeight: 800, 
-                marginBottom: "8px" 
-              }}>
-                Bienvenue sur JurisCorrect
-              </h1>
-              <p style={{ color: "rgba(255,255,255,.7)", fontSize: "0.95rem" }}>
-                Définissez votre mot de passe pour accéder à votre espace personnel
-              </p>
-            </div>
-
-            <form onSubmit={onSubmit} style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-              <div>
-                <label style={{ 
-                  display: "block", 
-                  color: "#fff", 
-                  fontSize: "0.9rem", 
-                  fontWeight: 600, 
-                  marginBottom: "8px" 
-                }}>
-                  Mot de passe
-                </label>
-                <input
-                  type="password"
-                  value={pwd}
-                  onChange={(e) => setPwd(e.target.value)}
-                  required
-                  style={{
-                    width: "100%",
-                    padding: "12px 16px",
-                    borderRadius: "12px",
-                    border: "1px solid rgba(255,255,255,.2)",
-                    background: "rgba(255,255,255,.1)",
-                    color: "#fff",
-                    fontSize: "1rem",
-                    outline: "none",
-                    transition: "all 0.2s ease",
-                    boxSizing: "border-box"
-                  }}
-                  onFocus={(e) => {
-                    e.target.style.borderColor = "rgba(255,255,255,.4)";
-                    e.target.style.background = "rgba(255,255,255,.15)";
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.borderColor = "rgba(255,255,255,.2)";
-                    e.target.style.background = "rgba(255,255,255,.1)";
-                  }}
-                />
-              </div>
-
-              <div>
-                <label style={{ 
-                  display: "block", 
-                  color: "#fff", 
-                  fontSize: "0.9rem", 
-                  fontWeight: 600, 
-                  marginBottom: "8px" 
-                }}>
-                  Confirmer le mot de passe
-                </label>
-                <input
-                  type="password"
-                  value={pwd2}
-                  onChange={(e) => setPwd2(e.target.value)}
-                  required
-                  style={{
-                    width: "100%",
-                    padding: "12px 16px",
-                    borderRadius: "12px",
-                    border: "1px solid rgba(255,255,255,.2)",
-                    background: "rgba(255,255,255,.1)",
-                    color: "#fff",
-                    fontSize: "1rem",
-                    outline: "none",
-                    transition: "all 0.2s ease",
-                    boxSizing: "border-box"
-                  }}
-                  onFocus={(e) => {
-                    e.target.style.borderColor = "rgba(255,255,255,.4)";
-                    e.target.style.background = "rgba(255,255,255,.15)";
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.borderColor = "rgba(255,255,255,.2)";
-                    e.target.style.background = "rgba(255,255,255,.1)";
-                  }}
-                />
-              </div>
-
-              {errorMsg && (
-                <p style={{ 
-                  color: "#ff6b6b", 
-                  fontSize: "0.9rem", 
-                  textAlign: "center",
-                  margin: "0" 
-                }}>
-                  {errorMsg}
-                </p>
-              )}
-
-              <button
-                type="submit"
-                disabled={phase === "saving"}
-                style={{
-                  width: "100%",
-                  padding: "14px 20px",
-                  borderRadius: "12px",
-                  border: "none",
-                  background: phase === "saving" 
-                    ? "rgba(123,30,58,.5)" 
-                    : "linear-gradient(180deg, #7b1e3a 0%, #5c1629 100%)",
-                  color: "#fff",
-                  fontSize: "1rem",
-                  fontWeight: 700,
-                  cursor: phase === "saving" ? "not-allowed" : "pointer",
-                  transition: "all 0.2s ease",
-                  boxShadow: phase === "saving" 
-                    ? "none" 
-                    : "0 8px 20px rgba(123,30,58,.4)",
-                }}
-                onMouseEnter={(e) => {
-                  if (phase !== "saving") {
-                    e.currentTarget.style.transform = "translateY(-1px)";
-                    e.currentTarget.style.boxShadow = "0 12px 25px rgba(123,30,58,.5)";
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (phase !== "saving") {
-                    e.currentTarget.style.transform = "translateY(0)";
-                    e.currentTarget.style.boxShadow = "0 8px 20px rgba(123,30,58,.4)";
-                  }
-                }}
-              >
-                {phase === "saving" ? "Création du compte..." : "Créer mon compte"}
+        {/* Ready → form */}
+        {phase === "ready" && (
+          <form onSubmit={onSubmit}>
+            <label style={LABEL}>Nouveau mot de passe</label>
+            <input
+              type="password"
+              placeholder="Au moins 8 caractères"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              style={INPUT}
+              onFocus={(e) => (e.currentTarget.style.borderColor = BRAND)}
+              onBlur={(e) => (e.currentTarget.style.borderColor = "#ddd")}
+            />
+            {errorMsg && (
+              <p style={{ color: "#dc2626", marginTop: 8 }}>{errorMsg}</p>
+            )}
+            <div style={{ marginTop: 14 }}>
+              <button type="submit" style={BTN(phase === "saving")} disabled={phase === "saving"}>
+                {phase === "saving" ? "Enregistrement…" : "Définir mon mot de passe 🔐"}
               </button>
-            </form>
-          </>
+            </div>
+          </form>
         )}
 
+        {/* Done */}
         {phase === "done" && (
           <div style={{ textAlign: "center" }}>
-            <h1 style={{ 
-              color: "#059669", 
-              fontSize: "1.5rem", 
-              fontWeight: 800, 
-              marginBottom: "16px" 
-            }}>
-              Compte créé avec succès !
-            </h1>
-            <p style={{ color: "#666", fontSize: "0.95rem" }}>
-              Redirection vers votre espace client...
+            <h2 style={{ color: "#059669", marginBottom: 8 }}>Mot de passe défini ✅</h2>
+            <p style={{ color: "#555" }}>
+              Tu peux maintenant te connecter à ton espace et retrouver tes corrections.
             </p>
+            <div style={{ marginTop: 12 }}>
+              <a
+                href="/login"
+                style={{
+                  display: "inline-block",
+                  padding: "10px 16px",
+                  borderRadius: 12,
+                  background: BRAND,
+                  color: "#fff",
+                  textDecoration: "none",
+                  fontWeight: 800
+                }}
+              >
+                Accéder à mon compte 🚀
+              </a>
+            </div>
           </div>
         )}
-      </div>
+      </section>
     </main>
   );
 }
