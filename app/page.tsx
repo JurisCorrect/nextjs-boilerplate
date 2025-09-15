@@ -256,13 +256,20 @@ export default function Home() {
       {/* Forçage ciblé du badge */}
       <style>{`#qsj-badge { color: #fff !important; }`}</style>
 
-      {/* === Patch MOBILE — sans toucher le desktop === */}
+      {/* === Patch MOBILE — bouton "Se connecter" sous le titre === */}
       <style jsx global>{`
         @media (max-width: 600px) {
-          /* Header / bouton */
-          .site-header { padding: 10px 14px; }
-          .site-header .nav-links { gap: 8px; flex-wrap: nowrap; }
+          /* Header avec plus d'espace pour le bouton qui descend */
+          .site-header { 
+            padding: 10px 14px 50px 14px; 
+            position: relative;
+          }
+          
+          /* Le bouton descend sous le titre */
           .site-header .btn-login {
+            position: absolute !important;
+            top: 50px !important;
+            right: 14px !important;
             padding: 10px 14px !important;
             min-width: 0 !important;
             font-size: 14px !important;
@@ -270,6 +277,11 @@ export default function Home() {
             line-height: 1 !important;
             white-space: nowrap !important;
             transform: none !important;
+          }
+
+          /* Masquer le bouton Tarifs pour faire de la place */
+          .site-header .nav-link[href="/tarifs"] {
+            display: none !important;
           }
 
           /* Bloc "Qui suis-je ?" en colonne */
