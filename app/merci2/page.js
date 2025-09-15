@@ -9,10 +9,7 @@ export default function Merci2Page() {
   useEffect(() => {
     try {
       const q = new URLSearchParams(window.location.search)
-      const id =
-        q.get('id') ||
-        q.get('submissionId') ||
-        q.get('correctionId')
+      const id = q.get('id') || q.get('submissionId') || q.get('correctionId')
       if (id) setCorrLink(`/correction/${encodeURIComponent(id)}`)
     } catch {}
     setVer(new Date().toLocaleString('fr-FR'))
@@ -22,7 +19,7 @@ export default function Merci2Page() {
   const BRAND2 = 'var(--brand-2)'
   const MUTED  = 'var(--muted)'
 
-  const card = {
+  const card: React.CSSProperties = {
     background:'#fff',
     borderRadius:16,
     padding:'clamp(18px, 2.4vw, 26px)',
@@ -30,7 +27,7 @@ export default function Merci2Page() {
     border:'1px solid rgba(0,0,0,.04)'
   }
 
-  const cta = {
+  const cta: React.CSSProperties = {
     display:'inline-flex',
     alignItems:'center',
     justifyContent:'center',
@@ -38,7 +35,7 @@ export default function Merci2Page() {
     padding:'12px 18px',
     borderRadius:14,
     fontWeight:800,
-    background:`linear-gradient(180deg, ${BRAND} 0%, ${BRAND2} 100%)`,
+    background: `linear-gradient(180deg, ${BRAND} 0%, ${BRAND2} 100%)`,
     color:'#fff',
     textDecoration:'none',
     border:'none',
@@ -47,7 +44,7 @@ export default function Merci2Page() {
     minWidth:220
   }
 
-  const ghost = {
+  const ghost: React.CSSProperties = {
     display:'inline-flex',
     alignItems:'center',
     justifyContent:'center',
@@ -72,20 +69,27 @@ export default function Merci2Page() {
             Paiement réussi 🎉
           </h1>
           <p style={{ color:MUTED, margin:'0 0 18px' }}>
-            Merci pour votre achat. Votre paiement a bien été traité.
+            Merci pour ton achat. Ton paiement a bien été traité.
           </p>
+
           <div style={{ ...card, padding:'16px', boxShadow:'none', border:'1px dashed rgba(0,0,0,.08)', marginTop:8 }}>
             <h3 style={{ color:'#222', fontWeight:900, margin:'0 0 8px' }}>Que se passe-t-il maintenant ?</h3>
             <ul style={{ color:MUTED, margin:'0 0 8px 18px', lineHeight:1.7 }}>
-              <li>Un email de confirmation ou un email de création de mot de passe vous a été envoyé (selon que c'est votre première fois ou non).</li>
-              <li>Votre correction est accessible immédiatement.</li>
-              <li>Besoin d'aide ? <a href="mailto:marie.terki@icloud.com" style={{ color:BRAND, fontWeight:700 }}>marie.terki@icloud.com</a></li>
+              <li>📬 <strong>N&apos;oublie pas de regarder dans tes courriers indésirables (spam)</strong>.</li>
+              <li>
+                Un email de confirmation <strong>ou</strong> un email de création de mot de passe t&apos;a été envoyé
+                <em> (si c&apos;est ta première fois)</em>.
+              </li>
+              <li>Ta correction est accessible immédiatement.</li>
+              <li>Besoin d&apos;aide ? <a href="mailto:marie.terki@icloud.com" style={{ color:BRAND, fontWeight:700 }}>marie.terki@icloud.com</a></li>
             </ul>
           </div>
+
           <div style={{ display:'flex', flexWrap:'wrap', gap:12, marginTop:18 }}>
             <a href={corrLink} style={cta}>Voir la correction</a>
             <Link href="/login" style={ghost}>Accéder à mon compte</Link>
           </div>
+
           <div style={{ marginTop:12, color:MUTED, fontSize:12 }}>
             version: <code>{ver}</code>
           </div>
