@@ -108,7 +108,7 @@ export default function EspaceClientHome() {
       {/* fond blanc plein écran (écrase tout fond bordeaux global) */}
       <div style={{ position:'fixed', inset:0, background:'#fff', zIndex:0 }} />
 
-      {/* Onglet déconnexion (comme ton CTA “Se connecter”) */}
+      {/* Onglet déconnexion (comme ton CTA "Se connecter") */}
       <button
         onClick={handleSignOut}
         style={{ position:'fixed', top:16, right:16, zIndex:3, ...cta }}
@@ -119,8 +119,8 @@ export default function EspaceClientHome() {
 
       {/* Contenu sur calque au-dessus du fond blanc */}
       <div style={{ position:'relative', zIndex:1 }}>
-        {/* HERO */}
-        <div className="container" style={{ padding:'20px 16px 0' }}>
+        {/* HERO - avec padding-top mobile pour éviter la superposition */}
+        <div className="container espace-client-hero" style={{ padding:'20px 16px 0' }}>
           <section style={{ ...card, marginInline:'auto' }}>
             <h1 style={{ color:BRAND, fontWeight:900, margin:'0 0 8px', lineHeight:1.05 }}>
               Bienvenue sur votre compte JurisCorrect
@@ -134,14 +134,14 @@ export default function EspaceClientHome() {
           </section>
         </div>
 
-        {/* Grille avec gros espacements et “Mon compte” en dessous */}
+        {/* Grille avec gros espacements et "Mon compte" en dessous */}
         <div className="container" style={{ padding:'22px 16px 44px' }}>
           <h2 style={{ color:BRAND, fontSize:22, fontWeight:900, margin:'18px 0 14px' }}>
             Votre espace personnel
           </h2>
 
-          {/* Ligne 1 : 2 colonnes espacées */}
-          <div style={{
+          {/* Grille responsive - 2 colonnes desktop, 1 colonne mobile */}
+          <div className="espace-client-grid" style={{
             display:'grid',
             gridTemplateColumns:'repeat(2, minmax(320px, 1fr))',
             gap:24
@@ -163,15 +163,14 @@ export default function EspaceClientHome() {
               </div>
             </Link>
 
-            {/* Gestion de l’abonnement (sans portail Stripe) */}
+            {/* Gestion de l'abonnement */}
             <Link href="/espace-client/abonnement" style={tile}>
-              <div style={{ color:BRAND, fontWeight:900, marginBottom:6 }}>Gestion de l’abonnement</div>
+              <div style={{ color:BRAND, fontWeight:900, marginBottom:6 }}>Gestion de l'abonnement</div>
               <ul style={{ color:MUTED, fontSize:14, lineHeight:1.6, margin:'0 0 12px 18px' }}>
                 <li>Plan actuel (5€ ponctuel ou 12,99€/mois)</li>
                 <li>Prochaine date de facturation</li>
                 <li>Historique des paiements</li>
                 <li>Changer de plan / Résilier</li>
-                {/* Portail client Stripe — supprimé */}
               </ul>
               <div style={{ display:'flex', justifyContent:'flex-end' }}>
                 <div style={{
@@ -181,16 +180,13 @@ export default function EspaceClientHome() {
                 }}>→</div>
               </div>
             </Link>
-          </div>
 
-          {/* Ligne 2 : Mon compte (sans préférences de notification) */}
-          <div style={{ marginTop:24 }}>
+            {/* Mon compte */}
             <Link href="/espace-client/compte" style={tile}>
               <div style={{ color:BRAND, fontWeight:900, marginBottom:6 }}>Mon compte</div>
               <ul style={{ color:MUTED, fontSize:14, lineHeight:1.6, margin:'0 0 12px 18px' }}>
                 <li>Email de connexion</li>
                 <li>Changer le mot de passe</li>
-                {/* Préférences de notification — supprimées */}
               </ul>
               <div style={{ display:'flex', justifyContent:'flex-end' }}>
                 <div style={{
@@ -204,7 +200,7 @@ export default function EspaceClientHome() {
 
           {/* Support */}
           <p style={{ color:MUTED, margin:'26px 0 0' }}>
-            Besoin d’aide ? Écrivez-nous :{' '}
+            Besoin d'aide ? Écrivez-nous :{' '}
             <a href="mailto:marie.terki@icloud.com" style={{ color:BRAND, fontWeight:700, textDecoration:'underline', textUnderlineOffset:4 }}>
               marie.terki@icloud.com
             </a>
@@ -223,6 +219,22 @@ export default function EspaceClientHome() {
           {msg.text}
         </div>
       )}
+
+      {/* CSS Mobile uniquement */}
+      <style jsx global>{`
+        @media (max-width: 600px) {
+          /* Descendre la carte "Bienvenue" pour éviter la superposition */
+          .espace-client-hero {
+            padding-top: 80px !important;
+          }
+          
+          /* Empiler tous les carrés verticalement sur mobile */
+          .espace-client-grid {
+            grid-template-columns: 1fr !important;
+            gap: 16px !important;
+          }
+        }
+      `}</style>
     </main>
   )
 }
