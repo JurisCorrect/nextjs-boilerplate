@@ -833,3 +833,49 @@ input, select, textarea, button { font-size: 16px; }
   .card { padding: 16px; }
   .btn { width: 100%; min-width: 0; }
 }
+/* === MOBILE: stack brand title then the login button === */
+@media (max-width: 600px) {
+  /* Header becomes a vertical stack */
+  .nav .container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 10px 14px;
+  }
+
+  /* Render the brand title as a line above the buttons */
+  .nav::before {
+    content: "JURISCORRECT";
+    display: block;
+    font-weight: 900;
+    font-size: 22px;
+    line-height: 1.1;
+    letter-spacing: .3px;
+    color: var(--brand, #7b1e3a);
+    /* si tu as une loupe à gauche, décale un peu le titre : */
+    padding-left: 40px; /* ajuste à 0 si tu n’as pas l’icône */
+    margin-bottom: 2px;
+  }
+
+  /* Row of links (Tarifs / Se connecter) under the title */
+  .nav .nav-links {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+
+  /* Stabilise le bouton sur mobile (plus de débordement) */
+  .nav .btn-login {
+    position: static !important;
+    transform: none !important;
+    display: inline-flex;
+    padding: 10px 16px !important;
+    min-width: 0 !important;
+    border-radius: 999px !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+    box-shadow: 0 10px 24px rgba(123,30,58,.25);
+  }
+}
