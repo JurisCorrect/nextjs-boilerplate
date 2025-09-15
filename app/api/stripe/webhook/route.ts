@@ -165,7 +165,6 @@ export async function POST(req: Request) {
     return new Response("Server error", { status: 500 });
   }
 }
-
 export async function GET() {
   return new Response("Method not allowed", { status: 405 });
 }
