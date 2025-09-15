@@ -73,9 +73,9 @@ export default function Home() {
         <section className="presentation card-glass" style={{ marginInline: "auto" }}>
           <p>
             En droit, la méthodologie compte plus que tout dans la note, et c'est pourtant la plus difficile à acquérir.
-            JURISCORRECT propose une correction de A à Z&nbsp;: il identifie précisément ce qui ne va pas dans votre copie,
-            explique pourquoi et vous montre comment corriger le tir, pour travailler vos points faibles et progresser
-            réellement. Cette correction automatisée s'appuie sur ma base de données personnelle, alignée sur les
+            JURISCORRECT propose une correction de A à Z&nbsp;: il identifie précisément ce qui ne va pas dans ta copie,
+            explique pourquoi et te montre comment corriger le tir, pour travailler tes points faibles et progresser
+            réellement. Cette correction automatisée s'appuie sur MA base de données personnelle, alignée sur les
             méthodologies universitaires, un socle introuvable dans les IA généralistes actuelles. JURISCORRECT est
             un produit unique, pensé pour faire gagner des points grâce à la méthode.
           </p>
@@ -228,11 +228,11 @@ export default function Home() {
           }}>
             Au-delà de l'outil JURISCORRECT, je propose également un accompagnement personnalisé sous forme de cours particuliers. 
             Ces sessions permettent un suivi individualisé, des explications détaillées de la méthodologie juridique et un 
-            entraînement adapté à vos besoins spécifiques. Que vous souhaitiez préparer un examen, améliorer vos techniques 
-            de dissertation ou perfectionner vos commentaires d'arrêt, je vous accompagne dans votre progression avec une 
+            entraînement adapté à tes besoins spécifiques. Que tu souhaites préparer un examen, améliorer tes techniques 
+            de dissertation ou perfectionner tes commentaires d'arrêt, je t'accompagne dans ta progression avec une 
             pédagogie éprouvée et des résultats concrets.
             <br /><br />
-            Pour toute demande d'information ou pour planifier un accompagnement personnalisé, contactez-moi directement  : 
+            Pour toute demande d'information ou pour planifier un accompagnement personnalisé, voici mon mail : 
             <a href="mailto:marie.terki@icloud.com" style={{
               color: "var(--brand)",
               textDecoration: "none",
