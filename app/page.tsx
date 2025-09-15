@@ -59,7 +59,7 @@ export default function Home() {
         >
           <nav className="nav-links" style={{ display: "flex", gap: 12, alignItems: "center" }}>
             <Link href="/tarifs" className="nav-link" style={pill}>Tarifs</Link>
-            <Link href="/login" className="btn-login" style={{...cta, position: 'relative', top: '25px', marginLeft: 'auto'}}>Se connecter</Link>
+            <Link href="/login" className="btn-login" style={cta}>Se connecter</Link>
           </nav>
         </div>
       </header>
