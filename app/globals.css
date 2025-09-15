@@ -766,3 +766,70 @@ img, video { max-width: 100%; height: auto; display:block; }
 /* Évite le zoom iOS sur inputs (font-size < 16px déclenche le zoom) */
 input, select, textarea, button { font-size: 16px; }
 
+/* ===== Mobile fixes JurisCorrect (n'affecte pas le desktop) ===== */
+@media (max-width: 600px) {
+  /* --- HEADER / bouton "Se connecter" --- */
+  :where(header, .site-header) {
+    padding: 10px 14px;
+  }
+
+  /* si ton bouton a les classes .btn / .btn-ghost, on le stabilise */
+  :where(header, .site-header) :where(a[href="/login"], .btn-ghost, .btn-login) {
+    padding: 10px 14px !important;
+    min-width: 0 !important;
+    font-size: 14px !important;
+    border-radius: 999px !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+    transform: none !important;
+  }
+
+  /* si le header est en flex, on évite les collisions */
+  :where(header, .site-header) :where(nav, .right) {
+    gap: 8px;
+    flex-wrap: nowrap;
+  }
+
+  /* --- SECTION "Qui suis-je ?" --- */
+  /* Ajoute className="about" sur le conteneur de cette section si possible */
+  .about {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .about .about-photo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-top: 4px;
+  }
+
+  .about .about-photo img {
+    width: 128px;
+    height: 128px;
+    border-radius: 50%;
+    object-fit: cover;
+    box-shadow: 0 8px 30px rgba(0,0,0,.12);
+  }
+
+  .about .about-text {
+    text-align: justify;
+    line-height: 1.7;
+    color: var(--muted, #444);
+    /* évite les gros trous entre mots + coupe propre des mots longs */
+    hyphens: auto;
+    overflow-wrap: anywhere;
+    text-wrap: pretty; /* progressif, améliore la justification sur iOS */
+  }
+
+  /* Si ton texte "Qui suis-je ?" était en multi-colonnes, on désactive sur mobile */
+  .about .about-text {
+    column-count: 1 !important;
+    column-gap: 0 !important;
+  }
+
+  /* cartes et boutons plus confortables en mobile */
+  .card { padding: 16px; }
+  .btn { width: 100%; min-width: 0; }
+}
