@@ -28,8 +28,8 @@ export default function Home() {
     checkUserNeedsPassword();
   }, [router]);
 
-  // Pastilles de la nav (alignées à droite)
-  const pill: React.CSSProperties = {
+  // Styles pill / cta (desktop)
+  const pill = {
     display: "inline-flex",
     alignItems: "center",
     gap: 8,
@@ -41,55 +41,47 @@ export default function Home() {
     color: "#fff",
     fontWeight: 800,
     textDecoration: "none",
-  };
-  const cta: React.CSSProperties = {
+  } as const;
+
+  const cta = {
     ...pill,
     background: "linear-gradient(180deg, var(--brand) 0%, var(--brand-2) 100%)",
     boxShadow: "0 12px 30px rgba(123,30,58,.35)",
-  };
+  } as const;
 
   return (
     <main>
       {/* ===== NAV (droite, avec Tarifs + Se connecter) ===== */}
-      <header className="nav nav-blur">
+      <header className="site-header nav nav-blur">
         <div
           className="container"
           style={{ display: "flex", justifyContent: "flex-end", alignItems: "center" }}
         >
           <nav className="nav-links" style={{ display: "flex", gap: 12, alignItems: "center" }}>
-            <Link href="/tarifs" className="nav-link" style={pill}>
-              Tarifs
-            </Link>
-            {/* Ajout des classes pour activer le patch mobile-only */}
-            <Link href="/login" className="btn-ghost btn-login" style={cta}>
-              Se connecter
-            </Link>
+            <Link href="/tarifs" className="nav-link" style={pill}>Tarifs</Link>
+            <Link href="/login" className="btn-login" style={cta}>Se connecter</Link>
           </nav>
         </div>
       </header>
 
-      {/* ===== HERO (titre supprimé car maintenant dans nav) ===== */}
-      <section className="hero">
-        {/* Le titre est maintenant géré par le CSS dans .nav::before */}
-      </section>
+      {/* ===== HERO (vide, conservé) ===== */}
+      <section className="hero" />
 
-      {/* ===== PRÉSENTATION (resserrée) ===== */}
+      {/* ===== PRÉSENTATION ===== */}
       <div className="container">
         <section className="presentation card-glass" style={{ marginInline: "auto" }}>
           <p>
-            En droit, la méthodologie compte plus que tout dans la note, et c&apos;est pourtant la
-            plus difficile à acquérir. JURISCORRECT propose une correction de A à Z&nbsp;: il
-            identifie précisément ce qui ne va pas dans ta copie, explique pourquoi et te montre
-            comment corriger le tir, pour travailler tes points faibles et progresser réellement.
-            Cette correction automatisée s&apos;appuie sur MA base de données personnelle, alignée
-            sur les méthodologies universitaires, un socle introuvable dans les IA généralistes
-            actuelles. JURISCORRECT est un produit unique, pensé pour faire gagner des points grâce
-            à la méthode.
+            En droit, la méthodologie compte plus que tout dans la note, et c'est pourtant la plus difficile à acquérir.
+            JURISCORRECT propose une correction de A à Z&nbsp;: il identifie précisément ce qui ne va pas dans ta copie,
+            explique pourquoi et te montre comment corriger le tir, pour travailler tes points faibles et progresser
+            réellement. Cette correction automatisée s'appuie sur MA base de données personnelle, alignée sur les
+            méthodologies universitaires, un socle introuvable dans les IA généralistes actuelles. JURISCORRECT est
+            un produit unique, pensé pour faire gagner des points grâce à la méthode.
           </p>
         </section>
       </div>
 
-      {/* ===== CARTES EXERCICES (directement visibles) ===== */}
+      {/* ===== CARTES EXERCICES ===== */}
       <section className="grid">
         <Link href="/dissertation" className="card">
           <span className="card-emoji">📚</span>
@@ -113,35 +105,24 @@ export default function Home() {
       {/* ===== AVIS / BIO ===== */}
       <section className="container" id="avis" style={{ scrollMarginTop: 90 }}>
         <div
-          className="card-glass"
+          className="card-glass about"
           style={{
             maxWidth: 980,
             margin: "16px auto 36px",
             padding: "clamp(16px, 2.4vw, 24px)",
           }}
         >
-          {/* ⤵️ IMPORTANT : on remplace l'ancien conteneur inline-flex par .about
-              Desktop reste géré via le bloc <style> plus bas.
-              Mobile est géré par tes règles @media (max-width: 600px) dans globals.css */}
-          <div className="about">
-            {/* PHOTO */}
-            <div className="about-photo">
-              <img
-                src="/marie.jpg"
-                alt="Marie"
-                style={{
-                  width: 180,
-                  height: 180,
-                  borderRadius: "50%",
-                  objectFit: "cover",
-                  border: "2px solid rgba(255,255,255,.7)",
-                  boxShadow: "0 8px 24px rgba(0,0,0,.35)",
-                }}
-              />
-            </div>
-
-            {/* TEXTE */}
-            <div className="about-text">
+          <div
+            className="about-row"
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              gap: 20,
+              alignItems: "flex-start",
+            }}
+          >
+            {/* Texte */}
+            <div className="about-text" style={{ flex: "1 1 auto" }}>
               <p
                 style={{
                   color: "var(--muted)",
@@ -171,19 +152,31 @@ export default function Home() {
                 >
                   Qui suis-je ?
                 </span>
-                Doctorante en droit international pénal et professeur particulier depuis quatre ans,
-                j&apos;ai effectué un parcours universitaire rigoureux, validé mention bien à
-                chaque étape. Après une licence à l&apos;université de Créteil, j&apos;ai obtenu
-                deux masters : un master 1 et 2 de droit international et droit comparé à Nanterre,
-                puis un master 1 et 2 de droit pénal et sciences criminelles à Toulouse. Au fil de
-                mes années d&apos;enseignement, j&apos;ai constaté que le plus grand défi des
-                étudiants en droit était la maîtrise de la méthodologie. C&apos;est pourquoi
-                j&apos;ai créé JURISCORRECT : pour démocratiser l&apos;accès à une correction de
-                qualité et permettre à chaque étudiant de progresser efficacement. Il s&apos;agit de
-                ma correction basée sur mes critères et non pas ceux d&apos;Internet. Avec quatre
-                ans d&apos;expérience et un taux de réussite de 100 % parmi mes élèves, je mets
-                aujourd&apos;hui mon expertise à votre service à travers cet outil.
+                Doctorante en droit international pénal et professeur particulier depuis quatre ans, j'ai effectué un parcours
+                universitaire rigoureux, validé mention bien à chaque étape. Après une licence à l'université de Créteil,
+                j'ai obtenu deux masters : un master 1 et 2 de droit international et droit comparé à Nanterre, puis un master 1
+                et 2 de droit pénal et sciences criminelles à Toulouse. Au fil de mes années d'enseignement, j'ai constaté que le
+                plus grand défi des étudiants en droit était la maîtrise de la méthodologie. C'est pourquoi j'ai créé JURISCORRECT :
+                pour démocratiser l'accès à une correction de qualité et permettre à chaque étudiant de progresser efficacement.
+                Il s'agit de ma correction basée sur mes critères et non pas ceux d'Internet. Avec quatre ans d'expérience et un
+                taux de réussite de 100 % parmi mes élèves, je mets aujourd'hui mon expertise à votre service à travers cet outil.
               </p>
+            </div>
+
+            {/* Photo */}
+            <div className="about-photo" style={{ flex: "0 0 180px", display: "flex", justifyContent: "center" }}>
+              <img
+                src="/marie.jpg"
+                alt="Marie"
+                style={{
+                  width: 180,
+                  height: 180,
+                  borderRadius: "50%",
+                  objectFit: "cover",
+                  border: "2px solid rgba(255,255,255,.7)",
+                  boxShadow: "0 8px 24px rgba(0,0,0,.35)",
+                }}
+              />
             </div>
           </div>
         </div>
@@ -237,17 +230,14 @@ export default function Home() {
               textAlign: "justify",
             }}
           >
-            Au-delà de l&apos;outil JURISCORRECT, je propose également un accompagnement
-            personnalisé sous forme de cours particuliers. Ces sessions permettent un suivi
-            individualisé, des explications détaillées de la méthodologie juridique et un
-            entraînement adapté à tes besoins spécifiques. Que tu souhaites préparer un examen,
-            améliorer tes techniques de dissertation ou perfectionner tes commentaires d&apos;arrêt,
-            je t&apos;accompagne dans ta progression avec une pédagogie éprouvée et des résultats
-            concrets.
+            Au-delà de l'outil JURISCORRECT, je propose également un accompagnement personnalisé sous forme de cours particuliers.
+            Ces sessions permettent un suivi individualisé, des explications détaillées de la méthodologie juridique et un
+            entraînement adapté à tes besoins spécifiques. Que tu souhaites préparer un examen, améliorer tes techniques
+            de dissertation ou perfectionner tes commentaires d'arrêt, je t'accompagne dans ta progression avec une
+            pédagogie éprouvée et des résultats concrets.
             <br />
             <br />
-            Pour toute demande d&apos;information ou pour planifier un accompagnement
-            personnalisé, voici mon mail :
+            Pour toute demande d'information ou pour planifier un accompagnement personnalisé, voici mon mail :
             <a
               href="mailto:marie.terki@icloud.com"
               style={{
@@ -263,26 +253,41 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Forçage ciblé de la couleur du texte du badge "Qui suis-je ?" */}
-      <style>{`
-        #qsj-badge { color: #fff !important; }
+      {/* Forçage ciblé du badge */}
+      <style>{`#qsj-badge { color: #fff !important; }`}</style>
 
-        /* Desktop ≥ 801px: on garde ton layout "texte gauche / photo droite" */
-        @media (min-width: 801px) {
-          .about {
-            display: flex;
-            flex-direction: row;
-            gap: 20px;
-            align-items: flex-start;
+      {/* === Patch MOBILE — sans toucher le desktop === */}
+      <style jsx global>{`
+        @media (max-width: 600px) {
+          /* Header / bouton */
+          .site-header { padding: 10px 14px; }
+          .site-header .nav-links { gap: 8px; flex-wrap: nowrap; }
+          .site-header .btn-login {
+            padding: 10px 14px !important;
+            min-width: 0 !important;
+            font-size: 14px !important;
+            border-radius: 999px !important;
+            line-height: 1 !important;
+            white-space: nowrap !important;
+            transform: none !important;
           }
-          .about .about-photo {
-            flex: 0 0 180px;
-            display: flex;
-            justify-content: center;
+
+          /* Bloc "Qui suis-je ?" en colonne */
+          .about .about-row { display: grid !important; grid-template-columns: 1fr; gap: 12px; }
+          .about .about-photo { order: -1; display: flex; align-items: center; justify-content: center; padding-top: 4px; }
+          .about .about-photo img {
+            width: 128px; height: 128px; border-radius: 50%; object-fit: cover;
+            box-shadow: 0 8px 30px rgba(0,0,0,.12);
           }
           .about .about-text {
-            flex: 1 1 auto;
+            text-align: justify; line-height: 1.7; color: var(--muted, #444);
+            hyphens: auto; overflow-wrap: anywhere; text-wrap: pretty;
+            column-count: 1 !important; column-gap: 0 !important;
           }
+
+          /* Confort mobile générique */
+          .card { padding: 16px; }
+          .btn { width: 100%; min-width: 0; }
         }
       `}</style>
     </main>
