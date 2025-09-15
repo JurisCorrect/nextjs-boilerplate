@@ -277,14 +277,14 @@ export default function Client() {
         {phase === "done" && (
           <div style={{ textAlign: "center" }}>
             <h1 style={{ 
-              color: "#4ade80", 
+              color: "#059669", 
               fontSize: "1.5rem", 
               fontWeight: 800, 
               marginBottom: "16px" 
             }}>
               Compte créé avec succès !
             </h1>
-            <p style={{ color: "rgba(255,255,255,.7)", fontSize: "0.95rem" }}>
+            <p style={{ color: "#666", fontSize: "0.95rem" }}>
               Redirection vers votre espace client...
             </p>
           </div>
