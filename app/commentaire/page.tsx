@@ -79,7 +79,7 @@ export default function CommentairePage() {
               <label htmlFor="docx-commentaire" className={`uploader-box ${isDragging ? "is-dragging" : ""}`}
                      onDragOver={handleDragOver} onDragLeave={handleDragLeave} onDrop={handleDrop}>
                 <div className="uploader-icon">{/* icône */}</div>
-                <span className="uploader-btn">Téléchargez votre document ici</span>
+                <span className="uploader-btn">Télécharge ton document ici</span>
                 {fichier && <div className="uploader-filename">📄 {fichier.name}</div>}
               </label>
             </div>
