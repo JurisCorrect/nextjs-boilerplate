@@ -51,7 +51,7 @@ export default function Home() {
 
   return (
     <main>
-      {/* ===== NAV (droite, avec Tarifs + Se connecter) ===== */}
+      {/* ===== NAV ===== */}
       <header className="site-header nav nav-blur">
         <div
           className="container"
@@ -64,7 +64,7 @@ export default function Home() {
         </div>
       </header>
 
-      {/* ===== HERO (vide, conservé) ===== */}
+      {/* ===== HERO (vide) ===== */}
       <section className="hero" />
 
       {/* ===== PRÉSENTATION ===== */}
@@ -256,20 +256,29 @@ export default function Home() {
       {/* Forçage ciblé du badge */}
       <style>{`#qsj-badge { color: #fff !important; }`}</style>
 
-      {/* === Patch MOBILE — sans toucher le desktop === */}
+      {/* === Patch MOBILE — n'affecte pas le desktop === */}
       <style jsx global>{`
         @media (max-width: 600px) {
           /* Header / bouton */
           .site-header { padding: 10px 14px; }
           .site-header .nav-links { gap: 8px; flex-wrap: nowrap; }
           .site-header .btn-login {
-            padding: 10px 14px !important;
+            /* tailles fluides pour éviter la casse */
+            padding: clamp(8px, 2.4vw, 10px) clamp(12px, 3.6vw, 14px) !important;
             min-width: 0 !important;
-            font-size: 14px !important;
+            font-size: clamp(12px, 3.3vw, 14px) !important;
             border-radius: 999px !important;
             line-height: 1 !important;
             white-space: nowrap !important;
             transform: none !important;
+            flex-shrink: 0;
+          }
+          .site-header .nav-link {
+            padding: clamp(8px, 2.4vw, 10px) clamp(12px, 3.6vw, 14px) !important;
+            font-size: clamp(12px, 3.3vw, 14px) !important;
+            border-radius: 999px !important;
+            white-space: nowrap !important;
+            flex-shrink: 1; /* accepte de se tasser un peu avant de passer à la ligne */
           }
 
           /* Bloc "Qui suis-je ?" en colonne */
@@ -288,6 +297,21 @@ export default function Home() {
           /* Confort mobile générique */
           .card { padding: 16px; }
           .btn { width: 100%; min-width: 0; }
+        }
+
+        /* Ultra-petits écrans : on évite toute collision */
+        @media (max-width: 380px) {
+          .site-header .nav-links { gap: 6px; }
+          .site-header .btn-login,
+          .site-header .nav-link {
+            font-size: 12px !important;
+            padding: 8px 12px !important;
+          }
+        }
+
+        /* Téléphones très étroits (ex: iPhone SE) : on garde "Se connecter" prioritaire */
+        @media (max-width: 330px) {
+          .site-header .nav-link[href="/tarifs"] { display: none !important; }
         }
       `}</style>
     </main>
