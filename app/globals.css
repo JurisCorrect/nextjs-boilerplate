@@ -967,3 +967,27 @@ input, select, textarea, button { font-size: 16px; }
   /* 4) On garde le bouton du header masqué en mobile pour éviter le chevauchement */
   .btn-login--header { display: none !important; }
 }
+/* ==== MOBILE: bouton "Se connecter" sous le titre, aligné à droite ==== */
+@media (max-width:600px){
+  header.nav .container{ display:flex; flex-wrap:wrap; align-items:center; }
+
+  /* le bloc liens peut revenir à la ligne */
+  header.nav .nav-links{
+    display:flex; flex-wrap:wrap; gap:12px; width:100%; align-items:center;
+  }
+
+  /* "Tarifs" reste en haut (gauche) */
+  header.nav .nav-links .nav-link[href="/tarifs"]{ order:1; }
+
+  /* "Se connecter" va sur la ligne du dessous et s'aligne à droite */
+  header.nav .nav-links .btn-login{
+    order:2;
+    width:100%;                /* force la 2e ligne */
+    display:flex; 
+    justify-content:flex-end;  /* à droite */
+    padding:10px 16px !important;
+    border-radius:999px !important;
+    min-width:0 !important;
+    white-space:nowrap !important;
+  }
+}
