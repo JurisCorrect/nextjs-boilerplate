@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { createClient } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 
@@ -12,6 +12,7 @@ const supabase = createClient(
 
 export default function Home() {
   const router = useRouter();
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     const checkUserNeedsPassword = async () => {
@@ -26,6 +27,12 @@ export default function Home() {
       }
     };
     checkUserNeedsPassword();
+
+    // Détecter mobile
+    const checkMobile = () => setIsMobile(window.innerWidth <= 600);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
   }, [router]);
 
   // Styles pill / cta (desktop)
@@ -52,16 +59,28 @@ export default function Home() {
   return (
     <main>
       {/* ===== NAV (droite, avec Tarifs + Se connecter) ===== */}
-      <header className="site-header nav nav-blur">
+      <header className="site-header nav nav-blur" style={{ position: 'relative', paddingBottom: isMobile ? '60px' : '1rem' }}>
         <div
           className="container"
           style={{ display: "flex", justifyContent: "flex-end", alignItems: "center" }}
         >
           <nav className="nav-links" style={{ display: "flex", gap: 12, alignItems: "center" }}>
             <Link href="/tarifs" className="nav-link" style={pill}>Tarifs</Link>
-            <Link href="/login" className="btn-login" style={cta}>Se connecter</Link>
+            <Link href="/login" className="btn-login" style={{...cta, display: isMobile ? 'none' : 'inline-flex'}}>Se connecter</Link>
           </nav>
         </div>
+        
+        {/* Bouton mobile sous le titre */}
+        {isMobile && (
+          <div style={{
+            position: 'absolute',
+            top: '50px',
+            right: '16px',
+            zIndex: 10
+          }}>
+            <Link href="/login" style={cta}>Se connecter</Link>
+          </div>
+        )}
       </header>
 
       {/* ===== HERO (vide, conservé) ===== */}
@@ -256,35 +275,9 @@ export default function Home() {
       {/* Forçage ciblé du badge */}
       <style>{`#qsj-badge { color: #fff !important; }`}</style>
 
-      {/* === Patch MOBILE — bouton "Se connecter" sous le titre === */}
+      {/* CSS mobile pour la section "Qui suis-je ?" */}
       <style jsx global>{`
         @media (max-width: 600px) {
-          /* Header avec plus d'espace pour le bouton qui descend */
-          .site-header { 
-            padding: 10px 14px 50px 14px; 
-            position: relative;
-          }
-          
-          /* Le bouton descend sous le titre */
-          .site-header .btn-login {
-            position: absolute !important;
-            top: 50px !important;
-            right: 14px !important;
-            padding: 10px 14px !important;
-            min-width: 0 !important;
-            font-size: 14px !important;
-            border-radius: 999px !important;
-            line-height: 1 !important;
-            white-space: nowrap !important;
-            transform: none !important;
-          }
-
-          /* Masquer le bouton Tarifs pour faire de la place */
-          .site-header .nav-link[href="/tarifs"] {
-            display: none !important;
-          }
-
-          /* Bloc "Qui suis-je ?" en colonne */
           .about .about-row { display: grid !important; grid-template-columns: 1fr; gap: 12px; }
           .about .about-photo { order: -1; display: flex; align-items: center; justify-content: center; padding-top: 4px; }
           .about .about-photo img {
@@ -296,10 +289,6 @@ export default function Home() {
             hyphens: auto; overflow-wrap: anywhere; text-wrap: pretty;
             column-count: 1 !important; column-gap: 0 !important;
           }
-
-          /* Confort mobile générique */
-          .card { padding: 16px; }
-          .btn { width: 100%; min-width: 0; }
         }
       `}</style>
     </main>
