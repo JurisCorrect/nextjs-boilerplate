@@ -3,29 +3,33 @@
 import React, { useEffect, useState } from "react";
 import { createClient } from "@supabase/supabase-js";
 
-// ⚠️ Assure-toi d'avoir ces vars côté Vercel
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-);
+// --- ENV (typage + garde-fous) ---
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL as string;
+const supabaseAnon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string;
+if (!supabaseUrl || !supabaseAnon) {
+  throw new Error(
+    "Les variables NEXT_PUBLIC_SUPABASE_URL et NEXT_PUBLIC_SUPABASE_ANON_KEY sont manquantes."
+  );
+}
+const supabase = createClient(supabaseUrl, supabaseAnon);
 
 export default function CallbackClient() {
-  const [phase, setPhase] = useState("loading"); // loading | ready | saving | done | error
+  const [phase, setPhase] = useState<"loading" | "ready" | "saving" | "done" | "error">("loading");
   const [password, setPassword] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
 
-  // Parse ?code=... OU #access_token=...
+  // Gère ?code=... (OAuth/Invite) et #access_token=... (magic link)
   useEffect(() => {
     (async () => {
       try {
-        // Si l'utilisateur est déjà connecté (ex: lien avec #access_token)
+        // 1) Déjà connecté ? (cas lien avec #access_token)
         const { data: { session } } = await supabase.auth.getSession();
         if (session) {
           setPhase("ready");
           return;
         }
 
-        // Sinon, on regarde s'il y a un "code" (OAuth/SSO/Invite)
+        // 2) Cas ?code=... → on échange pour une session
         const url = new URL(window.location.href);
         const code = url.searchParams.get("code");
         if (code) {
@@ -35,17 +39,16 @@ export default function CallbackClient() {
           return;
         }
 
-        // Sinon, on tente de lire un #access_token dans le hash (format magic link supabase)
-        const hash = window.location.hash; // #access_token=...&type=invite...
+        // 3) Cas #access_token=... dans le hash (format Supabase)
+        const hash = window.location.hash; // #access_token=...&refresh_token=...&type=invite
         if (hash && hash.includes("access_token=")) {
           const params = new URLSearchParams(hash.slice(1));
           const accessToken = params.get("access_token");
-          const refreshToken = params.get("refresh_token");
+          const refreshToken = params.get("refresh_token") || "";
           if (accessToken) {
-            // On "hydrate" la session localement
             const { data, error } = await supabase.auth.setSession({
               access_token: accessToken,
-              refresh_token: refreshToken || ""
+              refresh_token: refreshToken
             });
             if (error) throw error;
             if (data?.session) {
@@ -55,17 +58,16 @@ export default function CallbackClient() {
           }
         }
 
-        // Rien trouvé → lien invalide
         setErrorMsg("Lien invalide ou expiré.");
         setPhase("error");
-      } catch (e) {
+      } catch (e: any) {
         setErrorMsg(e?.message || "Erreur inconnue.");
         setPhase("error");
       }
     })();
   }, []);
 
-  async function onSubmit(e) {
+  async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!password || password.length < 8) {
       setErrorMsg("Le mot de passe doit contenir au moins 8 caractères.");
@@ -76,16 +78,16 @@ export default function CallbackClient() {
       const { error } = await supabase.auth.updateUser({ password });
       if (error) throw error;
       setPhase("done");
-    } catch (e) {
+    } catch (e: any) {
       setErrorMsg(e?.message || "Impossible de définir le mot de passe.");
       setPhase("error");
     }
   }
 
-  // ======= STYLE (mêmes tons que ton site) =======
+  // ======= STYLE (branding JurisCorrect) =======
   const BRAND = "#7b1e3a";
   const BG_GRAD = "linear-gradient(135deg, #7b1e3a 0%, #5c1629 50%, #4a1220 100%)";
-  const CARD = {
+  const CARD: React.CSSProperties = {
     width: "100%",
     maxWidth: 520,
     background: "#fff",
@@ -94,8 +96,8 @@ export default function CallbackClient() {
     boxShadow: "0 10px 30px rgba(0,0,0,.12)",
     border: "1px solid rgba(0,0,0,.06)"
   };
-  const LABEL = { display: "block", color: BRAND, fontWeight: 700, marginBottom: 8 };
-  const INPUT = {
+  const LABEL: React.CSSProperties = { display: "block", color: BRAND, fontWeight: 700, marginBottom: 8 };
+  const INPUT: React.CSSProperties = {
     width: "100%",
     padding: "12px 14px",
     borderRadius: 12,
@@ -103,7 +105,7 @@ export default function CallbackClient() {
     outline: "none",
     fontSize: 16
   };
-  const BTN = (disabled) => ({
+  const BTN = (disabled: boolean): React.CSSProperties => ({
     width: "100%",
     padding: "12px 16px",
     borderRadius: 12,
@@ -127,7 +129,6 @@ export default function CallbackClient() {
       }}
     >
       <section style={CARD}>
-        {/* Header */}
         <div style={{ textAlign: "center", marginBottom: 18 }}>
           <h1 style={{ color: BRAND, margin: 0, fontWeight: 900 }}>Définir ton mot de passe</h1>
           <p style={{ color: "#666", margin: "6px 0 0" }}>
@@ -135,12 +136,10 @@ export default function CallbackClient() {
           </p>
         </div>
 
-        {/* Loading */}
         {phase === "loading" && (
           <p style={{ textAlign: "center", color: "#666" }}>Chargement…</p>
         )}
 
-        {/* Error */}
         {phase === "error" && (
           <div>
             <p style={{ color: "#dc2626", marginBottom: 12 }}>
@@ -153,7 +152,6 @@ export default function CallbackClient() {
           </div>
         )}
 
-        {/* Ready → form */}
         {phase === "ready" && (
           <form onSubmit={onSubmit}>
             <label style={LABEL}>Nouveau mot de passe</label>
@@ -177,7 +175,6 @@ export default function CallbackClient() {
           </form>
         )}
 
-        {/* Done */}
         {phase === "done" && (
           <div style={{ textAlign: "center" }}>
             <h2 style={{ color: "#059669", marginBottom: 8 }}>Mot de passe défini ✅</h2>
