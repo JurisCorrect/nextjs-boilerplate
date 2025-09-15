@@ -1030,3 +1030,43 @@ input, select, textarea, button { font-size: 16px; }
     transform: none !important;
   }
 }
+ /* === MOBILE UNIQUEMENT : "Se connecter" sous le titre JURISCORRECT à droite === */
+@media (max-width: 600px) {
+  /* Espacer le header pour faire place au titre + bouton */
+  header.nav {
+    padding-top: 80px;
+    padding-bottom: 8px;
+  }
+  
+  /* Créer un nouveau bouton sous le titre, uniquement visible sur mobile */
+  header.nav::after {
+    content: "Se connecter";
+    position: absolute;
+    top: 45px;  /* quelques millimètres sous le titre */
+    right: 16px; /* tout à fait à droite */
+    
+    display: inline-flex;
+    align-items: center;
+    padding: 10px 16px;
+    border-radius: 999px;
+    font-weight: 800;
+    color: #fff;
+    text-decoration: none;
+    background: linear-gradient(180deg, var(--brand) 0%, var(--brand-2) 100%);
+    box-shadow: 0 12px 30px rgba(123,30,58,.35);
+    font-size: 14px;
+    cursor: pointer;
+    z-index: 10;
+  }
+  
+  /* Masquer le bouton original du header sur mobile */
+  header.nav .nav-links .btn-login,
+  header.nav .nav-links a[href="/login"] {
+    display: none !important;
+  }
+}
+
+/* Redirection au clic du pseudo-bouton via JavaScript inline */
+header.nav::after {
+  pointer-events: auto;
+}
