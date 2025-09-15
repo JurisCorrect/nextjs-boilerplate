@@ -19,7 +19,7 @@ export default function Home() {
         const { data: { session } } = await supabase.auth.getSession();
         if (session) {
           console.log("Utilisateur connecté détecté, redirection vers /auth/callback");
-          router.push("/auth/callback");
+          router.push('/auth/callback');
         }
       } catch (error) {
         console.log("Erreur vérification session:", error);
@@ -28,8 +28,8 @@ export default function Home() {
     checkUserNeedsPassword();
   }, [router]);
 
-  // Styles pill / cta (desktop)
-  const pill = {
+  // Pastilles de la nav (alignées à droite)
+  const pill: React.CSSProperties = {
     display: "inline-flex",
     alignItems: "center",
     gap: 8,
@@ -41,31 +41,38 @@ export default function Home() {
     color: "#fff",
     fontWeight: 800,
     textDecoration: "none",
-  } as const;
-
-  const cta = {
+  }
+  const cta: React.CSSProperties = {
     ...pill,
     background: "linear-gradient(180deg, var(--brand) 0%, var(--brand-2) 100%)",
     boxShadow: "0 12px 30px rgba(123,30,58,.35)",
-  } as const;
+  }
 
   return (
     <main>
       {/* ===== NAV ===== */}
-      <header className="site-header nav nav-blur">
+      <header className="nav nav-blur">
         <div
           className="container"
           style={{ display: "flex", justifyContent: "flex-end", alignItems: "center" }}
         >
           <nav className="nav-links" style={{ display: "flex", gap: 12, alignItems: "center" }}>
             <Link href="/tarifs" className="nav-link" style={pill}>Tarifs</Link>
-            <Link href="/login" className="btn-login" style={cta}>Se connecter</Link>
+            {/* ★ on ajoute une classe pour pouvoir le masquer en mobile */}
+            <Link href="/login" className="btn-login btn-login--header" style={cta}>Se connecter</Link>
           </nav>
         </div>
       </header>
 
-      {/* ===== HERO (vide) ===== */}
-      <section className="hero" />
+      {/* ★ Bouton mobile sous le titre (caché sur desktop) */}
+      <div className="mobile-login">
+        <Link href="/login" className="btn-login">Se connecter</Link>
+      </div>
+
+      {/* ===== HERO ===== */}
+      <section className="hero">
+        {/* Le titre est maintenant géré par le CSS dans .nav::before */}
+      </section>
 
       {/* ===== PRÉSENTATION ===== */}
       <div className="container">
@@ -81,7 +88,7 @@ export default function Home() {
         </section>
       </div>
 
-      {/* ===== CARTES EXERCICES ===== */}
+      {/* ===== CARTES ===== */}
       <section className="grid">
         <Link href="/dissertation" className="card">
           <span className="card-emoji">📚</span>
@@ -105,32 +112,27 @@ export default function Home() {
       {/* ===== AVIS / BIO ===== */}
       <section className="container" id="avis" style={{ scrollMarginTop: 90 }}>
         <div
-          className="card-glass about"
+          className="card-glass"
           style={{
             maxWidth: 980,
             margin: "16px auto 36px",
             padding: "clamp(16px, 2.4vw, 24px)",
           }}
         >
-          <div
-            className="about-row"
-            style={{
-              display: "flex",
-              flexDirection: "row",
-              gap: 20,
-              alignItems: "flex-start",
-            }}
-          >
-            {/* Texte */}
-            <div className="about-text" style={{ flex: "1 1 auto" }}>
-              <p
-                style={{
-                  color: "var(--muted)",
-                  lineHeight: 1.7,
-                  margin: 0,
-                  textAlign: "justify",
-                }}
-              >
+          <div style={{
+            display: "flex",
+            flexDirection: "row",
+            gap: 20,
+            alignItems: "flex-start"
+          }}>
+            {/* Texte à gauche */}
+            <div style={{ flex: "1 1 auto" }}>
+              <p style={{
+                color: "var(--muted)",
+                lineHeight: 1.7,
+                margin: 0,
+                textAlign: "justify"
+              }}>
                 <span
                   id="qsj-badge"
                   className="badge-accent"
@@ -163,8 +165,12 @@ export default function Home() {
               </p>
             </div>
 
-            {/* Photo */}
-            <div className="about-photo" style={{ flex: "0 0 180px", display: "flex", justifyContent: "center" }}>
+            {/* Photo à droite */}
+            <div style={{
+              flex: "0 0 180px",
+              display: "flex",
+              justifyContent: "center"
+            }}>
               <img
                 src="/marie.jpg"
                 alt="Marie"
@@ -192,15 +198,13 @@ export default function Home() {
             padding: "clamp(16px, 2.4vw, 24px)",
           }}
         >
-          <h3
-            style={{
-              color: "#fff",
-              fontSize: "1.2rem",
-              fontWeight: 800,
-              marginBottom: 16,
-              marginTop: 0,
-            }}
-          >
+          <h3 style={{
+            color: "#fff",
+            fontSize: "1.2rem",
+            fontWeight: 800,
+            marginBottom: 16,
+            marginTop: 0
+          }}>
             <span
               className="badge-accent"
               data-badge="accent"
@@ -222,98 +226,32 @@ export default function Home() {
               Pour aller plus loin...
             </span>
           </h3>
-          <p
-            style={{
-              color: "var(--muted)",
-              lineHeight: 1.7,
-              margin: 0,
-              textAlign: "justify",
-            }}
-          >
-            Au-delà de l'outil JURISCORRECT, je propose également un accompagnement personnalisé sous forme de cours particuliers.
-            Ces sessions permettent un suivi individualisé, des explications détaillées de la méthodologie juridique et un
-            entraînement adapté à tes besoins spécifiques. Que tu souhaites préparer un examen, améliorer tes techniques
-            de dissertation ou perfectionner tes commentaires d'arrêt, je t'accompagne dans ta progression avec une
+          <p style={{
+            color: "var(--muted)",
+            lineHeight: 1.7,
+            margin: 0,
+            textAlign: "justify"
+          }}>
+            Au-delà de l'outil JURISCORRECT, je propose également un accompagnement personnalisé sous forme de cours particuliers. 
+            Ces sessions permettent un suivi individualisé, des explications détaillées de la méthodologie juridique et un 
+            entraînement adapté à tes besoins spécifiques. Que tu souhaites préparer un examen, améliorer tes techniques 
+            de dissertation ou perfectionner tes commentaires d'arrêt, je t'accompagne dans ta progression avec une 
             pédagogie éprouvée et des résultats concrets.
-            <br />
-            <br />
-            Pour toute demande d'information ou pour planifier un accompagnement personnalisé, voici mon mail :
-            <a
-              href="mailto:marie.terki@icloud.com"
-              style={{
-                color: "var(--brand)",
-                textDecoration: "none",
-                fontWeight: 700,
-                marginLeft: 6,
-              }}
-            >
+            <br /><br />
+            Pour toute demande d'information ou pour planifier un accompagnement personnalisé, voici mon mail : 
+            <a href="mailto:marie.terki@icloud.com" style={{
+              color: "var(--brand)",
+              textDecoration: "none",
+              fontWeight: 700
+            }}>
               <strong>marie.terki@icloud.com</strong>
             </a>
           </p>
         </div>
       </section>
 
-      {/* Forçage ciblé du badge */}
+      {/* Forçage ciblé de la couleur du texte du badge "Qui suis-je ?" */}
       <style>{`#qsj-badge { color: #fff !important; }`}</style>
-
-      {/* === Patch MOBILE — n'affecte pas le desktop === */}
-      <style jsx global>{`
-        @media (max-width: 600px) {
-          /* Header / bouton */
-          .site-header { padding: 10px 14px; }
-          .site-header .nav-links { gap: 8px; flex-wrap: nowrap; }
-          .site-header .btn-login {
-            /* tailles fluides pour éviter la casse */
-            padding: clamp(8px, 2.4vw, 10px) clamp(12px, 3.6vw, 14px) !important;
-            min-width: 0 !important;
-            font-size: clamp(12px, 3.3vw, 14px) !important;
-            border-radius: 999px !important;
-            line-height: 1 !important;
-            white-space: nowrap !important;
-            transform: none !important;
-            flex-shrink: 0;
-          }
-          .site-header .nav-link {
-            padding: clamp(8px, 2.4vw, 10px) clamp(12px, 3.6vw, 14px) !important;
-            font-size: clamp(12px, 3.3vw, 14px) !important;
-            border-radius: 999px !important;
-            white-space: nowrap !important;
-            flex-shrink: 1; /* accepte de se tasser un peu avant de passer à la ligne */
-          }
-
-          /* Bloc "Qui suis-je ?" en colonne */
-          .about .about-row { display: grid !important; grid-template-columns: 1fr; gap: 12px; }
-          .about .about-photo { order: -1; display: flex; align-items: center; justify-content: center; padding-top: 4px; }
-          .about .about-photo img {
-            width: 128px; height: 128px; border-radius: 50%; object-fit: cover;
-            box-shadow: 0 8px 30px rgba(0,0,0,.12);
-          }
-          .about .about-text {
-            text-align: justify; line-height: 1.7; color: var(--muted, #444);
-            hyphens: auto; overflow-wrap: anywhere; text-wrap: pretty;
-            column-count: 1 !important; column-gap: 0 !important;
-          }
-
-          /* Confort mobile générique */
-          .card { padding: 16px; }
-          .btn { width: 100%; min-width: 0; }
-        }
-
-        /* Ultra-petits écrans : on évite toute collision */
-        @media (max-width: 380px) {
-          .site-header .nav-links { gap: 6px; }
-          .site-header .btn-login,
-          .site-header .nav-link {
-            font-size: 12px !important;
-            padding: 8px 12px !important;
-          }
-        }
-
-        /* Téléphones très étroits (ex: iPhone SE) : on garde "Se connecter" prioritaire */
-        @media (max-width: 330px) {
-          .site-header .nav-link[href="/tarifs"] { display: none !important; }
-        }
-      `}</style>
     </main>
-  );
+  )
 }
