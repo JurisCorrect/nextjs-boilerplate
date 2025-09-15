@@ -1,29 +1,36 @@
 // app/api/stripe/webhook/route.ts
 import Stripe from "stripe";
 import { Buffer } from "node:buffer";
+import nodemailer from "nodemailer";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
+// === ENV VARS ===
 const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY!;
 const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET;
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-// ⚠️ Vérifie bien l’URL de ton site
+// URL de base du site (sans slash final)
 const SITE_URL =
   (process.env.NEXT_PUBLIC_SITE_URL && process.env.NEXT_PUBLIC_SITE_URL.replace(/\/$/, "")) ||
   (process.env.VERCEL_URL && `https://${process.env.VERCEL_URL.replace(/\/$/, "")}`) ||
   "http://localhost:3000";
 
-// ✅ Resend sans dépendance: via fetch (pas d'import "resend")
-const RESEND_API_KEY = process.env.RESEND_API_KEY;
-const RESEND_FROM = process.env.RESEND_FROM || "JurisCorrect <no-reply@juriscorrect.com>";
+// SMTP (utilise tes credentials Vercel)
+const SMTP_HOST = process.env.SMTP_HOST || "smtp.gmail.com";
+const SMTP_PORT = Number(process.env.SMTP_PORT || 587);
+const SMTP_USER = process.env.SMTP_USER;
+const SMTP_PASS = process.env.SMTP_PASS;
+const SMTP_FROM = process.env.SMTP_FROM || "JurisCorrect <no-reply@juriscorrect.com>";
+const SMTP_REPLY_TO = process.env.SMTP_REPLY_TO || "marie.terki@icloud.com";
 
 if (!STRIPE_SECRET_KEY) throw new Error("STRIPE_SECRET_KEY manquant");
 
 const stripe = new Stripe(STRIPE_SECRET_KEY, { apiVersion: "2023-10-16" });
 
+// --- Supabase admin client ---
 async function getSupabaseAdmin() {
   if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
     throw new Error("SUPABASE service role manquant");
@@ -34,14 +41,19 @@ async function getSupabaseAdmin() {
   });
 }
 
-// ------------------------
-// Email confirmation (clients existants) via Resend HTTP API
-// ------------------------
-async function sendPurchaseConfirmationEmail(to: string) {
-  if (!RESEND_API_KEY) {
-    console.log("RESEND_API_KEY manquant → skip envoi email (confirmation client existant)");
-    return { ok: false, status: 0, text: "RESEND_API_KEY missing" };
+// --- Email confirmation pour clients existants ---
+async function sendPurchaseConfirmationEmailSMTP(to: string) {
+  if (!SMTP_USER || !SMTP_PASS) {
+    console.log("SMTP_USER/SMTP_PASS manquants → skip envoi email confirmation");
+    return { ok: false, text: "Missing SMTP creds" };
   }
+
+  const transporter = nodemailer.createTransport({
+    host: SMTP_HOST,
+    port: SMTP_PORT,
+    secure: SMTP_PORT === 465, // 587 = STARTTLS
+    auth: { user: SMTP_USER, pass: SMTP_PASS },
+  });
 
   const subject = "🎉 Merci pour votre achat chez JurisCorrect";
   const espaceClientUrl = `${SITE_URL}/login`;
@@ -49,52 +61,39 @@ async function sendPurchaseConfirmationEmail(to: string) {
   const html = `
   <div style="font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;line-height:1.6;color:#111">
     <h2 style="margin:0 0 12px">🎉 Merci pour votre achat chez <span style="color:#7b1e3a">JurisCorrect</span></h2>
-    <p>🧾 Votre paiement a bien été confirmé.</p>
-    <p>📚 Retrouve toutes tes corrections et ton forfait depuis ton espace client. Tu peux aussi consulter tes anciennes corrections et suivre ta progression.</p>
+    <p>📚 Retrouvez toutes vos corrections sur votre espace client !</p>
 
-    <p style="text-align:center;margin:28px 0">
-      <a href="${espaceClientUrl}" style="display:inline-block;padding:14px 24px;border-radius:10px;background:#7b1e3a;color:#fff;text-decoration:none;font-weight:700">
+    <p style="text-align:center;margin:24px 0">
+      <a href="${espaceClientUrl}" 
+         style="display:inline-block;padding:14px 24px;border-radius:10px;background:#7b1e3a;color:#fff;text-decoration:none;font-weight:700">
         Accéder à mon espace client 🚀
       </a>
     </p>
 
-    <p>🌐 Découvre aussi notre site : <a href="${SITE_URL}" style="color:#7b1e3a;text-decoration:underline">${SITE_URL.replace(/^https?:\/\//,'')}</a> ✨</p>
-
-    <p>Bonne correction ! 📝</p>
+    <p style="margin:0 0 4px">Bonne correction ! 📝</p>
 
     <hr style="border:none;border-top:1px solid #eee;margin:24px 0" />
 
     <p style="font-size:14px;color:#555">
-      Une question, un doute ? Écris-moi 👉 
-      <a href="mailto:marie.terki@icloud.com" style="color:#7b1e3a">marie.terki@icloud.com</a> 
-      ou sur TikTok <strong>Marie Terki</strong> 📱
+      Pour quelconque doute, tu peux me contacter sur 
+      <a href="mailto:marie.terki@icloud.com" style="color:#7b1e3a">marie.terki@icloud.com</a>
+      ou sur TikTok <strong>Marie Terki</strong> 📱, pour toute question ou autre.
     </p>
 
     <p style="margin-top:12px">L’équipe JurisCorrect ❤️</p>
   </div>
   `;
 
-  const res = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${RESEND_API_KEY}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      from: RESEND_FROM,
-      to: [to],
-      subject,
-      html,
-    }),
+  const info = await transporter.sendMail({
+    from: SMTP_FROM,
+    to,
+    subject,
+    html,
+    replyTo: SMTP_REPLY_TO,
   });
 
-  const text = await res.text();
-  if (!res.ok) {
-    console.log("Resend error:", res.status, text);
-    return { ok: false, status: res.status, text };
-  }
-  console.log("Email confirmation envoyé via Resend →", to);
-  return { ok: true, status: res.status, text };
+  console.log("Email confirmation (client existant) envoyé via SMTP →", to, info.messageId);
+  return { ok: true, messageId: info.messageId };
 }
 
 export async function POST(req: Request) {
@@ -125,20 +124,18 @@ export async function POST(req: Request) {
       if (email) {
         const supabaseAdmin = await getSupabaseAdmin();
 
-        // 1) On tente l'invitation (nouveau client)
+        // 1) Essayer d'inviter (nouveau client)
         const { error } = await supabaseAdmin.auth.admin.inviteUserByEmail(email, {
           redirectTo: `${SITE_URL}/auth/callback`,
         });
 
         if (error) {
-          // Utilisateur existe probablement déjà
+          // 2) S'il existe déjà → email confirmation + lien recovery (backup/log)
           if (error.message.includes("already") || error.message.includes("exists")) {
-            console.log("Utilisateur existe déjà → envoi email confirmation (Resend) + génération lien recovery (backup)");
+            console.log("Utilisateur existe déjà → envoi email confirmation (SMTP) + génération lien recovery (backup).");
 
-            // 2) Envoi email confirmation "friendly" (client existant)
-            await sendPurchaseConfirmationEmail(email);
+            await sendPurchaseConfirmationEmailSMTP(email);
 
-            // 3) Backup: générer un lien recovery (pour les logs/support, pas envoyé au client)
             const { data: linkData, error: linkErr } = await supabaseAdmin.auth.admin.generateLink({
               type: "recovery",
               email,
@@ -153,8 +150,7 @@ export async function POST(req: Request) {
             console.log("Erreur Supabase:", error.message);
           }
         } else {
-          console.log("Invitation envoyée (nouveau client) → Supabase gère l'email d'invitation");
-          // L’email d’invitation (création de mot de passe) part via Supabase (template à personnaliser dans le dashboard)
+          console.log("Invitation envoyée (nouveau client) → email d’invitation géré par Supabase");
         }
       } else {
         console.log("Pas d'email dans la session");
