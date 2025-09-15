@@ -125,7 +125,7 @@ export default function DissertationPage() {
                     <text x="64" y="75" textAnchor="middle" fontFamily="ui-sans-serif, system-ui" fontWeight="800" fontSize="20" fill="#fff">W</text>
                   </svg>
                 </div>
-                <span className="uploader-btn">Téléchargez votre document ici</span>
+                <span className="uploader-btn">Télécharge ton document ici</span>
                 {fichier && <div className="uploader-filename">📄 {fichier.name}</div>}
               </label>
             </div>
