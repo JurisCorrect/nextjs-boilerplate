@@ -19,7 +19,7 @@ export default function Merci2Page() {
   const BRAND2 = 'var(--brand-2)'
   const MUTED  = 'var(--muted)'
 
-  const card: React.CSSProperties = {
+  const card = {
     background:'#fff',
     borderRadius:16,
     padding:'clamp(18px, 2.4vw, 26px)',
@@ -27,7 +27,7 @@ export default function Merci2Page() {
     border:'1px solid rgba(0,0,0,.04)'
   }
 
-  const cta: React.CSSProperties = {
+  const cta = {
     display:'inline-flex',
     alignItems:'center',
     justifyContent:'center',
@@ -44,7 +44,7 @@ export default function Merci2Page() {
     minWidth:220
   }
 
-  const ghost: React.CSSProperties = {
+  const ghost = {
     display:'inline-flex',
     alignItems:'center',
     justifyContent:'center',
@@ -73,7 +73,7 @@ export default function Merci2Page() {
           </p>
 
           <div style={{ ...card, padding:'16px', boxShadow:'none', border:'1px dashed rgba(0,0,0,.08)', marginTop:8 }}>
-            <h3 style={{ color:'#222', fontWeight:900, margin:'0 0 8px' }}>Que se passe-t-il maintenant ?</h3>
+            <h3 style={{ color:'#222', fontWeight:900, margin:'0 0 8px' }}>Que se passe-t-il maintenant&nbsp;?</h3>
             <ul style={{ color:MUTED, margin:'0 0 8px 18px', lineHeight:1.7 }}>
               <li>📬 <strong>N&apos;oublie pas de regarder dans tes courriers indésirables (spam)</strong>.</li>
               <li>
