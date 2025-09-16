@@ -96,6 +96,37 @@ async function sendPurchaseConfirmationEmailSMTP(to: string) {
   return { ok: true, messageId: info.messageId };
 }
 
+/** === AJOUT ===
+ * Déclenche la génération de correction pour une soumission donnée.
+ * On n'échoue jamais le webhook si ça rate : on log seulement.
+ */
+async function triggerCorrectionGeneration(submissionId: string) {
+  try {
+    const base =
+      process.env.NEXT_PUBLIC_BASE_URL?.replace(/\/$/, "") ||
+      (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : SITE_URL);
+
+    const res = await fetch(`${base}/api/corrections/generate`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-internal": "stripe-webhook" },
+      body: JSON.stringify({ submissionId }),
+      // pas de cache
+    });
+
+    if (!res.ok) {
+      const t = await res.text().catch(() => "");
+      console.log("⚠️ Génération correction: HTTP", res.status, t);
+      return { ok: false as const };
+    }
+    const data = await res.json().catch(() => ({}));
+    console.log("✅ Génération correction lancée:", data);
+    return { ok: true as const, data };
+  } catch (e: any) {
+    console.log("⚠️ Génération correction: exception", e?.message || e);
+    return { ok: false as const };
+  }
+}
+
 export async function POST(req: Request) {
   console.log("WEBHOOK APPELÉ");
 
@@ -119,7 +150,17 @@ export async function POST(req: Request) {
 
       const session = event.data.object as Stripe.Checkout.Session;
       const email = session.customer_details?.email;
+      const submissionId = (session.metadata as any)?.submissionId as string | undefined;
+
       console.log("Email trouvé:", email);
+      console.log("submissionId (metadata):", submissionId ?? "—");
+
+      // === AJOUT === lancer la génération si on a la submission
+      if (submissionId) {
+        triggerCorrectionGeneration(submissionId); // fire & forget (on n'attend pas)
+      } else {
+        console.log("⚠️ Aucun submissionId dans session.metadata → pas de génération auto");
+      }
 
       if (email) {
         const supabaseAdmin = await getSupabaseAdmin();
@@ -165,6 +206,7 @@ export async function POST(req: Request) {
     return new Response("Server error", { status: 500 });
   }
 }
+
 export async function GET() {
   return new Response("Method not allowed", { status: 405 });
 }
