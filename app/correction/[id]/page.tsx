@@ -1,6 +1,7 @@
 // app/correction/[id]/page.tsx
 import PaymentPanel from "../PaymentPanel"
 import { createClient } from "@supabase/supabase-js"
+import PaywallStatus from "@/components/PaywallStatus" // ← AJOUT
 
 const supabase = createClient(
   "https://pbefzeeizgwdlkmduflt.supabase.co",
@@ -20,6 +21,7 @@ export default async function CorrectionPage({ params }: Props) {
     .eq("id", theId)
     .single()
 
+  // fallback: si l'URL contient submissionId
   if (error || !data) {
     const bySubmission = await supabase
       .from("corrections")
@@ -34,23 +36,10 @@ export default async function CorrectionPage({ params }: Props) {
     }
   }
 
-  if (error || !data) {
-    return (
-      <main className="page-wrap correction">
-        <p style={{ textAlign: "justify" }}>❌ Erreur : correction introuvable.</p>
-      </main>
-    )
-  }
+  // Détermine le submissionId à passer au composant de polling
+  const submissionId: string = (data as any)?.submission_id || theId
 
-  const result = (data as any).result_json || {}
-  const body: string = result?.normalizedBody || ""
-  const globalComment: string = result?.globalComment || ""
-
-  const len = body.length
-  const part = (r: number) => Math.floor(len * r)
-  const start = body.slice(0, part(0.2))
-  const middle = body.slice(part(0.45), part(0.55))
-
+  // Styles utilitaires existants
   const justify: React.CSSProperties = { whiteSpace: "pre-wrap", textAlign: "justify" }
   const blurBlock: React.CSSProperties = {
     filter: "blur(6px)",
@@ -59,7 +48,6 @@ export default async function CorrectionPage({ params }: Props) {
     position: "relative",
     zIndex: 1
   }
-
   const overlayWrap: React.CSSProperties = {
     position: "absolute",
     inset: 0 as any,
@@ -82,11 +70,49 @@ export default async function CorrectionPage({ params }: Props) {
     border: "1px solid rgba(255,255,255,0.08)"
   }
 
+  // ─────────────────────────────────────────────────────────────────────────────
+  // CAS 1 : la correction n'est PAS encore en base → on affiche une page d'attente
+  // avec le composant PaywallStatus qui poll /api/corrections/status
+  // ─────────────────────────────────────────────────────────────────────────────
+  if (error || !data) {
+    return (
+      <main className="page-wrap correction">
+        <h1 className="page-title">CORRECTION</h1>
+
+        {/* Ici tu peux mettre un "squelette" flouté minimal si tu veux */}
+        <section className="panel">
+          <div className="blur">
+            <p style={justify}>
+              Votre correction est en cours de génération… Un aperçu gratuit des commentaires
+              apparaîtra ci-dessous dès qu’il sera prêt.
+            </p>
+          </div>
+
+          {/* EXTRATS + STATUT + bouton "Voir la correction" quand prêt */}
+          <PaywallStatus submissionId={submissionId} />
+        </section>
+      </main>
+    )
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // CAS 2 : la correction existe → on affiche ton rendu flouté + paywall + extraits
+  // ─────────────────────────────────────────────────────────────────────────────
+  const result = (data as any).result_json || {}
+  const body: string = result?.normalizedBody || ""
+  const globalComment: string = result?.globalComment || ""
+
+  const len = body.length
+  const part = (r: number) => Math.floor(len * r)
+  const start = body.slice(0, part(0.2))
+  const middle = body.slice(part(0.45), part(0.55))
+
   const refId = (data as any).submission_id || (data as any).id || theId
 
   return (
     <main className="page-wrap correction">
       <h1 className="page-title">CORRECTION</h1>
+
       <section className="panel" style={{ position: "relative" }}>
         <p style={justify}>{start}</p>
         <div style={blurBlock}>
@@ -96,22 +122,28 @@ export default async function CorrectionPage({ params }: Props) {
         <div style={blurBlock}>
           <p style={justify}>{body.slice(part(0.55))}</p>
         </div>
+
         <h3>Commentaire global</h3>
         <div style={blurBlock}>
           <p style={justify}>{globalComment}</p>
         </div>
+
+        {/* Paywall overlay */}
         <div style={overlayWrap} aria-hidden>
           <div style={burgundyBox} aria-label="Débloquer la correction">
             <div style={{ fontWeight: 900, marginBottom: 6, letterSpacing: ".3px" }}>
               Débloquer la correction
             </div>
             <div style={{ opacity: 0.95, marginBottom: 12 }}>
-              Accède à l'intégralité de ta copie corrigée.
+              Accède à l&apos;intégralité de ta copie corrigée.
             </div>
             <PaymentPanel refId={refId} />
           </div>
         </div>
       </section>
+
+      {/* EXTRATS GRATUITS + statut en dessous de ton bloc flouté */}
+      <PaywallStatus submissionId={submissionId} />
     </main>
   )
 }
