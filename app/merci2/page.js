@@ -3,9 +3,6 @@ import Link from 'next/link'
 import { useEffect, useState } from 'react'
 
 export default function Merci2Page() {
-  // ⇩⇩⇩ si ta page de lecture est /correction/[id], remplace par "/correction"
-  const PATH_PREFIX = '/corrections'
-
   const [corrLink, setCorrLink] = useState('/correction-complete')
   const [ver, setVer] = useState('')
 
@@ -13,31 +10,28 @@ export default function Merci2Page() {
     async function run() {
       try {
         const q = new URLSearchParams(window.location.search)
-        const directId =
-          q.get('id') || q.get('submissionId') || q.get('correctionId')
-        const sid = q.get('sid') // ← renvoyé par success_url: ?sid={CHECKOUT_SESSION_ID}
+        const directId = q.get('id') || q.get('submissionId') || q.get('correctionId')
+        const sid = q.get('sid') // renvoyé par success_url: ?sid={CHECKOUT_SESSION_ID}
 
-        // 1) si on a déjà un id explicite dans l'URL, on le garde (comportement identique à avant)
+        // 1) si on a déjà un id dans l'URL, on le garde (comportement identique à avant)
         if (directId) {
-          setCorrLink(`${PATH_PREFIX}/${encodeURIComponent(directId)}`)
+          setCorrLink(`/correction/${encodeURIComponent(directId)}`)
         }
-        // 2) sinon, si on a un sid, on essaie de résoudre la correction correspondante
+        // 2) sinon, on essaie de résoudre via l'ID de session Stripe
         else if (sid) {
-          // on poll quelques fois le temps que la génération finisse et que la ligne en base existe
           for (let i = 0; i < 15; i++) {
             try {
               const r = await fetch(`/api/corrections/from-session?sid=${encodeURIComponent(sid)}`, { cache: 'no-store' })
               const data = await r.json()
               if (data?.correctionId && data?.ready) {
-                setCorrLink(`${PATH_PREFIX}/${encodeURIComponent(data.correctionId)}`)
+                setCorrLink(`/correction/${encodeURIComponent(data.correctionId)}`)
                 break
               }
-            } catch { /* noop */ }
+            } catch {}
             await new Promise(res => setTimeout(res, 1500))
           }
-          // si pas résolu, on garde le lien par défaut (ou tu peux pointer /login)
         }
-      } catch { /* noop */ }
+      } catch {}
       setVer(new Date().toLocaleString('fr-FR'))
     }
     run()
@@ -53,7 +47,7 @@ export default function Merci2Page() {
     padding:'clamp(18px, 2.4vw, 26px)',
     boxShadow:'0 10px 30px rgba(0,0,0,.08)',
     border:'1px solid rgba(0,0,0,.04)'
-  } as const
+  }
 
   const cta = {
     display:'inline-flex',
@@ -70,7 +64,7 @@ export default function Merci2Page() {
     boxShadow:'0 12px 30px rgba(123,30,58,.35)',
     cursor:'pointer',
     minWidth:220
-  } as const
+  }
 
   const ghost = {
     display:'inline-flex',
@@ -86,7 +80,7 @@ export default function Merci2Page() {
     border:'1px solid rgba(123,30,58,.25)',
     cursor:'pointer',
     minWidth:220
-  } as const
+  }
 
   return (
     <main style={{ background:'#fff', minHeight:'100vh' }}>
