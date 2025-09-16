@@ -11,18 +11,18 @@ export default async function CorrectionPage({ params }: Props) {
   const theId = params.id
   const supabase = getSupabaseServer()
 
-  // Auth requise
+  // Auth
   const { data: auth } = await supabase.auth.getUser()
   const userId = auth?.user?.id || null
 
-  // 1) Cherche par correction.id
+  // 1) par correction.id
   let { data: corr, error } = await supabase
     .from("corrections")
     .select("id, submission_id, status, result_json, submissions!inner(id, user_id, paid)")
     .eq("id", theId)
     .maybeSingle()
 
-  // 2) Fallback : /correction/[submissionId]
+  // 2) fallback : /correction/[submissionId]
   if ((!corr || error) && theId) {
     const bySubmission = await supabase
       .from("corrections")
@@ -38,7 +38,7 @@ export default async function CorrectionPage({ params }: Props) {
   }
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // CAS 1 : pas encore de correction → écran d’attente centré + spinner + message court
+  // CAS 1 : pas encore de correction → attente centrée + spinner bordeaux visible
   // ─────────────────────────────────────────────────────────────────────────────
   if (!corr) {
     return (
@@ -50,25 +50,25 @@ export default async function CorrectionPage({ params }: Props) {
           style={{
             display: "grid",
             placeItems: "center",
-            minHeight: "40vh",
-            padding: "24px",
+            minHeight: "26vh",           // ↓ moins haut (c'était 40vh)
+            padding: "20px",
             position: "relative",
           }}
         >
           <div style={{ display: "grid", placeItems: "center", gap: 14, textAlign: "center" }}>
-            {/* Spinner */}
+            {/* Spinner bordeaux (visible sur fond blanc) */}
             <div
               aria-label="Chargement en cours"
               style={{
                 width: 32,
                 height: 32,
                 borderRadius: "50%",
-                border: "3px solid rgba(255,255,255,.45)",
-                borderTopColor: "#fff",
+                border: "3px solid rgba(123,30,58,.25)", // bordeaux transparent
+                borderTopColor: "#7b1e3a",               // bordeaux plein
                 animation: "spin 1s linear infinite",
               }}
             />
-            {/* Message */}
+            {/* Message centré */}
             <p
               style={{
                 whiteSpace: "pre-wrap",
@@ -83,7 +83,8 @@ export default async function CorrectionPage({ params }: Props) {
             </p>
           </div>
 
-          <div style={{ width: "100%", marginTop: 20 }}>
+          {/* Zone où PaywallStatus affichera l’aperçu dès dispo */}
+          <div style={{ width: "100%", marginTop: 18 }}>
             <PaywallStatus submissionId={theId} />
           </div>
 
@@ -99,7 +100,7 @@ export default async function CorrectionPage({ params }: Props) {
     )
   }
 
-  // Sécurité : propriétaire uniquement
+  // Sécurité
   const ownerId = (corr as any)?.submissions?.user_id
   if (!userId || ownerId !== userId) {
     return (
