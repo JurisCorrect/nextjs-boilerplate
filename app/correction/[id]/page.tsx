@@ -11,18 +11,18 @@ export default async function CorrectionPage({ params }: Props) {
   const theId = params.id
   const supabase = getSupabaseServer()
 
-  // Auth requise (sinon même rendu qu’avant mais on bloque l’accès aux données)
+  // Auth requise
   const { data: auth } = await supabase.auth.getUser()
   const userId = auth?.user?.id || null
 
-  // 1) On essaie d'abord par correction.id
+  // 1) Cherche par correction.id
   let { data: corr, error } = await supabase
     .from("corrections")
     .select("id, submission_id, status, result_json, submissions!inner(id, user_id, paid)")
     .eq("id", theId)
     .maybeSingle()
 
-  // 2) Fallback : si l'URL est /correction/[submissionId]
+  // 2) Fallback : /correction/[submissionId]
   if ((!corr || error) && theId) {
     const bySubmission = await supabase
       .from("corrections")
@@ -37,25 +37,69 @@ export default async function CorrectionPage({ params }: Props) {
     }
   }
 
-  // Si rien trouvé → page d’attente (avec polling PaywallStatus)
+  // ─────────────────────────────────────────────────────────────────────────────
+  // CAS 1 : pas encore de correction → écran d’attente centré + spinner + message court
+  // ─────────────────────────────────────────────────────────────────────────────
   if (!corr) {
     return (
       <main className="page-wrap correction">
         <h1 className="page-title">CORRECTION</h1>
-        <section className="panel">
-          <div className="blur">
-            <p style={{ whiteSpace: "pre-wrap", textAlign: "justify" }}>
-              Votre correction est en cours de génération… Un aperçu gratuit des commentaires
-              apparaîtra ci-dessous dès qu’il sera prêt.
+
+        <section
+          className="panel"
+          style={{
+            display: "grid",
+            placeItems: "center",
+            minHeight: "40vh",
+            padding: "24px",
+            position: "relative",
+          }}
+        >
+          <div style={{ display: "grid", placeItems: "center", gap: 14, textAlign: "center" }}>
+            {/* Spinner */}
+            <div
+              aria-label="Chargement en cours"
+              style={{
+                width: 32,
+                height: 32,
+                borderRadius: "50%",
+                border: "3px solid rgba(255,255,255,.45)",
+                borderTopColor: "#fff",
+                animation: "spin 1s linear infinite",
+              }}
+            />
+            {/* Message */}
+            <p
+              style={{
+                whiteSpace: "pre-wrap",
+                textAlign: "center",
+                margin: 0,
+                lineHeight: 1.5,
+                fontSize: "clamp(18px, 2vw, 22px)",
+              }}
+            >
+              Votre correction est en cours de génération…{" "}
+              Un aperçu apparaîtra ci-dessous dès qu’il sera prêt.
             </p>
           </div>
-          <PaywallStatus submissionId={theId} />
+
+          <div style={{ width: "100%", marginTop: 20 }}>
+            <PaywallStatus submissionId={theId} />
+          </div>
+
+          {/* keyframes du spinner */}
+          <style>{`
+            @keyframes spin { 
+              from { transform: rotate(0deg); } 
+              to { transform: rotate(360deg); } 
+            }
+          `}</style>
         </section>
       </main>
     )
   }
 
-  // Sécurité : seul le propriétaire voit la correction
+  // Sécurité : propriétaire uniquement
   const ownerId = (corr as any)?.submissions?.user_id
   if (!userId || ownerId !== userId) {
     return (
@@ -74,19 +118,14 @@ export default async function CorrectionPage({ params }: Props) {
 
   // Champs possibles selon ta génération
   const result = (corr as any)?.result_json || {}
-  const body: string =
-    result?.normalizedBody ??
-    result?.body ??
-    ""
-  const globalComment: string =
-    result?.globalComment ??
-    result?.global_comment ??
-    ""
+  const body: string = result?.normalizedBody ?? result?.body ?? ""
+  const globalComment: string = result?.globalComment ?? result?.global_comment ?? ""
 
   const justify: React.CSSProperties = { whiteSpace: "pre-wrap", textAlign: "justify" }
-  const blurBlock: React.CSSProperties = paid && isReady
-    ? { filter: "none" }
-    : { filter: "blur(6px)", pointerEvents: "none", userSelect: "none", position: "relative", zIndex: 1 }
+  const blurBlock: React.CSSProperties =
+    paid && isReady
+      ? { filter: "none" }
+      : { filter: "blur(6px)", pointerEvents: "none", userSelect: "none", position: "relative", zIndex: 1 }
   const overlayWrap: React.CSSProperties = {
     position: "absolute",
     inset: 0 as any,
@@ -94,7 +133,7 @@ export default async function CorrectionPage({ params }: Props) {
     alignItems: "center",
     justifyContent: "center",
     pointerEvents: "none",
-    zIndex: 30
+    zIndex: 30,
   }
   const burgundyBox: React.CSSProperties = {
     background: "#7b1e3a",
@@ -106,11 +145,10 @@ export default async function CorrectionPage({ params }: Props) {
     width: "92%",
     textAlign: "center",
     pointerEvents: "auto",
-    border: "1px solid rgba(255,255,255,0.08)"
+    border: "1px solid rgba(255,255,255,0.08)",
   }
 
-  // Si pas encore prêt, on garde le même comportement que chez toi : rendu flouté + PaywallStatus en dessous.
-  // Si payé + prêt → on défloute (overlay masqué automatiquement).
+  // Rendu
   const len = body.length
   const part = (r: number) => Math.floor(len * r)
   const start = body.slice(0, part(0.2))
@@ -151,7 +189,7 @@ export default async function CorrectionPage({ params }: Props) {
         </div>
       </section>
 
-      {/* Extraits gratuits + statut (inchangé), utile tant que ce n’est pas prêt */}
+      {/* Extraits + statut tant que non payé ou pas prêt */}
       {!paid || !isReady ? <PaywallStatus submissionId={submissionId} /> : null}
     </main>
   )
