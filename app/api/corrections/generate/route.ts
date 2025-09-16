@@ -21,8 +21,6 @@ const FireAndForgetPayload = z.object({
   submissionId: z.string().min(1),
 });
 
-const Payload = z.union([DirectPayload, FireAndForgetPayload]);
-
 /** ---- Supabase admin (service-role) pour recharger la soumission ----
  *  Vars requises dans ton projet:
  *  - NEXT_PUBLIC_SUPABASE_URL
@@ -67,7 +65,7 @@ async function loadSubmissionFromDB(submissionId: string) {
 }
 
 export async function POST(req: NextRequest) {
-  // 1) Lire & valider
+  // 1) Lire le JSON brut
   let raw: unknown;
   try {
     raw = await req.json();
@@ -75,40 +73,41 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "JSON invalide" }, { status: 400 });
   }
 
-  const parsed = Payload.safeParse(raw);
-  if (!parsed.success) {
-    return NextResponse.json(
-      { error: "Payload invalide", details: parsed.error.flatten() },
-      { status: 400 }
-    );
-  }
+  // 2) Tenter d'abord le mode Fire & Forget (uniquement { submissionId })
+  const ff = FireAndForgetPayload.safeParse(raw);
 
-  // 2) Normaliser les données d'entrée
+  // Variables normalisées pour l'appel modèle
   let submissionId: string | undefined;
   let exerciseType: "dissertation" | "commentaire" | "cas" | "fiche";
   let subject: string;
   let course: string;
   let text: string;
 
-  if ("submissionId" in parsed.data && Object.keys(parsed.data).length === 1) {
-    // Mode fire & forget : on recharge depuis la DB
-    const s = await loadSubmissionFromDB(parsed.data.submissionId);
+  if (ff.success) {
+    // ---- Branche Fire & Forget : on recharge en DB ----
+    const s = await loadSubmissionFromDB(ff.data.submissionId);
     submissionId = s.submissionId;
     exerciseType = s.exerciseType;
     subject = s.subject;
     course = s.course;
     text = s.text;
   } else {
-    // Mode direct : tout est déjà fourni
-    const d = parsed.data as z.infer<typeof DirectPayload>;
-    submissionId = d.submissionId;
-    exerciseType = d.exerciseType;
-    subject = d.subject;
-    course = d.course;
-    text = d.text;
+    // ---- Sinon, on est en mode Direct (toutes les données dans le body) ----
+    const direct = DirectPayload.safeParse(raw);
+    if (!direct.success) {
+      return NextResponse.json(
+        { error: "Payload invalide", details: direct.error.flatten() },
+        { status: 400 }
+      );
+    }
+    submissionId = direct.data.submissionId;
+    exerciseType = direct.data.exerciseType;
+    subject = direct.data.subject;
+    course = direct.data.course;
+    text = direct.data.text;
   }
 
-  // 3) Clé OpenAI check
+  // 3) Clé OpenAI
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) {
     return NextResponse.json(
@@ -121,7 +120,7 @@ export async function POST(req: NextRequest) {
   }
   const openai = new OpenAI({ apiKey });
 
-  // 4) Prompt (tu pourras l’enrichir plus tard)
+  // 4) Prompt
   const system = [
     "Tu es JurisCorrect, correcteur juridique.",
     "Tu ne fais jamais le devoir, tu corriges et expliques la méthode.",
@@ -159,7 +158,6 @@ export async function POST(req: NextRequest) {
     const result = JSON.parse(content);
 
     // 6) (Optionnel) Sauvegarder la correction en base
-    //    Adapte le nom de table/colonnes si tu stockes le résultat.
     // try {
     //   const sb = supabaseAdmin();
     //   if (sb) {
