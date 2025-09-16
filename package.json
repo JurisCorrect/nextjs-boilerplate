@@ -2,6 +2,9 @@
   "name": "juriscorrect",
   "version": "0.1.1",
   "private": true,
+  "engines": {
+    "node": ">=18.17"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -23,7 +26,8 @@
     "@types/react-dom": "^18",
     "eslint": "^8",
     "eslint-config-next": "14.2.5",
-    "nodemailer": "^6.9.13"
+    "nodemailer": "^6.9.13",
+    "openai": "^4.56.0"
   },
   "devDependencies": {
     "@types/nodemailer": "^6.4.15"
