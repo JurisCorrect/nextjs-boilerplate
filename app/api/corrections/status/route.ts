@@ -1,82 +1,72 @@
+// app/api/corrections/status/route.ts
 import { NextResponse } from "next/server";
-import { z } from "zod";
-import { getSupabaseServer } from "@/lib/supabase/server"; // ← ALIAS propre
-import { headers } from "next/headers"; // ← pour construire l’URL absolue
+import { getSupabaseServer } from "@/lib/supabase/server";
 
-// Optionnel mais utile sur Vercel
-export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const SubmissionSchema = z.object({
-  subject: z.string().min(3, "Sujet trop court"),
-  course: z.string().min(2, "Matière requise"),
-  content: z.string().min(30, "Copie trop courte"),
-});
+// ➜ mets à true si tu veux strictement vérifier le propriétaire (sinon on renvoie juste un aperçu)
+const ENFORCE_OWNER = false;
 
-export async function POST(req: Request) {
+function previewFromResult(r: any) {
+  const inline = Array.isArray(r?.inline) ? r.inline.slice(0, 3) : [];
+  const global_intro = (r?.globalComment ?? r?.global_comment ?? "").slice(0, 500);
+  const score = r?.score ?? null;
+  return { inline, global_intro, score };
+}
+
+export async function GET(req: Request) {
   try {
-    const body = await req.json();
-    const parsed = SubmissionSchema.safeParse(body);
-    if (!parsed.success) {
-      return NextResponse.json(
-        { ok: false, error: "INVALID_PAYLOAD", details: parsed.error.flatten() },
-        { status: 400 }
-      );
+    const { searchParams } = new URL(req.url);
+    const submissionId = searchParams.get("submissionId");
+    const correctionId  = searchParams.get("correctionId");
+
+    if (!submissionId && !correctionId) {
+      return NextResponse.json({ error: "missing id" }, { status: 400 });
     }
 
     const supabase = getSupabaseServer();
     const { data: auth } = await supabase.auth.getUser();
-    const userId = auth.user?.id;
-    if (!userId) {
-      return NextResponse.json({ ok: false, error: "UNAUTHENTICATED" }, { status: 401 });
+    const userId = auth?.user?.id || null;
+
+    // 1) lookup par correctionId si fourni
+    if (correctionId) {
+      const { data: row } = await supabase
+        .from("corrections")
+        .select("id,status,result_json,submission_id,submissions!inner(id,user_id)")
+        .eq("id", correctionId)
+        .maybeSingle();
+
+      if (!row) return NextResponse.json({ status: "pending" });
+
+      if (ENFORCE_OWNER && row.submissions?.user_id !== userId) {
+        return NextResponse.json({ error: "forbidden" }, { status: 403 });
+      }
+
+      const res: any = { status: row.status ?? "running", correctionId: row.id };
+      if (row.result_json) res.preview = previewFromResult(row.result_json);
+      return NextResponse.json(res);
     }
 
-    const { subject, course, content } = parsed.data;
+    // 2) lookup par submissionId
+    const { data: row } = await supabase
+      .from("corrections")
+      .select("id,status,result_json,submission_id,submissions!inner(id,user_id)")
+      .eq("submission_id", submissionId!)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
 
-    // 1) Insertion dans public.submissions
-    const { data, error } = await supabase
-      .from("submissions")
-      .insert([
-        {
-          user_id: userId,
-          type: "dissertation",
-          subject,
-          course,
-          content,
-          status: "received",
-        },
-      ])
-      .select("id")
-      .single();
+    if (!row) return NextResponse.json({ status: "pending" });
 
-    if (error || !data) {
-      console.error("Insert error:", error);
-      return NextResponse.json({ ok: false, error: "DB_INSERT_FAILED" }, { status: 500 });
+    if (ENFORCE_OWNER && row.submissions?.user_id !== userId) {
+      return NextResponse.json({ error: "forbidden" }, { status: 403 });
     }
 
-    const submissionId = data.id as string;
-
-    // 2) FIRE & FORGET : lancer la génération côté serveur sans bloquer la réponse
-    try {
-      const host = headers().get("host")!;
-      const isLocal = host?.startsWith("localhost");
-      const url = `http${isLocal ? "" : "s"}://${host}/api/corrections/generate`;
-
-      // ⚠️ On n'attend pas la promesse : pas de await ici
-      fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ submissionId }),
-      }).catch(() => {});
-    } catch (e) {
-      // On log si l'envoi "fire & forget" plante, mais on ne bloque pas l'UI
-      console.error("Fire & forget generate error:", e);
-    }
-
-    // 3) Réponse immédiate à l'UI
-    return NextResponse.json({ ok: true, submissionId }, { status: 201 });
-  } catch (e) {
-    console.error(e);
-    return NextResponse.json({ ok: false, error: "SERVER_ERROR" }, { status: 500 });
+    const res: any = { status: row.status ?? "running", correctionId: row.id };
+    if (row.result_json) res.preview = previewFromResult(row.result_json);
+    return NextResponse.json(res);
+  } catch (e: any) {
+    console.log("status exception:", e?.message || e);
+    return NextResponse.json({ status: "pending" });
   }
 }
