@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { getSupabaseServer } from "@/lib/supabase/server"; // ← ALIAS propre
+import { headers } from "next/headers"; // ← pour construire l’URL absolue
 
 // Optionnel mais utile sur Vercel
 export const runtime = "nodejs";
@@ -32,7 +33,7 @@ export async function POST(req: Request) {
 
     const { subject, course, content } = parsed.data;
 
-    // Insertion dans public.submissions
+    // 1) Insertion dans public.submissions
     const { data, error } = await supabase
       .from("submissions")
       .insert([
@@ -48,12 +49,32 @@ export async function POST(req: Request) {
       .select("id")
       .single();
 
-    if (error) {
+    if (error || !data) {
       console.error("Insert error:", error);
       return NextResponse.json({ ok: false, error: "DB_INSERT_FAILED" }, { status: 500 });
     }
 
-    return NextResponse.json({ ok: true, submissionId: data.id }, { status: 201 });
+    const submissionId = data.id as string;
+
+    // 2) FIRE & FORGET : lancer la génération côté serveur sans bloquer la réponse
+    try {
+      const host = headers().get("host")!;
+      const isLocal = host?.startsWith("localhost");
+      const url = `http${isLocal ? "" : "s"}://${host}/api/corrections/generate`;
+
+      // ⚠️ On n'attend pas la promesse : pas de await ici
+      fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ submissionId }),
+      }).catch(() => {});
+    } catch (e) {
+      // On log si l'envoi "fire & forget" plante, mais on ne bloque pas l'UI
+      console.error("Fire & forget generate error:", e);
+    }
+
+    // 3) Réponse immédiate à l'UI
+    return NextResponse.json({ ok: true, submissionId }, { status: 201 });
   } catch (e) {
     console.error(e);
     return NextResponse.json({ ok: false, error: "SERVER_ERROR" }, { status: 500 });
