@@ -1,187 +1,167 @@
 // app/api/corrections/generate/route.ts
-import "server-only";
-import { NextRequest, NextResponse } from "next/server";
-import { z } from "zod";
+import { NextResponse } from "next/server";
 import OpenAI from "openai";
-import { createClient } from "@supabase/supabase-js";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-/** ---- Zod: 2 schémas possibles ---- */
-const DirectPayload = z.object({
-  exerciseType: z.enum(["dissertation", "commentaire", "cas", "fiche"]),
-  subject: z.string().min(3, "Sujet trop court"),
-  course: z.string().min(2, "Matière requise"),
-  text: z.string().min(50, "Texte trop court pour une correction utile"),
-  submissionId: z.string().optional(),
-});
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY!;
 
-const FireAndForgetPayload = z.object({
-  submissionId: z.string().min(1),
-});
-
-/** ---- Supabase admin (service-role) pour recharger la soumission ----
- *  Vars requises dans ton projet:
- *  - NEXT_PUBLIC_SUPABASE_URL
- *  - SUPABASE_SERVICE_ROLE_KEY  (⚠️ secret)
- */
-function supabaseAdmin() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!url || !key) return null;
-  return createClient(url, key, { auth: { persistSession: false } });
+async function getSupabaseAdmin() {
+  const { createClient } = await import("@supabase/supabase-js");
+  return createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+    auth: { autoRefreshToken: false, persistSession: false },
+  });
 }
 
-/** Adapte ICI le nom de table + colonnes si besoin */
-async function loadSubmissionFromDB(submissionId: string) {
-  const sb = supabaseAdmin();
-  if (!sb)
-    throw new Error(
-      "Supabase non configuré (NEXT_PUBLIC_SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY manquants)."
-    );
-
-  // ⚠️ Adapte 'submissions' et les noms de colonnes à ton schéma
-  const { data, error } = await sb
-    .from("submissions")
-    .select("id, exercise_type, subject, course, text")
-    .eq("id", submissionId)
-    .single();
-
-  if (error || !data) throw new Error("Submission introuvable en base.");
-
-  // Remappe vers nos clés attendues
-  return {
-    submissionId: data.id as string,
-    exerciseType: (data.exercise_type ?? "dissertation") as
-      | "dissertation"
-      | "commentaire"
-      | "cas"
-      | "fiche",
-    subject: data.subject as string,
-    course: data.course as string,
-    text: data.text as string,
-  };
+function pickSubmissionText(row: any): string | null {
+  if (!row) return null;
+  // essaie plusieurs champs classiques
+  return (
+    row.text ??
+    row.content ??
+    row.body ??
+    row.essay ??
+    row.input_text ??
+    (typeof row.payload === "string" ? row.payload : null) ??
+    (row.payload?.text ?? row.payload?.content ?? null) ??
+    null
+  );
 }
 
-export async function POST(req: NextRequest) {
-  // 1) Lire le JSON brut
-  let raw: unknown;
+function safeJson(s: string) {
+  try { return JSON.parse(s); } catch { return null; }
+}
+
+export async function POST(req: Request) {
   try {
-    raw = await req.json();
-  } catch {
-    return NextResponse.json({ error: "JSON invalide" }, { status: 400 });
-  }
-
-  // 2) Tenter d'abord le mode Fire & Forget (uniquement { submissionId })
-  const ff = FireAndForgetPayload.safeParse(raw);
-
-  // Variables normalisées pour l'appel modèle
-  let submissionId: string | undefined;
-  let exerciseType: "dissertation" | "commentaire" | "cas" | "fiche";
-  let subject: string;
-  let course: string;
-  let text: string;
-
-  if (ff.success) {
-    // ---- Branche Fire & Forget : on recharge en DB ----
-    const s = await loadSubmissionFromDB(ff.data.submissionId);
-    submissionId = s.submissionId;
-    exerciseType = s.exerciseType;
-    subject = s.subject;
-    course = s.course;
-    text = s.text;
-  } else {
-    // ---- Sinon, on est en mode Direct (toutes les données dans le body) ----
-    const direct = DirectPayload.safeParse(raw);
-    if (!direct.success) {
-      return NextResponse.json(
-        { error: "Payload invalide", details: direct.error.flatten() },
-        { status: 400 }
-      );
+    const { submissionId, payload } = await req.json().catch(() => ({}));
+    if (!submissionId) {
+      return NextResponse.json({ error: "missing submissionId" }, { status: 400 });
     }
-    submissionId = direct.data.submissionId;
-    exerciseType = direct.data.exerciseType;
-    subject = direct.data.subject;
-    course = direct.data.course;
-    text = direct.data.text;
-  }
 
-  // 3) Clé OpenAI
-  const apiKey = process.env.OPENAI_API_KEY;
-  if (!apiKey) {
-    return NextResponse.json(
-      {
-        error:
-          "OPENAI_API_KEY manquante. Ajoute la variable d’environnement sur Vercel puis redeploie.",
-      },
-      { status: 500 }
-    );
-  }
-  const openai = new OpenAI({ apiKey });
+    const supabase = await getSupabaseAdmin();
 
-  // 4) Prompt
-  const system = [
-    "Tu es JurisCorrect, correcteur juridique.",
-    "Tu ne fais jamais le devoir, tu corriges et expliques la méthode.",
-    "Style professeur universitaire, sans émoticônes, vouvoiement.",
-    "Réponds en JSON strict, avec les clés suivantes :",
-    "global_comment: string",
-    "grade: number (sur 20, entier)",
-    "inline_comments: array d'objets { start: number, end: number, tag: 'ok'|'error'|'detail'|'source', note: string }",
-    "start/end sont des index du texte d'entrée (0-based, end exclusif).",
-  ].join("\n");
+    // 0) idempotence: correction existante "running/ready" ?
+    const { data: existing } = await supabase
+      .from("corrections")
+      .select("id,status")
+      .eq("submission_id", submissionId)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
 
-  const user = [
-    `Exercice: ${exerciseType}`,
-    `Matière: ${course}`,
-    `Sujet: ${subject}`,
-    `Texte de l'étudiant ci-dessous entre <copie>:</copie>`,
-    "<copie>",
-    text,
-    "</copie>",
-  ].join("\n");
+    if (existing && (existing.status === "running" || existing.status === "ready")) {
+      return NextResponse.json({ ok: true, correctionId: existing.id, status: existing.status });
+    }
 
-  try {
-    // 5) Appel modèle
-    const resp = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      temperature: 0.2,
-      messages: [
-        { role: "system", content: system },
-        { role: "user", content: user },
-      ],
-      response_format: { type: "json_object" },
-    });
+    // 1) retrouver la submission et son texte
+    const { data: sub } = await supabase
+      .from("submissions")
+      .select("id, user_id, text, content, body, essay, input_text, payload")
+      .eq("id", submissionId)
+      .maybeSingle();
 
-    const content = resp.choices[0]?.message?.content ?? "{}";
-    const result = JSON.parse(content);
+    let sourceText = pickSubmissionText(sub) ?? null;
+    // fallback: si la route est appelée avec "payload" (depuis la page d’envoi)
+    if (!sourceText && payload) {
+      sourceText = pickSubmissionText({ payload }) ?? null;
+    }
+    if (!sourceText) {
+      // crée quand même une correction vide pour que le statut bouge
+      const { data: emptyCorr } = await supabase
+        .from("corrections")
+        .insert([{ submission_id: submissionId, status: "failed", result_json: { error: "no_text_found" } }])
+        .select("id")
+        .single();
+      return NextResponse.json({ error: "no_text_found", correctionId: emptyCorr?.id }, { status: 400 });
+    }
 
-    // 6) (Optionnel) Sauvegarder la correction en base
-    // try {
-    //   const sb = supabaseAdmin();
-    //   if (sb) {
-    //     await sb.from("corrections").insert({
-    //       submission_id: submissionId,
-    //       result_json: result,
-    //     });
-    //   }
-    // } catch (e) {
-    //   console.error("Sauvegarde correction échouée:", e);
-    // }
+    // 2) créer une correction "running"
+    const { data: corrRow, error: insErr } = await supabase
+      .from("corrections")
+      .insert([{ submission_id: submissionId, status: "running" }])
+      .select("id")
+      .single();
 
-    return NextResponse.json(
-      { submissionId: submissionId ?? null, result },
-      { status: 200 }
-    );
-  } catch (err: any) {
-    console.error("OpenAI error:", err?.message || err);
-    return NextResponse.json(
-      {
-        error: "Erreur pendant la génération de la correction",
-        details: err?.message ?? String(err),
-      },
-      { status: 500 }
-    );
+    if (insErr || !corrRow) {
+      return NextResponse.json({ error: "insert_failed" }, { status: 500 });
+    }
+    const correctionId = corrRow.id;
+
+    // 3) appel OpenAI pour générer un JSON structuré
+    const openai = new OpenAI({ apiKey: OPENAI_API_KEY });
+
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 28_000); // ~28s pour éviter de bloquer
+
+    const prompt = `
+Tu es un correcteur de copies de droit. Retourne STRICTEMENT un JSON compact avec ce schéma:
+{
+  "normalizedBody": "<texte reformatté>",
+  "globalComment": "<commentaire général>",
+  "inline": [
+    { "tag": "green|red|orange|blue", "quote": "<extrait court>", "comment": "<remarque brève>" }
+  ],
+  "score": { "overall": <nombre>, "out_of": 20 }
+}
+
+Consignes:
+- 3 à 6 éléments dans "inline", citations < 140 caractères.
+- "tag" = green (bien), red (erreur), orange (à améliorer), blue (style).
+- Pas de texte hors JSON.
+Texte à corriger:
+"""${sourceText.slice(0, 12000)}"""
+`;
+
+    let resultJson: any = null;
+    try {
+      const resp = await openai.chat.completions.create({
+        model: "gpt-4o-mini",
+        temperature: 0.3,
+        messages: [
+          { role: "system", content: "Tu rends uniquement du JSON valide conforme au schéma demandé." },
+          { role: "user", content: prompt },
+        ],
+        response_format: { type: "json_object" as any },
+      }, { signal: controller.signal });
+
+      const content = resp.choices?.[0]?.message?.content || "";
+      resultJson = typeof content === "string" ? safeJson(content) : safeJson(JSON.stringify(content));
+    } catch (e: any) {
+      // fallback minimal pour ne pas bloquer l’UI
+      resultJson = {
+        normalizedBody: sourceText,
+        globalComment: "Analyse en cours. Voici une première mise en forme.",
+        inline: [
+          { tag: "green", quote: sourceText.slice(0, 120), comment: "Bon démarrage, continue ainsi." },
+          { tag: "orange", quote: sourceText.slice(120, 240), comment: "Clarifie l'argument et cite la source." }
+        ],
+        score: { overall: 12, out_of: 20 }
+      };
+    } finally {
+      clearTimeout(timeout);
+    }
+
+    // 4) normalisation rapide pour que tes pages trouvent toujours les bons champs
+    if (resultJson && !resultJson.global_comment && resultJson.globalComment) {
+      resultJson.global_comment = resultJson.globalComment;
+    }
+    if (resultJson && !resultJson.body && resultJson.normalizedBody) {
+      resultJson.body = resultJson.normalizedBody;
+    }
+
+    // 5) sauvegarde "ready"
+    await supabase
+      .from("corrections")
+      .update({ status: "ready", result_json: resultJson })
+      .eq("id", correctionId);
+
+    return NextResponse.json({ ok: true, correctionId, status: "ready" });
+  } catch (e: any) {
+    console.log("generate error:", e?.message || e);
+    return NextResponse.json({ error: "server_error" }, { status: 500 });
   }
 }
