@@ -4,7 +4,7 @@ import { getSupabaseServer } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 
-// ➜ mets à true si tu veux strictement vérifier le propriétaire (sinon on renvoie juste un aperçu)
+// Active le contrôle strict de propriété si tu veux bloquer les non-propriétaires
 const ENFORCE_OWNER = false;
 
 function previewFromResult(r: any) {
@@ -12,6 +12,13 @@ function previewFromResult(r: any) {
   const global_intro = (r?.globalComment ?? r?.global_comment ?? "").slice(0, 500);
   const score = r?.score ?? null;
   return { inline, global_intro, score };
+}
+
+// Helper : récupère l'user_id quelle que soit la forme renvoyée par Supabase
+function getOwnerId(submissions: any): string | null {
+  if (!submissions) return null;
+  if (Array.isArray(submissions)) return submissions[0]?.user_id ?? null;
+  return submissions.user_id ?? null;
 }
 
 export async function GET(req: Request) {
@@ -28,7 +35,7 @@ export async function GET(req: Request) {
     const { data: auth } = await supabase.auth.getUser();
     const userId = auth?.user?.id || null;
 
-    // 1) lookup par correctionId si fourni
+    // ── Lookup via correctionId
     if (correctionId) {
       const { data: row } = await supabase
         .from("corrections")
@@ -38,16 +45,17 @@ export async function GET(req: Request) {
 
       if (!row) return NextResponse.json({ status: "pending" });
 
-      if (ENFORCE_OWNER && row.submissions?.user_id !== userId) {
+      const ownerId = getOwnerId((row as any).submissions);
+      if (ENFORCE_OWNER && ownerId && userId && ownerId !== userId) {
         return NextResponse.json({ error: "forbidden" }, { status: 403 });
       }
 
       const res: any = { status: row.status ?? "running", correctionId: row.id };
-      if (row.result_json) res.preview = previewFromResult(row.result_json);
+      if ((row as any).result_json) res.preview = previewFromResult((row as any).result_json);
       return NextResponse.json(res);
     }
 
-    // 2) lookup par submissionId
+    // ── Lookup via submissionId
     const { data: row } = await supabase
       .from("corrections")
       .select("id,status,result_json,submission_id,submissions!inner(id,user_id)")
@@ -58,12 +66,13 @@ export async function GET(req: Request) {
 
     if (!row) return NextResponse.json({ status: "pending" });
 
-    if (ENFORCE_OWNER && row.submissions?.user_id !== userId) {
+    const ownerId = getOwnerId((row as any).submissions);
+    if (ENFORCE_OWNER && ownerId && userId && ownerId !== userId) {
       return NextResponse.json({ error: "forbidden" }, { status: 403 });
     }
 
     const res: any = { status: row.status ?? "running", correctionId: row.id };
-    if (row.result_json) res.preview = previewFromResult(row.result_json);
+    if ((row as any).result_json) res.preview = previewFromResult((row as any).result_json);
     return NextResponse.json(res);
   } catch (e: any) {
     console.log("status exception:", e?.message || e);
