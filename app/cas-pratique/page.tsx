@@ -11,63 +11,73 @@ export default function CasPratiquePage() {
 
   const handleFileSelect = (file: File | null) => {
     if (!file) return
-    if (!file.name.toLowerCase().endsWith(".docx")) { setErreur("Merci de déposer un fichier .docx."); return }
-    setErreur(""); setFichier(file)
+    if (!file.name.toLowerCase().endsWith(".docx")) {
+      setErreur("Merci de déposer un fichier .docx.")
+      return
+    }
+    setErreur("")
+    setFichier(file)
   }
   const handleDragOver = (e: React.DragEvent) => { e.preventDefault(); setIsDragging(true) }
   const handleDragLeave = (e: React.DragEvent) => { e.preventDefault(); setIsDragging(false) }
-  const handleDrop = (e: React.DragEvent) => { e.preventDefault(); setIsDragging(false); handleFileSelect(e.dataTransfer.files?.[0] ?? null) }
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault()
+    setIsDragging(false)
+    handleFileSelect(e.dataTransfer.files?.[0] ?? null)
+  }
+
+  async function extractDocxText(file: File): Promise<string> {
+    try {
+      const mammoth = await import("mammoth/mammoth.browser")
+      const arrayBuffer = await file.arrayBuffer()
+      const { value } = await mammoth.extractRawText({ arrayBuffer })
+      return value || ""
+    } catch {
+      // fallback: pas de blocage si mammoth échoue
+      return ""
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!sujet.trim()) { setErreur("Merci d'indiquer l'énoncé du cas pratique."); setResultat(""); return }
-    if (!fichier)      { setErreur("Merci de verser le document Word (.docx)."); setResultat(""); return }
+    setErreur(""); setResultat("")
 
-    setErreur(""); setResultat(""); setIsLoading(true)
+    if (!sujet.trim()) { setErreur("Merci d'indiquer l'énoncé du cas pratique."); return }
+    if (!fichier)      { setErreur("Merci de verser le document Word (.docx)."); return }
+
+    setIsLoading(true)
     try {
-      const toBase64 = (file: File) => new Promise<string>((resolve, reject) => {
-        const r = new FileReader(); r.onload = () => { const s = String(r.result || ""); resolve(s.split(",")[1] || "") }; r.onerror = reject; r.readAsDataURL(file)
-      })
-      const base64Docx = await toBase64(fichier)
+      const docText = await extractDocxText(fichier)
+      const joinedText =
+        `ÉNONCÉ :\n${sujet}\n\n` +
+        `COPIE (.docx extrait) :\n${docText || "(extraction indisponible)"}\n`
 
-      // CHANGEMENT ICI : appel de la bonne route
       const res = await fetch("/api/submissions/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          // Format compatible avec votre route submissions/create
-          text: `ÉNONCÉ: ${sujet}\n\nDOCUMENT: ${fichier.name}`,
+          // Ton backend lit surtout payload.text pour la génération
+          text: joinedText,
           payload: {
-            text: `ÉNONCÉ: ${sujet}\n\nDOCUMENT: ${fichier.name}`,
+            text: joinedText,
             exercise_kind: "cas-pratique",
+            matiere: "",
             sujet,
-            base64Docx,
-            filename: fichier.name,
-          }
+            filename: fichier.name, // ta route create l'utilise pour remplir "copie"
+          },
         }),
       })
-      
+
       const data = await res.json()
-      if (!res.ok) { 
-        setIsLoading(false); 
-        setErreur(data.error || "Erreur serveur"); 
-        return 
+      if (!res.ok || !data?.submissionId) {
+        throw new Error(data?.error || "Erreur serveur")
       }
-      
-      // La route submissions/create renvoie { submissionId }
-      const submissionId = data?.submissionId
-      if (!submissionId) { 
-        setIsLoading(false); 
-        setErreur("Réponse serveur invalide : ID de soumission manquant."); 
-        return 
-      }
-      
-      // Redirection vers la page de correction
-      window.location.href = `/correction/${encodeURIComponent(submissionId)}`
-      
+
+      // ➜ redirection directe vers la page correction (spinner puis aperçu)
+      window.location.href = `/correction/${encodeURIComponent(data.submissionId)}`
     } catch (err: any) {
-      setIsLoading(false); 
-      setErreur("Erreur détaillée: " + (err?.message || String(err)))
+      setErreur(err?.message || "Erreur paiement")
+      setIsLoading(false)
     }
   }
 
@@ -93,10 +103,20 @@ export default function CasPratiquePage() {
           <div className="field">
             <label>Déposer le document Word (.docx)</label>
             <div className="uploader">
-              <input id="docx-cp" className="uploader-input" type="file" accept=".docx"
-                     onChange={(e) => handleFileSelect(e.target.files?.[0] ?? null)} />
-              <label htmlFor="docx-cp" className={`uploader-box ${isDragging ? "is-dragging" : ""}`}
-                     onDragOver={handleDragOver} onDragLeave={handleDragLeave} onDrop={handleDrop}>
+              <input
+                id="docx-cp"
+                className="uploader-input"
+                type="file"
+                accept=".docx"
+                onChange={(e) => handleFileSelect(e.target.files?.[0] ?? null)}
+              />
+              <label
+                htmlFor="docx-cp"
+                className={`uploader-box ${isDragging ? "is-dragging" : ""}`}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+              >
                 <div className="uploader-icon">{/* icône */}</div>
                 <span className="uploader-btn">Télécharge ton document ici</span>
                 {fichier && <div className="uploader-filename">📄 {fichier.name}</div>}
@@ -105,7 +125,9 @@ export default function CasPratiquePage() {
           </div>
 
           <div className="actions">
-            <button type="submit" className="btn-send">ENVOI POUR CORRECTION</button>
+            <button type="submit" className="btn-send" disabled={isLoading}>
+              {isLoading ? "Envoi…" : "ENVOI POUR CORRECTION"}
+            </button>
           </div>
 
           {erreur && <p className="msg-error">{erreur}</p>}
@@ -113,7 +135,11 @@ export default function CasPratiquePage() {
         </form>
       </section>
 
-      {isLoading && (<div className="loader-overlay" role="status" aria-live="polite"><div className="loader-ring" /></div>)}
+      {isLoading && (
+        <div className="loader-overlay" role="status" aria-live="polite">
+          <div className="loader-ring" />
+        </div>
+      )}
     </main>
   )
 }
