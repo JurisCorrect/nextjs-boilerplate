@@ -242,6 +242,21 @@ export default function AnnotatedTeaser({ submissionId }: { submissionId: string
 
   return (
     <section className="panel" style={{ position: "relative" }}>
+      {/* Instruction d'utilisation */}
+      <div style={{
+        textAlign: "center",
+        fontSize: "14px",
+        color: "#666",
+        marginBottom: "20px",
+        fontStyle: "italic",
+        padding: "8px 12px",
+        background: "rgba(123, 30, 58, 0.05)",
+        borderRadius: "6px",
+        border: "1px solid rgba(123, 30, 58, 0.1)"
+      }}>
+        Il faut appuyer sur les parties surlignées pour voir les commentaires
+      </div>
+
       {/* Texte avec surlignages cliquables */}
       <div style={justify} dangerouslySetInnerHTML={{ __html: markedPart1 }} />
       <div style={{ ...justify, ...blur }}>{part2}</div>
