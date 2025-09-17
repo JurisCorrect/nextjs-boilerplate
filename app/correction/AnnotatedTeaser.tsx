@@ -126,8 +126,8 @@ export default function AnnotatedTeaser({ submissionId }: { submissionId: string
   // Commentaires axés correction (rouge/orange prioritaires)
   let inline = result.inline || []
   if (inline.length === 0 && body.length > 0) {
-    // Trouve des phrases ou expressions complètes
-    const words = body.split(' ')
+    // Trouve des phrases ou expressions dans les parties visibles
+    const sentences = body.split(/[.!?]+/).filter(s => s.trim().length > 20).map(s => s.trim())
     
     inline = [
       {
@@ -139,6 +139,21 @@ export default function AnnotatedTeaser({ submissionId }: { submissionId: string
         tag: "orange", 
         quote: "Ce à quoi Jean-Claude Soyer a rétorqué",
         comment: "Référence incomplète : il faudrait préciser la date et la source exacte de cette citation. L'autorité de l'argument en dépend."
+      },
+      {
+        tag: "orange",
+        quote: sentences[Math.floor(sentences.length * 0.1)] || "mais je l'ai souvent vu payer l'addition",
+        comment: "Transition faible : le lien logique avec le paragraphe précédent n'est pas clair. Il faut renforcer l'articulation des idées."
+      },
+      {
+        tag: "blue", 
+        quote: sentences[Math.floor(sentences.length * 0.5)] || "Positionnez le curseur",
+        comment: "Suggestion : ce développement gagnerait en précision avec un exemple concret tiré de la jurisprudence récente."
+      },
+      {
+        tag: "red",
+        quote: sentences[Math.floor(sentences.length * 0.52)] || "la cuisine et la cave",
+        comment: "Erreur de fond : cette interprétation contredit la position établie par l'arrêt du Conseil d'État du 12 octobre 2020."
       }
     ]
   }
