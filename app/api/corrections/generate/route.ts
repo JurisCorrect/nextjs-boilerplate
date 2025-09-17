@@ -8,7 +8,9 @@ const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY!;
 
-function log(...args: any[]) { console.log("[generate]", ...args); }
+function log(...args: any[]) {
+  console.log("[generate]", ...args);
+}
 
 async function getSupabaseAdmin() {
   const { createClient } = await import("@supabase/supabase-js");
@@ -20,15 +22,27 @@ async function getSupabaseAdmin() {
 function pickSubmissionText(row: any): string | null {
   if (!row) return null;
   return (
-    row.text ?? row.content ?? row.body ?? row.essay ?? row.input_text ??
-    row.payload?.text ?? row.payload?.content ??
-    row.sujet ?? row.copie ??
+    row.text ??
+    row.content ??
+    row.body ??
+    row.essay ??
+    row.input_text ??
+    row.payload?.text ??
+    row.payload?.content ??
+    row.sujet ??
+    row.copie ??
     (typeof row.payload === "string" ? row.payload : null) ??
     null
   );
 }
 
-function safeJson(s: string) { try { return JSON.parse(s); } catch { return null; } }
+function safeJson(s: string) {
+  try {
+    return JSON.parse(s);
+  } catch {
+    return null;
+  }
+}
 
 export async function POST(req: Request) {
   const startedAt = Date.now();
@@ -36,11 +50,14 @@ export async function POST(req: Request) {
 
   try {
     const { submissionId, payload } = await req.json().catch(() => ({}));
-    log("📥 Request data:", { submissionId: submissionId || "MISSING", hasPayload: !!payload });
+    log("📥 Request data:", {
+      submissionId: submissionId || "MISSING",
+      hasPayload: !!payload,
+    });
 
     if (!submissionId) {
       log("❌ missing submissionId");
-      return NextResponse.json({ error: "missing submissionId" }, { status: 400 });
+      return NextResponse.json({ error: "missing_submissionId" }, { status: 400 });
     }
     if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
       log("❌ missing Supabase env");
@@ -61,13 +78,17 @@ export async function POST(req: Request) {
 
     if (existing && (existing.status === "running" || existing.status === "ready")) {
       log("↩︎ idempotent return", existing.id, existing.status);
-      return NextResponse.json({ ok: true, correctionId: existing.id, status: existing.status });
+      return NextResponse.json({
+        ok: true,
+        correctionId: existing.id,
+        status: existing.status,
+      });
     }
 
-    // 1) récupérer submission + user_id (si existe)
+    // 1) récupérer submission (colonnes RÉELLES de ta table)
     const { data: sub, error: subErr } = await supabase
       .from("submissions")
-      .select("id, user_id, text, content, body, essay, input_text, payload, sujet, copie")
+      .select("id, user_id, sujet, copie, exercise_kind, matiere")
       .eq("id", submissionId)
       .maybeSingle();
     if (subErr) log("⚠️ select submissions error:", subErr.message);
@@ -75,7 +96,12 @@ export async function POST(req: Request) {
     let sourceText = pickSubmissionText(sub) ?? pickSubmissionText({ payload });
     log("📄 Source text length:", sourceText?.length || 0);
 
-    const insertPayload: any = { submission_id: submissionId, status: "running" };
+    // 2) créer la correction "running" — IMPORTANT: fournir result_json: {}
+    const insertPayload: any = {
+      submission_id: submissionId,
+      status: "running",
+      result_json: {}, // 👈 évite la contrainte NOT NULL
+    };
     if ((sub as any)?.user_id) insertPayload.user_id = (sub as any).user_id;
 
     const { data: corrRow, error: insErr } = await supabase
@@ -86,7 +112,10 @@ export async function POST(req: Request) {
 
     if (insErr || !corrRow) {
       log("❌ insert corrections failed:", insErr?.message);
-      return NextResponse.json({ error: "insert_failed", details: insErr?.message }, { status: 500 });
+      return NextResponse.json(
+        { error: "insert_failed", details: insErr?.message },
+        { status: 500 }
+      );
     }
     const correctionId = corrRow.id;
     log("✔️ corrections.running", correctionId);
@@ -107,7 +136,10 @@ export async function POST(req: Request) {
         .eq("id", correctionId);
       if (updErr) {
         log("❌ update corrections failed (placeholder):", updErr.message);
-        return NextResponse.json({ error: "update_failed", details: updErr.message }, { status: 500 });
+        return NextResponse.json(
+          { error: "update_failed", details: updErr.message },
+          { status: 500 }
+        );
       }
       log("⚠️ no_text_found → placeholder ready", correctionId);
       return NextResponse.json({ ok: true, correctionId, status: "ready", note: "placeholder" });
@@ -141,15 +173,18 @@ Texte à corriger:
 """${sourceText.slice(0, 12000)}"""
 `;
 
-      const resp = await openai.chat.completions.create({
-        model: "gpt-4o-mini",
-        temperature: 0.3,
-        messages: [
-          { role: "system", content: "Tu rends uniquement du JSON valide conforme au schéma demandé." },
-          { role: "user", content: prompt },
-        ],
-        response_format: { type: "json_object" as any },
-      }, { signal: controller.signal });
+      const resp = await openai.chat.completions.create(
+        {
+          model: "gpt-4o-mini",
+          temperature: 0.3,
+          messages: [
+            { role: "system", content: "Tu rends uniquement du JSON valide conforme au schéma demandé." },
+            { role: "user", content: prompt },
+          ],
+          response_format: { type: "json_object" as any },
+        },
+        { signal: controller.signal }
+      );
 
       clearTimeout(timeout);
       const content = resp.choices?.[0]?.message?.content || "";
@@ -162,10 +197,10 @@ Texte à corriger:
         normalizedBody: sourceText,
         globalComment: "Analyse en cours. Voici une première mise en forme.",
         inline: [
-          { tag: "green",  quote: sourceText.slice(0, 120),   comment: "Bon démarrage, continue ainsi." },
-          { tag: "orange", quote: sourceText.slice(120, 240), comment: "Clarifie l'argument et cite la source." }
+          { tag: "green", quote: sourceText.slice(0, 120), comment: "Bon démarrage, continue ainsi." },
+          { tag: "orange", quote: sourceText.slice(120, 240), comment: "Clarifie l'argument et cite la source." },
         ],
-        score: { overall: 12, out_of: 20 }
+        score: { overall: 12, out_of: 20 },
       };
       log("🔄 Using fallback result");
     }
@@ -177,18 +212,21 @@ Texte à corriger:
       resultJson.body = resultJson.normalizedBody;
     }
 
+    // 5) sauvegarde "ready"
     const { error: updErr } = await supabase
       .from("corrections")
       .update({ status: "ready", result_json: resultJson })
       .eq("id", correctionId);
     if (updErr) {
       log("❌ update corrections failed:", updErr.message);
-      return NextResponse.json({ error: "update_failed", details: updErr.message }, { status: 500 });
+      return NextResponse.json(
+        { error: "update_failed", details: updErr.message },
+        { status: 500 }
+      );
     }
 
     log("✅ corrections.ready", correctionId, `(${Date.now() - startedAt}ms)`);
     return NextResponse.json({ ok: true, correctionId, status: "ready" });
-
   } catch (e: any) {
     log("❌ fatal error:", e?.message || e);
     log("❌ stack trace:", e?.stack);
