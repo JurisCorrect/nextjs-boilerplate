@@ -1,4 +1,3 @@
-// app/api/corrections/generate/route.ts
 import { NextResponse } from "next/server";
 import OpenAI from "openai";
 
@@ -21,14 +20,10 @@ async function getSupabaseAdmin() {
 function pickSubmissionText(row: any): string | null {
   if (!row) return null;
   return (
-    row.text ??
-    row.content ??
-    row.body ??
-    row.essay ??
-    row.input_text ??
+    row.text ?? row.content ?? row.body ?? row.essay ?? row.input_text ??
+    row.payload?.text ?? row.payload?.content ??
+    row.sujet ?? row.copie ??
     (typeof row.payload === "string" ? row.payload : null) ??
-    row.payload?.text ??
-    row.payload?.content ??
     null
   );
 }
@@ -37,12 +32,12 @@ function safeJson(s: string) { try { return JSON.parse(s); } catch { return null
 
 export async function POST(req: Request) {
   const startedAt = Date.now();
-  log("🚀 POST request received"); // NOUVEAU LOG DE DÉBUT
-  
+  log("🚀 POST request received");
+
   try {
     const { submissionId, payload } = await req.json().catch(() => ({}));
-    log("📥 Request data:", { submissionId: submissionId || "MISSING", hasPayload: !!payload }); // LOG DES DONNÉES REÇUES
-    
+    log("📥 Request data:", { submissionId: submissionId || "MISSING", hasPayload: !!payload });
+
     if (!submissionId) {
       log("❌ missing submissionId");
       return NextResponse.json({ error: "missing submissionId" }, { status: 400 });
@@ -52,78 +47,78 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "supabase_env_missing" }, { status: 500 });
     }
 
-    log("🔗 Connecting to Supabase..."); // LOG CONNEXION
     const supabase = await getSupabaseAdmin();
 
     // 0) idempotence
-    log("🔍 Checking for existing correction..."); // LOG VÉRIFICATION
-    const { data: existing } = await supabase
+    const { data: existing, error: existingErr } = await supabase
       .from("corrections")
       .select("id,status")
       .eq("submission_id", submissionId)
       .order("created_at", { ascending: false })
       .limit(1)
       .maybeSingle();
+    if (existingErr) log("⚠️ select corrections error:", existingErr.message);
 
     if (existing && (existing.status === "running" || existing.status === "ready")) {
       log("↩︎ idempotent return", existing.id, existing.status);
       return NextResponse.json({ ok: true, correctionId: existing.id, status: existing.status });
     }
 
-    // 1) retrouver le texte
-    log("📝 Fetching submission text..."); // LOG RÉCUPÉRATION TEXTE
+    // 1) récupérer submission + user_id (si existe)
     const { data: sub, error: subErr } = await supabase
       .from("submissions")
-      .select("id,user_id,text,content,body,essay,input_text,payload")
+      .select("id, user_id, text, content, body, essay, input_text, payload, sujet, copie")
       .eq("id", submissionId)
       .maybeSingle();
-
     if (subErr) log("⚠️ select submissions error:", subErr.message);
-    let sourceText = pickSubmissionText(sub) ?? pickSubmissionText({ payload });
-    log("📄 Source text length:", sourceText?.length || 0); // LOG LONGUEUR TEXTE
 
-    // 2) créer une correction "running" dès maintenant
-    log("💾 Creating correction record..."); // LOG CRÉATION
+    let sourceText = pickSubmissionText(sub) ?? pickSubmissionText({ payload });
+    log("📄 Source text length:", sourceText?.length || 0);
+
+    const insertPayload: any = { submission_id: submissionId, status: "running" };
+    if ((sub as any)?.user_id) insertPayload.user_id = (sub as any).user_id;
+
     const { data: corrRow, error: insErr } = await supabase
       .from("corrections")
-      .insert([{ submission_id: submissionId, status: "running" }])
+      .insert([insertPayload])
       .select("id")
       .single();
 
     if (insErr || !corrRow) {
       log("❌ insert corrections failed:", insErr?.message);
-      return NextResponse.json({ error: "insert_failed" }, { status: 500 });
+      return NextResponse.json({ error: "insert_failed", details: insErr?.message }, { status: 500 });
     }
     const correctionId = corrRow.id;
     log("✔️ corrections.running", correctionId);
 
-    // 3) si on n'a pas de texte → placeholder
+    // 3) pas de texte → placeholder ready
     if (!sourceText) {
       log("⚠️ No source text found, creating placeholder");
       const placeholder = {
         normalizedBody: "",
         globalComment: "Aucun texte reçu pour cette soumission.",
-        inline: [
-          { tag: "orange", quote: "", comment: "Veuillez renvoyer votre devoir ou réessayer." }
-        ],
+        inline: [{ tag: "orange", quote: "", comment: "Veuillez renvoyer votre devoir ou réessayer." }],
         score: { overall: 0, out_of: 20 },
-        error: "no_text_found"
+        error: "no_text_found",
       };
-      await supabase.from("corrections")
+      const { error: updErr } = await supabase
+        .from("corrections")
         .update({ status: "ready", result_json: placeholder })
         .eq("id", correctionId);
+      if (updErr) {
+        log("❌ update corrections failed (placeholder):", updErr.message);
+        return NextResponse.json({ error: "update_failed", details: updErr.message }, { status: 500 });
+      }
       log("⚠️ no_text_found → placeholder ready", correctionId);
       return NextResponse.json({ ok: true, correctionId, status: "ready", note: "placeholder" });
     }
 
-    // 4) appel OpenAI
-    log("🤖 Calling OpenAI API..."); // LOG APPEL OPENAI
+    // 4) OpenAI (avec fallback)
+    log("🤖 Calling OpenAI API...");
     let resultJson: any = null;
     try {
-      if (!OPENAI_API_KEY) {
-        throw new Error("OPENAI_API_KEY is missing");
-      }
-      
+      if (!OPENAI_API_KEY) throw new Error("OPENAI_API_KEY is missing");
+
       const openai = new OpenAI({ apiKey: OPENAI_API_KEY });
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), 28_000);
@@ -175,7 +170,6 @@ Texte à corriger:
       log("🔄 Using fallback result");
     }
 
-    // Normalisation
     if (resultJson && !resultJson.global_comment && resultJson.globalComment) {
       resultJson.global_comment = resultJson.globalComment;
     }
@@ -183,12 +177,14 @@ Texte à corriger:
       resultJson.body = resultJson.normalizedBody;
     }
 
-    // 5) sauvegarde "ready"
-    log("💾 Updating correction status to ready..."); // LOG SAUVEGARDE
-    await supabase
+    const { error: updErr } = await supabase
       .from("corrections")
       .update({ status: "ready", result_json: resultJson })
       .eq("id", correctionId);
+    if (updErr) {
+      log("❌ update corrections failed:", updErr.message);
+      return NextResponse.json({ error: "update_failed", details: updErr.message }, { status: 500 });
+    }
 
     log("✅ corrections.ready", correctionId, `(${Date.now() - startedAt}ms)`);
     return NextResponse.json({ ok: true, correctionId, status: "ready" });
