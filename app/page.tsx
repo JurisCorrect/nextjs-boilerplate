@@ -64,8 +64,9 @@ export default function Home() {
 
   // ── action du bouton de test (création submission + redirection)
 async function runDevTest() {
-  try {
-    setLoadingTest(true);
+  // On bascule sur une page dédiée qui gère login + création + redirection
+  router.push("/dev/test-autorun");
+}
 
     // 1) Vérifie la session Supabase : si pas loggé → redirige vers /login
     const { data: { session } } = await supabase.auth.getSession();
