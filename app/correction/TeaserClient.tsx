@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useEffect, useMemo, useRef, useState } from "react"
+import React, { useEffect, useMemo, useState } from "react"
 import PaymentPanel from "./PaymentPanel"
 
 type InlineItem = { tag?: string; quote?: string; comment?: string }
@@ -40,15 +40,7 @@ export default function AnnotatedTeaser({ submissionId }: { submissionId: string
   const [loading, setLoading] = useState(true)
   const [openIdx, setOpenIdx] = useState<number | null>(null)
 
-  // Store pour référencer les cartes commentaire
-  const anchors = useRef<Record<number, HTMLDivElement | null>>({})
-
-  // Helper ref qui retourne bien "void"
-  const setAnchor = (idx: number) => (el: HTMLDivElement | null): void => {
-    anchors.current[idx] = el
-  }
-
-  // Poll l'état jusqu'à "ready"
+  // Poll l’état jusqu’à "ready"
   useEffect(() => {
     let stop = false
     async function tick() {
@@ -127,7 +119,7 @@ export default function AnnotatedTeaser({ submissionId }: { submissionId: string
     return out
   }, [visibleB, teaser])
 
-  // Clic sur pastille/surlignage → toggle + scroll
+  // Clic pastille/surlignage → toggle + scroll vers la carte via ID (pas de ref)
   useEffect(() => {
     function onClick(e: MouseEvent) {
       const t = e.target as HTMLElement
@@ -135,8 +127,8 @@ export default function AnnotatedTeaser({ submissionId }: { submissionId: string
       if (!el) return
       const cidx = Number(el.getAttribute("data-cidx"))
       setOpenIdx((cur) => (cur === cidx ? null : cidx))
-      const a = anchors.current[cidx]
-      if (a) a.scrollIntoView({ behavior: "smooth", block: "center" })
+      const card = document.getElementById(`comment-card-${cidx}`)
+      if (card) card.scrollIntoView({ behavior: "smooth", block: "center" })
     }
     document.addEventListener("click", onClick)
     return () => document.removeEventListener("click", onClick)
@@ -167,7 +159,7 @@ export default function AnnotatedTeaser({ submissionId }: { submissionId: string
             return (
               <div
                 key={i}
-                ref={setAnchor(i)}  // ✅ ref retourne void, plus d’erreur TS
+                id={`comment-card-${i}`}  // ← on scrolle vers cet ID
                 style={{
                   border:`1px solid ${col.br}`, background:"#fff", borderRadius:12,
                   boxShadow: opened ? "0 8px 24px rgba(10,26,61,.18)" : "0 2px 12px rgba(10,26,61,.08)",
