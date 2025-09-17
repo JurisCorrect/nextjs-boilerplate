@@ -1,3 +1,4 @@
+// app/cas-pratique/page.tsx
 "use client"
 import { useState } from "react"
 
@@ -26,45 +27,22 @@ export default function CasPratiquePage() {
     handleFileSelect(e.dataTransfer.files?.[0] ?? null)
   }
 
-  async function extractDocxText(file: File): Promise<string> {
-    try {
-      // @ts-ignore - pas de d.ts pour la build browser de mammoth
-      const mammoth = await import("mammoth/mammoth.browser")
-      const arrayBuffer = await file.arrayBuffer()
-      const { value } = await mammoth.extractRawText({ arrayBuffer })
-      return value || ""
-    } catch {
-      return ""
-    }
-  }
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setErreur(""); setResultat("")
-
     if (!sujet.trim()) { setErreur("Merci d'indiquer l'énoncé du cas pratique."); return }
     if (!fichier)      { setErreur("Merci de verser le document Word (.docx)."); return }
 
     setIsLoading(true)
     try {
-      const docText = await extractDocxText(fichier)
-      const joinedText =
-        `ÉNONCÉ :\n${sujet}\n\n` +
-        `COPIE (.docx extrait) :\n${docText || "(extraction indisponible)"}\n`
+      const form = new FormData()
+      form.append("mode", "cas-pratique")
+      form.append("sujet", sujet)
+      form.append("file", fichier) // 👈 envoi du .docx au serveur
 
       const res = await fetch("/api/submissions/create", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          text: joinedText,
-          payload: {
-            text: joinedText,                  // utilisé par /api/corrections/generate
-            exercise_kind: "cas-pratique",
-            matiere: "",
-            sujet,
-            filename: fichier.name,
-          },
-        }),
+        body: form, // 👈 pas d'entête Content-Type, le navigateur la gère
       })
 
       const data = await res.json()
@@ -72,7 +50,7 @@ export default function CasPratiquePage() {
         throw new Error(data?.error || "Erreur serveur")
       }
 
-      // ➜ redirection directe vers la page correction (spinner puis aperçu)
+      // ➜ redirection immédiate vers la page correction (spinner puis aperçu)
       window.location.href = `/correction/${encodeURIComponent(data.submissionId)}`
     } catch (err: any) {
       setErreur(err?.message || "Erreur")
