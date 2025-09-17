@@ -40,10 +40,8 @@ export default function AnnotatedTeaser({ submissionId }: { submissionId: string
   const [loading, setLoading] = useState(true)
   const [openIdx, setOpenIdx] = useState<number | null>(null)
 
-  // Typage correct du ref store
   const anchors = useRef<Record<number, HTMLDivElement | null>>({})
 
-  // Poll status jusqu'à ready
   useEffect(() => {
     let stop = false
     async function tick() {
@@ -122,7 +120,6 @@ export default function AnnotatedTeaser({ submissionId }: { submissionId: string
     return out
   }, [visibleB, teaser])
 
-  // Clic pastille/ surlignage → ouvre/ferme la carte + scroll
   useEffect(() => {
     function onClick(e: MouseEvent) {
       const t = e.target as HTMLElement
@@ -162,7 +159,7 @@ export default function AnnotatedTeaser({ submissionId }: { submissionId: string
             return (
               <div
                 key={i}
-                ref={(el: HTMLDivElement | null): void => { anchors.current[i] = el }} {/* <-- ref callback returns void */}
+                ref={(el: HTMLDivElement | null): void => { anchors.current[i] = el }}
                 style={{
                   border:`1px solid ${col.br}`, background:"#fff", borderRadius:12,
                   boxShadow: opened ? "0 8px 24px rgba(10,26,61,.18)" : "0 2px 12px rgba(10,26,61,.08)",
@@ -199,7 +196,6 @@ export default function AnnotatedTeaser({ submissionId }: { submissionId: string
         </aside>
       )}
 
-      {/* Overlay paywall */}
       <div
         style={{
           position:"absolute", inset:0 as any, display:"flex", alignItems:"end",
