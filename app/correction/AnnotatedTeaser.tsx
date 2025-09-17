@@ -1,373 +1,130 @@
 "use client"
 
-import React, { useEffect, useMemo, useRef, useState } from "react"
-import PaymentPanel from "./PaymentPanel"
+import React, { useEffect, useState } from "react"
 
-type InlineItem = { tag?: string; quote?: string; comment?: string }
 type StatusPayload = {
   submissionId: string
   status: "none" | "running" | "ready"
-  correctionId?: string
   result?: {
     normalizedBody?: string
     body?: string
-    globalComment?: string
-    global_comment?: string
-    inline?: InlineItem[]
+    inline?: Array<{ tag?: string; quote?: string; comment?: string }>
   } | null
-}
-
-function chipColor(tag?: string) {
-  const t = (tag || "").toLowerCase()
-  switch (t) {
-    case "green":  return { bg: "rgba(200,230,201,.45)", fg: "#1b5e20", br: "rgba(27,94,32,.25)" }
-    case "red":    return { bg: "rgba(255,205,210,.45)", fg: "#b71c1c", br: "rgba(183,28,28,.25)" }
-    case "orange": return { bg: "rgba(255,224,178,.55)", fg: "#e65100", br: "rgba(230,81,0,.25)" }
-    case "blue":   return { bg: "rgba(187,222,251,.55)", fg: "#0d47a1", br: "rgba(13,71,161,.25)" }
-    default:       return { bg: "rgba(240,240,240,.9)", fg: "#222", br: "rgba(0,0,0,.12)" }
-  }
-}
-
-function replaceFirst(hay: string, needle: string, repl: string) {
-  if (!needle) return hay
-  const i = hay.indexOf(needle)
-  if (i < 0) return hay
-  return hay.slice(0, i) + repl + hay.slice(i + needle.length)
 }
 
 export default function AnnotatedTeaser({ submissionId }: { submissionId: string }) {
   const [data, setData] = useState<StatusPayload | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [openIdx, setOpenIdx] = useState<number | null>(null)
-
-  const anchors = useRef<Record<number, HTMLDivElement | null>>({})
 
   useEffect(() => {
-    let stop = false
-    let retryCount = 0
-    const maxRetries = 10
+    let mounted = true
 
-    async function tick() {
+    async function fetchStatus() {
       try {
-        const r = await fetch(`/api/corrections/status?submissionId=${encodeURIComponent(submissionId)}`, { 
-          cache: "no-store",
-          headers: {
-            'Content-Type': 'application/json'
-          }
+        console.log('Fetching status for:', submissionId)
+        
+        const response = await fetch(`/api/corrections/status?submissionId=${encodeURIComponent(submissionId)}`, {
+          cache: "no-store"
         })
         
-        if (!r.ok) {
-          throw new Error(`HTTP ${r.status}: ${r.statusText}`)
+        console.log('Response status:', response.status)
+        
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`)
         }
         
-        const j = await r.json() as StatusPayload
+        const result = await response.json()
+        console.log('API result:', result)
         
-        if (!stop) {
-          setData(j)
-          setError(null)
-          retryCount = 0
-        }
-        
-        if (!stop && j?.status !== "ready") {
-          setTimeout(tick, 2000)
-        } else {
-          setLoading(false)
+        if (mounted) {
+          setData(result)
+          if (result.status === "ready") {
+            setLoading(false)
+          } else {
+            // Continue polling if not ready
+            setTimeout(fetchStatus, 2000)
+          }
         }
       } catch (err) {
-        console.error('Error fetching status:', err)
-        if (!stop) {
-          setError(err instanceof Error ? err.message : 'Une erreur est survenue')
-          retryCount++
-          if (retryCount < maxRetries) {
-            setTimeout(tick, 3000)
-          } else {
-            setLoading(false)
-          }
+        console.error('Fetch error:', err)
+        if (mounted) {
+          setError(err instanceof Error ? err.message : 'Network error')
+          setLoading(false)
         }
       }
     }
-    
-    tick()
-    return () => { stop = true }
+
+    fetchStatus()
+    return () => { mounted = false }
   }, [submissionId])
 
-  // Affichage d'erreur
-  if (error && !loading) {
+  // Debug: show what we have
+  console.log('Component state:', { data, loading, error })
+
+  if (error) {
     return (
-      <section className="panel" style={{ display: "grid", placeItems: "center", minHeight: "26vh", padding: "20px" }}>
-        <div style={{ textAlign: "center", color: "#b71c1c" }}>
-          <p>Erreur lors du chargement de la correction :</p>
-          <p style={{ fontSize: "14px", opacity: 0.8 }}>{error}</p>
-          <button 
-            onClick={() => { setError(null); setLoading(true) }}
-            style={{ 
-              marginTop: "12px", 
-              padding: "8px 16px", 
-              borderRadius: "8px", 
-              border: "1px solid #7b1e3a", 
-              background: "#7b1e3a", 
-              color: "white", 
-              cursor: "pointer" 
-            }}
-          >
-            Réessayer
-          </button>
-        </div>
+      <section className="panel" style={{ padding: "20px" }}>
+        <h3>Erreur</h3>
+        <p>submissionId: {submissionId}</p>
+        <p>Erreur: {error}</p>
+        <button onClick={() => window.location.reload()}>Recharger</button>
       </section>
     )
   }
 
-  if (loading || !data || data.status !== "ready") {
+  if (loading) {
     return (
-      <section className="panel" style={{ display: "grid", placeItems: "center", minHeight: "26vh", padding: "20px", position: "relative" }}>
-        <div style={{ display: "grid", placeItems: "center", gap: 14, textAlign: "center" }}>
-          <div 
-            style={{
-              width: 32, 
-              height: 32, 
-              borderRadius: "50%", 
-              border: "3px solid rgba(123,30,58,.25)", 
-              borderTopColor: "#7b1e3a", 
-              animation: "spin 1s linear infinite" 
-            }} 
-          />
-          <p style={{ margin: 0, lineHeight: 1.5, fontSize: "clamp(18px, 2vw, 22px)" }}>
-            Votre correction est en cours de génération…
-          </p>
-          {error && (
-            <p style={{ fontSize: "14px", color: "#e65100", margin: 0 }}>
-              Reconnexion en cours...
-            </p>
-          )}
-        </div>
-        <style>{`@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}`}</style>
+      <section className="panel" style={{ padding: "20px", textAlign: "center" }}>
+        <div>Chargement en cours...</div>
+        <div>submissionId: {submissionId}</div>
+        <div>Status: {data?.status || 'unknown'}</div>
+      </section>
+    )
+  }
+
+  if (!data || data.status !== "ready") {
+    return (
+      <section className="panel" style={{ padding: "20px" }}>
+        <p>Status: {data?.status || 'none'}</p>
+        <p>Data: {JSON.stringify(data, null, 2)}</p>
       </section>
     )
   }
 
   const result = data.result || {}
   const body = result.normalizedBody ?? result.body ?? ""
-  const inlineAll = Array.isArray(result.inline) ? (result.inline as InlineItem[]) : []
-  const teaser = inlineAll.slice(0, 2)
-
-  // Si pas de texte, on affiche un message
-  if (!body) {
-    return (
-      <section className="panel" style={{ padding: "20px", textAlign: "center" }}>
-        <p>Aucun contenu de correction disponible pour le moment.</p>
-        <button 
-          onClick={() => window.location.reload()}
-          style={{ 
-            padding: "8px 16px", 
-            borderRadius: "8px", 
-            border: "1px solid #7b1e3a", 
-            background: "#7b1e3a", 
-            color: "white", 
-            cursor: "pointer" 
-          }}
-        >
-          Actualiser
-        </button>
-      </section>
-    )
-  }
-
-  const len = body.length
-  const idx = (r: number) => Math.floor(len * r)
-  const visibleA = body.slice(0, idx(0.2))
-  const blurredA = body.slice(idx(0.2), idx(0.45))
-  const visibleB = body.slice(idx(0.45), idx(0.55))
-  const blurredB = body.slice(idx(0.55))
-
-  const markedA = useMemo(() => {
-    let out = visibleA
-    teaser.forEach((c, k) => {
-      if (!c.quote) return
-      const n = k + 1
-      const col = chipColor(c.tag)
-      const badge = `<sup data-cidx="${k}" class="cm-badge" style="background:${col.bg};color:${col.fg};border:1px solid ${col.br}">${n}</sup>`
-      out = replaceFirst(
-        out,
-        c.quote,
-        `<mark class="cm-hl" data-cidx="${k}" style="background:${col.bg};border:1px solid ${col.br}">${c.quote}${badge}</mark>`
-      )
-    })
-    return out
-  }, [visibleA, teaser])
-
-  const markedB = useMemo(() => {
-    let out = visibleB
-    teaser.forEach((c, k) => {
-      if (!c.quote || !out.includes(c.quote)) return
-      const col = chipColor(c.tag)
-      const n = k + 1
-      const badge = `<sup data-cidx="${k}" class="cm-badge" style="background:${col.bg};color:${col.fg};border:1px solid ${col.br}">${n}</sup>`
-      out = replaceFirst(
-        out,
-        c.quote,
-        `<mark class="cm-hl" data-cidx="${k}" style="background:${col.bg};border:1px solid ${col.br}">${c.quote}${badge}</mark>`
-      )
-    })
-    return out
-  }, [visibleB, teaser])
-
-  useEffect(() => {
-    function onClick(e: MouseEvent) {
-      const t = e.target as HTMLElement
-      const el = t.closest?.(".cm-hl, .cm-badge") as HTMLElement | null
-      if (!el) return
-      
-      const cidxAttr = el.getAttribute("data-cidx")
-      if (!cidxAttr) return
-      
-      const cidx = Number(cidxAttr)
-      if (isNaN(cidx)) return
-      
-      setOpenIdx((cur) => (cur === cidx ? null : cidx))
-      const a = anchors.current[cidx]
-      if (a) {
-        a.scrollIntoView({ behavior: "smooth", block: "center" })
-      }
-    }
-    
-    document.addEventListener("click", onClick)
-    return () => document.removeEventListener("click", onClick)
-  }, [])
-
-  const justify: React.CSSProperties = { whiteSpace: "pre-wrap", textAlign: "justify" }
-  const blur: React.CSSProperties = { filter: "blur(6px)", userSelect: "none" }
-  const refId = data.submissionId
+  const inline = result.inline || []
 
   return (
-    <section className="panel" style={{ position: "relative" }}>
-      <div dangerouslySetInnerHTML={{ __html: markedA }} style={justify} />
-      <div style={{ ...justify, ...blur }}>{blurredA}</div>
-      <div dangerouslySetInnerHTML={{ __html: markedB }} style={justify} />
-      <div style={{ ...justify, ...blur }}>{blurredB}</div>
-
-      {teaser.length > 0 && (
-        <aside
-          style={{
-            position: "sticky", 
-            top: 10, 
-            marginTop: 12, 
-            marginLeft: "auto",
-            maxWidth: 420, 
-            width: "min(92%, 420px)", 
-            display: "grid", 
-            gap: 12
-          }}
-        >
-          {teaser.map((c, i) => {
-            const col = chipColor(c.tag)
-            const opened = openIdx === i
-            return (
-              <div
-                key={i}
-                ref={(el) => { anchors.current[i] = el }}
-                style={{
-                  border: `1px solid ${col.br}`, 
-                  background: "#fff", 
-                  borderRadius: 12,
-                  boxShadow: opened ? "0 8px 24px rgba(10,26,61,.18)" : "0 2px 12px rgba(10,26,61,.08)",
-                  padding: "12px 14px", 
-                  transition: "box-shadow .2s ease"
-                }}
-              >
-                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-                  <span
-                    style={{
-                      background: col.bg, 
-                      color: col.fg, 
-                      border: `1px solid ${col.br}`,
-                      borderRadius: 999, 
-                      padding: "6px 10px", 
-                      fontWeight: 800, 
-                      fontSize: 12, 
-                      letterSpacing: ".2px"
-                    }}
-                  >
-                    {(c.tag || "NOTE").toUpperCase()} • {i + 1}
-                  </span>
-                  {c.quote && (
-                    <span style={{ fontStyle: "italic", opacity: 0.9 }}>
-                      « {c.quote} »
-                    </span>
-                  )}
-                </div>
-                <div style={{ fontWeight: 600, opacity: opened ? 1 : 0.9 }}>
-                  {c.comment || "…"}
-                </div>
-                <button
-                  onClick={() => setOpenIdx(opened ? null : i)}
-                  style={{
-                    marginTop: 8, 
-                    borderRadius: 10, 
-                    border: `1px solid ${col.br}`,
-                    background: "#fff", 
-                    color: col.fg, 
-                    fontWeight: 800, 
-                    padding: "6px 10px", 
-                    cursor: "pointer"
-                  }}
-                >
-                  {opened ? "Masquer" : "Ouvrir le commentaire"}
-                </button>
-              </div>
-            )
-          })}
-        </aside>
-      )}
-
-      <div
-        style={{
-          position: "absolute", 
-          inset: 0, 
-          display: "flex", 
-          alignItems: "end",
-          justifyContent: "center", 
-          pointerEvents: "none"
-        }}
-        aria-hidden
-      >
-        <div
-          style={{
-            pointerEvents: "auto", 
-            margin: "0 8px 12px", 
-            background: "rgba(255,255,255,.95)",
-            border: "1px solid rgba(0,0,0,.06)", 
-            borderRadius: 12, 
-            padding: "14px 16px", 
-            boxShadow: "0 10px 30px rgba(0,0,0,.10)"
-          }}
-        >
-          <div style={{ fontWeight: 900, marginBottom: 6 }}>
-            Débloquer la correction complète
-          </div>
-          <div style={{ opacity: 0.9, marginBottom: 10 }}>
-            Accède à tout le texte et à l'ensemble des commentaires.
-          </div>
-          <PaymentPanel refId={refId} />
-        </div>
+    <section className="panel" style={{ padding: "20px" }}>
+      <h3>Correction Ready</h3>
+      <div>
+        <strong>Body length:</strong> {body.length}
       </div>
-
-      <style>{`
-        .cm-hl { 
-          border-radius: 6px; 
-          padding: 0 2px; 
-        }
-        .cm-badge { 
-          display: inline-flex; 
-          align-items: center; 
-          justify-content: center;
-          margin-left: 4px; 
-          width: 18px; 
-          height: 18px; 
-          border-radius: 999px; 
-          font: 700 11px/1 ui-sans-serif, system-ui;
-        }
-      `}</style>
+      <div>
+        <strong>Inline comments:</strong> {inline.length}
+      </div>
+      
+      {body && (
+        <div style={{ marginTop: "20px", padding: "10px", border: "1px solid #ccc" }}>
+          <h4>Preview (first 200 chars):</h4>
+          <p>{body.slice(0, 200)}...</p>
+        </div>
+      )}
+      
+      {inline.length > 0 && (
+        <div style={{ marginTop: "20px" }}>
+          <h4>Comments:</h4>
+          {inline.slice(0, 2).map((comment, i) => (
+            <div key={i} style={{ padding: "10px", margin: "5px 0", border: "1px solid #ddd" }}>
+              <strong>Tag:</strong> {comment.tag || 'none'}<br/>
+              <strong>Quote:</strong> {comment.quote || 'none'}<br/>
+              <strong>Comment:</strong> {comment.comment || 'none'}
+            </div>
+          ))}
+        </div>
+      )}
     </section>
   )
 }
