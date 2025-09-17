@@ -231,9 +231,10 @@ export default async function CorrectionPage({ params }: Props) {
           </div>
         </div>
       </section>
-
-      {/* Statut/polling en bas tant que non payé ou pas prêt (conserve ton composant) */}
-      {!paid || !isReady ? <PaywallStatus submissionId={submissionId} /> : null}
+       {/* Statut/polling uniquement PENDANT la génération */}
+      {!isReady ? <PaywallStatus submissionId={submissionId} /> : null}
     </main>
   )
 }
+
+     
