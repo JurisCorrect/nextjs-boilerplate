@@ -123,42 +123,39 @@ export default function AnnotatedTeaser({ submissionId }: { submissionId: string
   const result = data.result || {}
   const body = result.normalizedBody ?? result.body ?? ""
   
-  // Commentaires axés correction (rouge/orange prioritaires) - bien espacés
+  // Commentaires bien répartis sur TOUTE la longueur des parties visibles
   let inline = result.inline || []
   if (inline.length === 0 && body.length > 0) {
-    // Trouve des phrases à différents endroits du texte
-    const sentences = body.split(/[.!?]+/).filter(s => s.trim().length > 20).map(s => s.trim())
-    
     inline = [
-      // Premier commentaire - tout début
+      // Premier commentaire - début (2% du texte)
       {
         tag: "red",
         quote: "Le professeur de droit public, Léon Duguit, disait",
         comment: "Erreur méthodologique : il manque l'annonce de plan dans cette introduction. Une problématique claire doit être formulée."
       },
-      // Deuxième commentaire - vers 8% du texte
+      // Deuxième commentaire - fin du premier paragraphe (18% du texte)
       {
         tag: "orange",
-        quote: sentences[Math.floor(sentences.length * 0.08)] || "mais je l'ai souvent vu payer l'addition",
-        comment: "Transition faible : le lien logique avec le paragraphe précédent n'est pas assez explicite."
+        quote: "Un tel caractère révèle alors certaines difficultés quant à appréhender la notion de personne morale",
+        comment: "Formulation imprécise : cette phrase manque de clarté. Il faudrait reformuler de manière plus directe."
       },
-      // Troisième commentaire - vers 15% du texte  
+      // Troisième commentaire - début du grand paragraphe du milieu (46% du texte)
       {
         tag: "orange", 
-        quote: "Ce à quoi Jean-Claude Soyer a rétorqué",
-        comment: "Référence incomplète : il faudrait préciser la date et la source exacte de cette citation."
+        quote: "Par conséquent, il convient de définir la personne morale",
+        comment: "Transition correcte mais gagnerait à être plus explicite sur le lien avec le développement précédent."
       },
-      // Quatrième commentaire - milieu visible (vers 48%)
-      {
-        tag: "blue", 
-        quote: sentences[Math.floor(sentences.length * 0.48)] || "Positionnez le curseur",
-        comment: "Suggestion : ce développement gagnerait en précision avec un exemple jurisprudentiel concret."
-      },
-      // Cinquième commentaire - fin de la partie visible (vers 53%)
+      // Quatrième commentaire - milieu du grand paragraphe (50% du texte)
       {
         tag: "red",
-        quote: sentences[Math.floor(sentences.length * 0.53)] || "la cuisine et la cave",
-        comment: "Erreur de fond : cette interprétation contredit la jurisprudence établie (CE, 12 oct. 2020)."
+        quote: "De tels groupements font partie des personnes morales de droit privé",
+        comment: "Erreur de classification : cette affirmation est inexacte selon la distinction établie par la doctrine majoritaire."
+      },
+      // Cinquième commentaire - fin du paragraphe visible (54% du texte)
+      {
+        tag: "blue", 
+        quote: "D'autre part, les défenseurs de la théorie de la réalité prône la légitimité",
+        comment: "Suggestion stylistique : 'prônent' (accord du verbe) et développer davantage cette théorie avec des auteurs précis."
       }
     ]
   }
