@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useEffect, useMemo, useState } from "react"
+import React, { useEffect, useMemo, useRef, useState } from "react"
 import PaymentPanel from "./PaymentPanel"
 
 type InlineItem = { tag?: string; quote?: string; comment?: string }
@@ -40,7 +40,8 @@ export default function AnnotatedTeaser({ submissionId }: { submissionId: string
   const [loading, setLoading] = useState(true)
   const [openIdx, setOpenIdx] = useState<number | null>(null)
 
-  // Poll l’état jusqu’à "ready"
+  const anchors = useRef<Record<number, HTMLDivElement | null>>({})
+
   useEffect(() => {
     let stop = false
     async function tick() {
@@ -64,7 +65,7 @@ export default function AnnotatedTeaser({ submissionId }: { submissionId: string
         <div style={{ display:"grid", placeItems:"center", gap:14, textAlign:"center" }}>
           <div style={{ width:32, height:32, borderRadius:"50%", border:"3px solid rgba(123,30,58,.25)", borderTopColor:"#7b1e3a", animation:"spin 1s linear infinite" }} />
           <p style={{ margin:0, lineHeight:1.5, fontSize:"clamp(18px, 2vw, 22px)" }}>
-            Votre correction est en cours de génération… Un aperçu apparaîtra dès qu’il sera prêt.
+            Votre correction est en cours de génération… Un aperçu apparaîtra dès qu'il sera prêt.
           </p>
         </div>
         <style>{`@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}`}</style>
@@ -119,7 +120,6 @@ export default function AnnotatedTeaser({ submissionId }: { submissionId: string
     return out
   }, [visibleB, teaser])
 
-  // Clic pastille/surlignage → toggle + scroll vers la carte via ID (pas de ref)
   useEffect(() => {
     function onClick(e: MouseEvent) {
       const t = e.target as HTMLElement
@@ -127,8 +127,8 @@ export default function AnnotatedTeaser({ submissionId }: { submissionId: string
       if (!el) return
       const cidx = Number(el.getAttribute("data-cidx"))
       setOpenIdx((cur) => (cur === cidx ? null : cidx))
-      const card = document.getElementById(`comment-card-${cidx}`)
-      if (card) card.scrollIntoView({ behavior: "smooth", block: "center" })
+      const a = anchors.current[cidx]
+      if (a) a.scrollIntoView({ behavior: "smooth", block: "center" })
     }
     document.addEventListener("click", onClick)
     return () => document.removeEventListener("click", onClick)
@@ -159,7 +159,7 @@ export default function AnnotatedTeaser({ submissionId }: { submissionId: string
             return (
               <div
                 key={i}
-                id={`comment-card-${i}`}  // ← on scrolle vers cet ID
+                ref={(el) => { anchors.current[i] = el }}  {/* ✅ CORRECTION ICI */}
                 style={{
                   border:`1px solid ${col.br}`, background:"#fff", borderRadius:12,
                   boxShadow: opened ? "0 8px 24px rgba(10,26,61,.18)" : "0 2px 12px rgba(10,26,61,.08)",
@@ -196,7 +196,6 @@ export default function AnnotatedTeaser({ submissionId }: { submissionId: string
         </aside>
       )}
 
-      {/* Overlay paywall */}
       <div
         style={{
           position:"absolute", inset:0 as any, display:"flex", alignItems:"end",
@@ -211,7 +210,7 @@ export default function AnnotatedTeaser({ submissionId }: { submissionId: string
           }}
         >
           <div style={{ fontWeight:900, marginBottom:6 }}>Débloquer la correction complète</div>
-          <div style={{ opacity:.9, marginBottom:10 }}>Accède à tout le texte et à l’ensemble des commentaires.</div>
+          <div style={{ opacity:.9, marginBottom:10 }}>Accède à tout le texte et à l'ensemble des commentaires.</div>
           <PaymentPanel refId={refId} />
         </div>
       </div>
