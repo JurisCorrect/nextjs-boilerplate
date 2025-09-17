@@ -7,30 +7,31 @@ export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
   try {
-    console.log("[create] 🚀 POST request received"); // LOG DE DÉBUT
+    console.log("[create] 🚀 POST request received");
     
     const supabase = getSupabaseServer();
     const { data: auth } = await supabase.auth.getUser();
-    if (!auth?.user) {
-      console.log("[create] ❌ unauthenticated user");
-      return NextResponse.json({ error: "unauthenticated" }, { status: 401 });
-    }
+    
+    // PERMETTRE LES SOUMISSIONS SANS CONNEXION
+    // On utilise un user_id par défaut pour les visiteurs anonymes
+    const userId = auth?.user?.id || "anonymous-user";
+    console.log("[create] 👤 User ID:", userId);
 
     const body = await req.json().catch(() => ({}));
     const text: string | null =
       body?.text ?? body?.payload?.text ?? body?.content ?? body?.body ?? null;
     
-    console.log("[create] 📝 Text received, length:", text?.length || 0); // LOG TEXTE
+    console.log("[create] 📝 Text received, length:", text?.length || 0);
 
     const submissionId = crypto.randomUUID();
 
-    // IMPORTANT: Stocker le texte dans la base de données
+    // Stocker la submission (avec ou sans user connecté)
     const { error: insErr } = await supabase
       .from("submissions")
       .insert([{ 
         id: submissionId, 
-        user_id: auth.user.id,
-        text: text, // AJOUT DU TEXTE ICI
+        user_id: userId,
+        text: text,
         paid: false 
       }]);
 
@@ -48,13 +49,12 @@ export async function POST(req: Request) {
     
     console.log("[create] 🔗 calling generate with base URL:", base);
 
-    // Lance la génération (avec await pour capturer les erreurs)
+    // Lance la génération
     try {
       const generateResponse = await fetch(`${base}/api/corrections/generate`, {
         method: "POST",
         headers: { 
           "Content-Type": "application/json",
-          // Ajout d'un header pour identifier les appels internes
           "x-internal-call": "submissions-create" 
         },
         body: JSON.stringify({ 
@@ -67,12 +67,8 @@ export async function POST(req: Request) {
       console.log("[create] 📡 generate response status:", generateResponse.status);
       console.log("[create] 📡 generate result:", generateResult);
       
-      if (!generateResponse.ok) {
-        console.log("[create] ⚠️ generate request failed but continuing");
-      }
     } catch (fetchError: any) {
       console.log("[create] ❌ fetch to generate failed:", fetchError.message);
-      // On continue quand même, l'utilisateur peut réessayer
     }
 
     console.log("[create] ✅ returning submissionId:", submissionId);
@@ -80,7 +76,6 @@ export async function POST(req: Request) {
 
   } catch (e: any) {
     console.log("[create] ❌ fatal exception:", e?.message || e);
-    console.log("[create] ❌ stack trace:", e?.stack);
     return NextResponse.json({ error: "server_error" }, { status: 500 });
   }
 }
