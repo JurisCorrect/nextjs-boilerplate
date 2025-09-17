@@ -40,8 +40,15 @@ export default function AnnotatedTeaser({ submissionId }: { submissionId: string
   const [loading, setLoading] = useState(true)
   const [openIdx, setOpenIdx] = useState<number | null>(null)
 
+  // Store pour référencer les cartes commentaire
   const anchors = useRef<Record<number, HTMLDivElement | null>>({})
 
+  // Helper ref qui retourne bien "void"
+  const setAnchor = (idx: number) => (el: HTMLDivElement | null): void => {
+    anchors.current[idx] = el
+  }
+
+  // Poll l'état jusqu'à "ready"
   useEffect(() => {
     let stop = false
     async function tick() {
@@ -120,6 +127,7 @@ export default function AnnotatedTeaser({ submissionId }: { submissionId: string
     return out
   }, [visibleB, teaser])
 
+  // Clic sur pastille/surlignage → toggle + scroll
   useEffect(() => {
     function onClick(e: MouseEvent) {
       const t = e.target as HTMLElement
@@ -159,7 +167,7 @@ export default function AnnotatedTeaser({ submissionId }: { submissionId: string
             return (
               <div
                 key={i}
-                ref={(el: HTMLDivElement | null): void => { anchors.current[i] = el }}
+                ref={setAnchor(i)}  // ✅ ref retourne void, plus d’erreur TS
                 style={{
                   border:`1px solid ${col.br}`, background:"#fff", borderRadius:12,
                   boxShadow: opened ? "0 8px 24px rgba(10,26,61,.18)" : "0 2px 12px rgba(10,26,61,.08)",
@@ -196,6 +204,7 @@ export default function AnnotatedTeaser({ submissionId }: { submissionId: string
         </aside>
       )}
 
+      {/* Overlay paywall */}
       <div
         style={{
           position:"absolute", inset:0 as any, display:"flex", alignItems:"end",
