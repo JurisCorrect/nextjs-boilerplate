@@ -1,4 +1,3 @@
-// app/api/submissions/create/route.ts
 import { NextResponse } from "next/server";
 import { getSupabaseServer } from "@/lib/supabase/server";
 
@@ -8,75 +7,69 @@ export const dynamic = "force-dynamic";
 export async function POST(req: Request) {
   try {
     console.log("[create] POST request received");
-    
+
     const supabase = getSupabaseServer();
     const body = await req.json().catch(() => ({}));
-    
-    // Extraction des données du payload
+
+    // Champs réels table submissions: id, created, exercise_kind, matiere, sujet, copie
     const exerciseKind = body?.payload?.exercise_kind || "cas-pratique";
     const matiere = body?.payload?.matiere || "";
-    const sujet = body?.payload?.sujet || body?.text || "";
+    const sujet = body?.payload?.sujet || body?.text || "(sujet manquant)";
     const copie = `Document: ${body?.payload?.filename || "document.docx"}`;
-    
+
     const submissionId = crypto.randomUUID();
-    console.log("[create] Inserting with correct columns");
-    
-    // INSERT avec les vraies colonnes de votre table
-    const { error: insErr, data: insertResult } = await supabase
+
+    console.log("[create] inserting submission", {
+      id: submissionId, exerciseKind, matiere, sujet, copie,
+    });
+
+    const { error: insErr } = await supabase
       .from("submissions")
       .insert([{ 
         id: submissionId,
         exercise_kind: exerciseKind,
-        matiere: matiere,
-        sujet: sujet,
-        copie: copie
-      }])
-      .select();
-    
-    console.log("[create] Insert result:", insertResult);
-    
+        matiere,
+        sujet,
+        copie,
+      }]);
+
     if (insErr) {
-      console.log("[create] Insert error:", insErr.message);
-      return NextResponse.json({ 
-        error: "insert_failed", 
-        details: insErr.message 
-      }, { status: 500 });
+      console.log("[create] insert error:", insErr.message);
+      return NextResponse.json({ error: "insert_failed", details: insErr.message }, { status: 500 });
     }
 
-    console.log("[create] Submission created successfully:", submissionId);
+    console.log("[create] submission created:", submissionId);
 
-    // Lance la génération avec gestion d'erreur
-    const base = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000";
-    
-    console.log("[create] Calling generate API with base:", base);
-    
+    const base =
+      process.env.VERCEL_URL
+        ? `https://${process.env.VERCEL_URL}`
+        : (process.env.NEXT_PUBLIC_BASE_URL?.replace(/\/$/, "") || "http://localhost:3000");
+
+    console.log("[create] calling generate:", `${base}/api/corrections/generate`);
+
+    // Appel interne avec await pour capter les erreurs
     try {
-      const generateResponse = await fetch(`${base}/api/corrections/generate`, {
+      const resp = await fetch(`${base}/api/corrections/generate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-          submissionId, 
-          payload: { 
+        body: JSON.stringify({
+          submissionId,
+          payload: {
             text: `SUJET: ${sujet}\n\nCOPIE: ${copie}`,
             exercise_kind: exerciseKind,
-            matiere: matiere
-          }
+            matiere,
+          },
         }),
       });
-      
-      const result = await generateResponse.json();
-      console.log("[create] Generate response status:", generateResponse.status);
-      console.log("[create] Generate response:", result);
-      
-    } catch (fetchError: any) {
-      console.log("[create] Generate fetch failed:", fetchError.message);
+      const json = await resp.json().catch(() => ({}));
+      console.log("[create] generate status:", resp.status, "body:", json);
+    } catch (e: any) {
+      console.log("[create] generate fetch failed:", e?.message || e);
     }
 
-    console.log("[create] Returning submissionId:", submissionId);
     return NextResponse.json({ submissionId });
-
   } catch (e: any) {
-    console.log("[create] Exception:", e.message);
+    console.log("[create] exception:", e?.message || e);
     return NextResponse.json({ error: "server_error" }, { status: 500 });
   }
 }
