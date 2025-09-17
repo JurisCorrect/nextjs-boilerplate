@@ -123,37 +123,42 @@ export default function AnnotatedTeaser({ submissionId }: { submissionId: string
   const result = data.result || {}
   const body = result.normalizedBody ?? result.body ?? ""
   
-  // Commentaires axés correction (rouge/orange prioritaires)
+  // Commentaires axés correction (rouge/orange prioritaires) - bien espacés
   let inline = result.inline || []
   if (inline.length === 0 && body.length > 0) {
-    // Trouve des phrases ou expressions dans les parties visibles
+    // Trouve des phrases à différents endroits du texte
     const sentences = body.split(/[.!?]+/).filter(s => s.trim().length > 20).map(s => s.trim())
     
     inline = [
+      // Premier commentaire - tout début
       {
         tag: "red",
         quote: "Le professeur de droit public, Léon Duguit, disait",
-        comment: "Erreur méthodologique : il manque l'annonce de plan dans cette introduction. Une problématique claire doit être formulée avant de développer les arguments."
+        comment: "Erreur méthodologique : il manque l'annonce de plan dans cette introduction. Une problématique claire doit être formulée."
       },
+      // Deuxième commentaire - vers 8% du texte
+      {
+        tag: "orange",
+        quote: sentences[Math.floor(sentences.length * 0.08)] || "mais je l'ai souvent vu payer l'addition",
+        comment: "Transition faible : le lien logique avec le paragraphe précédent n'est pas assez explicite."
+      },
+      // Troisième commentaire - vers 15% du texte  
       {
         tag: "orange", 
         quote: "Ce à quoi Jean-Claude Soyer a rétorqué",
-        comment: "Référence incomplète : il faudrait préciser la date et la source exacte de cette citation. L'autorité de l'argument en dépend."
+        comment: "Référence incomplète : il faudrait préciser la date et la source exacte de cette citation."
       },
-      {
-        tag: "orange",
-        quote: sentences[Math.floor(sentences.length * 0.1)] || "mais je l'ai souvent vu payer l'addition",
-        comment: "Transition faible : le lien logique avec le paragraphe précédent n'est pas clair. Il faut renforcer l'articulation des idées."
-      },
+      // Quatrième commentaire - milieu visible (vers 48%)
       {
         tag: "blue", 
-        quote: sentences[Math.floor(sentences.length * 0.5)] || "Positionnez le curseur",
-        comment: "Suggestion : ce développement gagnerait en précision avec un exemple concret tiré de la jurisprudence récente."
+        quote: sentences[Math.floor(sentences.length * 0.48)] || "Positionnez le curseur",
+        comment: "Suggestion : ce développement gagnerait en précision avec un exemple jurisprudentiel concret."
       },
+      // Cinquième commentaire - fin de la partie visible (vers 53%)
       {
         tag: "red",
-        quote: sentences[Math.floor(sentences.length * 0.52)] || "la cuisine et la cave",
-        comment: "Erreur de fond : cette interprétation contredit la position établie par l'arrêt du Conseil d'État du 12 octobre 2020."
+        quote: sentences[Math.floor(sentences.length * 0.53)] || "la cuisine et la cave",
+        comment: "Erreur de fond : cette interprétation contredit la jurisprudence établie (CE, 12 oct. 2020)."
       }
     ]
   }
