@@ -145,17 +145,35 @@ export default function AnnotatedTeaser({ submissionId }: { submissionId: string
         quote: "Par conséquent, il convient de définir la personne morale",
         comment: "Transition correcte mais gagnerait à être plus explicite sur le lien avec le développement précédent."
       },
-      // Quatrième commentaire - milieu du grand paragraphe (50% du texte)
+      // Quatrième commentaire - milieu du grand paragraphe (49% du texte)
       {
         tag: "red",
         quote: "De tels groupements font partie des personnes morales de droit privé",
         comment: "Erreur de classification : cette affirmation est inexacte selon la distinction établie par la doctrine majoritaire."
       },
-      // Cinquième commentaire - fin du paragraphe visible (54% du texte)
+      // Cinquième commentaire - fin du grand paragraphe (52% du texte)
       {
         tag: "blue", 
         quote: "D'autre part, les défenseurs de la théorie de la réalité prône la légitimité",
         comment: "Suggestion stylistique : 'prônent' (accord du verbe) et développer davantage cette théorie avec des auteurs précis."
+      },
+      // Sixième commentaire - début de la partie du milieu visible (47% du texte)
+      {
+        tag: "orange",
+        quote: "Ainsi la théorie de la réalité découle",
+        comment: "Lien logique insuffisant : il faudrait mieux expliquer comment cette théorie découle des éléments précédents."
+      },
+      // Septième commentaire - milieu de la partie visible du milieu (50% du texte)  
+      {
+        tag: "red",
+        quote: "La personnalité juridique tient en l'acception que nous donne l'étymologie latine",
+        comment: "Erreur d'analyse : cette approche étymologique est réductrice et ne correspond pas à l'analyse juridique moderne."
+      },
+      // Huitième commentaire - fin de la partie visible du milieu (53% du texte)
+      {
+        tag: "orange",
+        quote: "ce qui nous concerne la chose est donc le groupement",
+        comment: "Syntaxe défaillante : cette phrase est mal construite et nuit à la compréhension de l'argument."
       }
     ]
   }
