@@ -14,16 +14,10 @@ export default function Home() {
   const router = useRouter();
   const [isMobile, setIsMobile] = useState(false);
 
-  // ── état pour le bouton de test (discret)
-  const [loadingTest, setLoadingTest] = useState(false);
-  const [testMsg, setTestMsg] = useState<string | null>(null);
-
   useEffect(() => {
     const checkUserNeedsPassword = async () => {
       try {
-        const {
-          data: { session },
-        } = await supabase.auth.getSession();
+        const { data: { session } } = await supabase.auth.getSession();
         if (session) {
           console.log("Utilisateur connecté détecté, redirection vers /auth/callback");
           router.push("/auth/callback");
@@ -37,8 +31,8 @@ export default function Home() {
     // Détecter mobile
     const checkMobile = () => setIsMobile(window.innerWidth <= 600);
     checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
   }, [router]);
 
   // Styles pill / cta (desktop)
@@ -62,44 +56,29 @@ export default function Home() {
     boxShadow: "0 12px 30px rgba(123,30,58,.35)",
   } as const;
 
-  // ── action du bouton de test : on bascule vers une page dédiée (login + création + redirection)
-  function runDevTest() {
-    setLoadingTest(true);
-    setTestMsg("Ouverture du test…");
-    router.push("/dev/test-autorun");
-  }
-
   return (
     <main>
       {/* ===== NAV (droite, avec Tarifs + Se connecter) ===== */}
-      <header className="site-header nav nav-blur" style={{ position: "relative", paddingBottom: isMobile ? "60px" : "1rem" }}>
+      <header className="site-header nav nav-blur" style={{ position: 'relative', paddingBottom: isMobile ? '60px' : '1rem' }}>
         <div
           className="container"
           style={{ display: "flex", justifyContent: "flex-end", alignItems: "center" }}
         >
           <nav className="nav-links" style={{ display: "flex", gap: 12, alignItems: "center" }}>
-            <Link href="/tarifs" className="nav-link" style={pill}>
-              Tarifs
-            </Link>
-            <Link href="/login" className="btn-login" style={{ ...cta, display: isMobile ? "none" : "inline-flex" }}>
-              Se connecter
-            </Link>
+            <Link href="/tarifs" className="nav-link" style={pill}>Tarifs</Link>
+            <Link href="/login" className="btn-login" style={{...cta, display: isMobile ? 'none' : 'inline-flex'}}>Se connecter</Link>
           </nav>
         </div>
-
+        
         {/* Bouton mobile sous le titre */}
         {isMobile && (
-          <div
-            style={{
-              position: "absolute",
-              top: "90px",
-              right: "16px",
-              zIndex: 10,
-            }}
-          >
-            <Link href="/login" style={cta}>
-              Se connecter
-            </Link>
+          <div style={{
+            position: 'absolute',
+            top: '90px',
+            right: '16px',
+            zIndex: 10
+          }}>
+            <Link href="/login" style={cta}>Se connecter</Link>
           </div>
         )}
       </header>
@@ -111,50 +90,13 @@ export default function Home() {
       <div className="container">
         <section className="presentation card-glass" style={{ marginInline: "auto" }}>
           <p>
-            En droit, la méthodologie compte plus que tout dans la note, et c&apos;est pourtant la plus difficile à acquérir.
+            En droit, la méthodologie compte plus que tout dans la note, et c'est pourtant la plus difficile à acquérir.
             JURISCORRECT propose une correction de A à Z&nbsp;: il identifie précisément ce qui ne va pas dans ta copie,
             explique pourquoi et te montre comment corriger le tir, pour travailler tes points faibles et progresser
-            réellement. Cette correction automatisée s&apos;appuie sur MA base de données personnelle, alignée sur les
+            réellement. Cette correction automatisée s'appuie sur MA base de données personnelle, alignée sur les
             méthodologies universitaires, un socle introuvable dans les IA généralistes actuelles. JURISCORRECT est
             un produit unique, pensé pour faire gagner des points grâce à la méthode.
           </p>
-
-          {/* ── Bouton de test DISCRET : aligné à droite, n'altère pas la mise en page */}
-          <div
-            style={{
-              marginTop: 12,
-              display: "flex",
-              justifyContent: "flex-end",
-              alignItems: "center",
-              gap: 10,
-            }}
-          >
-            <button
-              onClick={runDevTest}
-              disabled={loadingTest}
-              // variante "ghost" pour rester discret dans la carte blanche
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 8,
-                padding: "10px 16px",
-                borderRadius: 14,
-                fontWeight: 800,
-                background: "rgba(123,30,58,.08)",
-                color: "var(--brand)",
-                textDecoration: "none",
-                border: "1px solid rgba(123,30,58,.25)",
-                cursor: "pointer",
-              }}
-            >
-              {loadingTest ? "…" : "🔧 Tester une correction"}
-            </button>
-            {testMsg && (
-              <small style={{ color: "var(--muted)" }}>
-                {testMsg}
-              </small>
-            )}
-          </div>
         </section>
       </div>
 
@@ -229,14 +171,14 @@ export default function Home() {
                 >
                   Qui suis-je ?
                 </span>
-                Doctorante en droit international pénal et professeur particulier depuis quatre ans, j&apos;ai effectué un parcours
-                universitaire rigoureux, validé mention bien à chaque étape. Après une licence à l&apos;université de Créteil,
-                j&apos;ai obtenu deux masters : un master 1 et 2 de droit international et droit comparé à Nanterre, puis un master 1
-                et 2 de droit pénal et sciences criminelles à Toulouse. Au fil de mes années d&apos;enseignement, j&apos;ai constaté que le
-                plus grand défi des étudiants en droit était la maîtrise de la méthodologie. C&apos;est pourquoi j&apos;ai créé JURISCORRECT :
-                pour démocratiser l&apos;accès à une correction de qualité et permettre à chaque étudiant de progresser efficacement.
-                Il s&apos;agit de ma correction basée sur mes critères et non pas ceux d&apos;Internet. Avec quatre ans d&apos;expérience et un
-                taux de réussite de 100 % parmi mes élèves, je mets aujourd&apos;hui mon expertise à votre service à travers cet outil.
+                Doctorante en droit international pénal et professeur particulier depuis quatre ans, j'ai effectué un parcours
+                universitaire rigoureux, validé mention bien à chaque étape. Après une licence à l'université de Créteil,
+                j'ai obtenu deux masters : un master 1 et 2 de droit international et droit comparé à Nanterre, puis un master 1
+                et 2 de droit pénal et sciences criminelles à Toulouse. Au fil de mes années d'enseignement, j'ai constaté que le
+                plus grand défi des étudiants en droit était la maîtrise de la méthodologie. C'est pourquoi j'ai créé JURISCORRECT :
+                pour démocratiser l'accès à une correction de qualité et permettre à chaque étudiant de progresser efficacement.
+                Il s'agit de ma correction basée sur mes critères et non pas ceux d'Internet. Avec quatre ans d'expérience et un
+                taux de réussite de 100 % parmi mes élèves, je mets aujourd'hui mon expertise à votre service à travers cet outil.
               </p>
             </div>
 
@@ -307,14 +249,14 @@ export default function Home() {
               textAlign: "justify",
             }}
           >
-            Au-delà de l&apos;outil JURISCORRECT, je propose également un accompagnement personnalisé sous forme de cours particuliers.
+            Au-delà de l'outil JURISCORRECT, je propose également un accompagnement personnalisé sous forme de cours particuliers.
             Ces sessions permettent un suivi individualisé, des explications détaillées de la méthodologie juridique et un
             entraînement adapté à tes besoins spécifiques. Que tu souhaites préparer un examen, améliorer tes techniques
-            de dissertation ou perfectionner tes commentaires d&apos;arrêt, je t&apos;accompagne dans ta progression avec une
+            de dissertation ou perfectionner tes commentaires d'arrêt, je t'accompagne dans ta progression avec une
             pédagogie éprouvée et des résultats concrets.
             <br />
             <br />
-            Pour toute demande d&apos;information ou pour planifier un accompagnement personnalisé, voici mon mail :
+            Pour toute demande d'information ou pour planifier un accompagnement personnalisé, voici mon mail :
             <a
               href="mailto:marie.terki@icloud.com"
               style={{
