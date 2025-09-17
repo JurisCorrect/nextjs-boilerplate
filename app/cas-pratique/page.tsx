@@ -28,12 +28,12 @@ export default function CasPratiquePage() {
 
   async function extractDocxText(file: File): Promise<string> {
     try {
+      // @ts-ignore - pas de d.ts pour la build browser de mammoth
       const mammoth = await import("mammoth/mammoth.browser")
       const arrayBuffer = await file.arrayBuffer()
       const { value } = await mammoth.extractRawText({ arrayBuffer })
       return value || ""
     } catch {
-      // fallback: pas de blocage si mammoth échoue
       return ""
     }
   }
@@ -56,14 +56,13 @@ export default function CasPratiquePage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          // Ton backend lit surtout payload.text pour la génération
           text: joinedText,
           payload: {
-            text: joinedText,
+            text: joinedText,                  // utilisé par /api/corrections/generate
             exercise_kind: "cas-pratique",
             matiere: "",
             sujet,
-            filename: fichier.name, // ta route create l'utilise pour remplir "copie"
+            filename: fichier.name,
           },
         }),
       })
@@ -76,7 +75,7 @@ export default function CasPratiquePage() {
       // ➜ redirection directe vers la page correction (spinner puis aperçu)
       window.location.href = `/correction/${encodeURIComponent(data.submissionId)}`
     } catch (err: any) {
-      setErreur(err?.message || "Erreur paiement")
+      setErreur(err?.message || "Erreur")
       setIsLoading(false)
     }
   }
