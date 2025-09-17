@@ -30,25 +30,44 @@ export default function CasPratiquePage() {
       })
       const base64Docx = await toBase64(fichier)
 
-      const res = await fetch("/api/correct", {
+      // CHANGEMENT ICI : appel de la bonne route
+      const res = await fetch("/api/submissions/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          exercise_kind: "cas-pratique",   // si ton API veut "cas_pratique", mets un underscore
-          matiere: "",                      // plus de matière
-          sujet,
-          base64Docx,
-          filename: fichier.name,
-          copie: `Document Word déposé : ${fichier.name}`,
+          // Format compatible avec votre route submissions/create
+          text: `ÉNONCÉ: ${sujet}\n\nDOCUMENT: ${fichier.name}`,
+          payload: {
+            text: `ÉNONCÉ: ${sujet}\n\nDOCUMENT: ${fichier.name}`,
+            exercise_kind: "cas-pratique",
+            sujet,
+            base64Docx,
+            filename: fichier.name,
+          }
         }),
       })
+      
       const data = await res.json()
-      if (!res.ok) { setIsLoading(false); setErreur(data.error || "Erreur serveur"); return }
-      const id = data?.submissionId || data?.correctionId || data?.id || data?.result?.id
-      if (!id) { setIsLoading(false); setErreur("Réponse serveur invalide : ID de correction manquant."); return }
-      window.location.href = `/correction/${encodeURIComponent(id)}`
+      if (!res.ok) { 
+        setIsLoading(false); 
+        setErreur(data.error || "Erreur serveur"); 
+        return 
+      }
+      
+      // La route submissions/create renvoie { submissionId }
+      const submissionId = data?.submissionId
+      if (!submissionId) { 
+        setIsLoading(false); 
+        setErreur("Réponse serveur invalide : ID de soumission manquant."); 
+        return 
+      }
+      
+      // Redirection vers la page de correction
+      window.location.href = `/correction/${encodeURIComponent(submissionId)}`
+      
     } catch (err: any) {
-      setIsLoading(false); setErreur("Erreur détaillée: " + (err?.message || String(err)))
+      setIsLoading(false); 
+      setErreur("Erreur détaillée: " + (err?.message || String(err)))
     }
   }
 
