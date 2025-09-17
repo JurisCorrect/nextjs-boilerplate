@@ -38,26 +38,85 @@ function replaceFirst(hay: string, needle: string, repl: string) {
 export default function AnnotatedTeaser({ submissionId }: { submissionId: string }) {
   const [data, setData] = useState<StatusPayload | null>(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [openIdx, setOpenIdx] = useState<number | null>(null)
 
   const anchors = useRef<Record<number, HTMLDivElement | null>>({})
 
   useEffect(() => {
     let stop = false
+    let retryCount = 0
+    const maxRetries = 10
+
     async function tick() {
       try {
-        const r = await fetch(`/api/corrections/status?submissionId=${encodeURIComponent(submissionId)}`, { cache: "no-store" })
-        const j = (await r.json()) as StatusPayload
-        if (!stop) setData(j)
-        if (!stop && j?.status !== "ready") setTimeout(tick, 1500)
-        else setLoading(false)
-      } catch {
-        if (!stop) setTimeout(tick, 2000)
+        const r = await fetch(`/api/corrections/status?submissionId=${encodeURIComponent(submissionId)}`, { 
+          cache: "no-store",
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        })
+        
+        if (!r.ok) {
+          throw new Error(`HTTP ${r.status}: ${r.statusText}`)
+        }
+        
+        const j = await r.json() as StatusPayload
+        
+        if (!stop) {
+          setData(j)
+          setError(null)
+          retryCount = 0
+        }
+        
+        if (!stop && j?.status !== "ready") {
+          setTimeout(tick, 2000)
+        } else {
+          setLoading(false)
+        }
+      } catch (err) {
+        console.error('Error fetching status:', err)
+        if (!stop) {
+          setError(err instanceof Error ? err.message : 'Une erreur est survenue')
+          retryCount++
+          if (retryCount < maxRetries) {
+            setTimeout(tick, 3000)
+          } else {
+            setLoading(false)
+          }
+        }
       }
     }
+    
     tick()
     return () => { stop = true }
   }, [submissionId])
+
+  // Affichage d'erreur
+  if (error && !loading) {
+    return (
+      <section className="panel" style={{ display: "grid", placeItems: "center", minHeight: "26vh", padding: "20px" }}>
+        <div style={{ textAlign: "center", color: "#b71c1c" }}>
+          <p>Erreur lors du chargement de la correction :</p>
+          <p style={{ fontSize: "14px", opacity: 0.8 }}>{error}</p>
+          <button 
+            onClick={() => { setError(null); setLoading(true) }}
+            style={{ 
+              marginTop: "12px", 
+              padding: "8px 16px", 
+              borderRadius: "8px", 
+              border: "1px solid #7b1e3a", 
+              background: "#7b1e3a", 
+              color: "white", 
+              cursor: "pointer" 
+            }}
+          >
+            Réessayer
+          </button>
+        </div>
+      </section>
+    )
+  }
 
   if (loading || !data || data.status !== "ready") {
     return (
@@ -74,8 +133,13 @@ export default function AnnotatedTeaser({ submissionId }: { submissionId: string
             }} 
           />
           <p style={{ margin: 0, lineHeight: 1.5, fontSize: "clamp(18px, 2vw, 22px)" }}>
-            Votre correction est en cours de génération… Un aperçu apparaîtra dès qu'il sera prêt.
+            Votre correction est en cours de génération…
           </p>
+          {error && (
+            <p style={{ fontSize: "14px", color: "#e65100", margin: 0 }}>
+              Reconnexion en cours...
+            </p>
+          )}
         </div>
         <style>{`@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}`}</style>
       </section>
@@ -87,6 +151,28 @@ export default function AnnotatedTeaser({ submissionId }: { submissionId: string
   const inlineAll = Array.isArray(result.inline) ? (result.inline as InlineItem[]) : []
   const teaser = inlineAll.slice(0, 2)
 
+  // Si pas de texte, on affiche un message
+  if (!body) {
+    return (
+      <section className="panel" style={{ padding: "20px", textAlign: "center" }}>
+        <p>Aucun contenu de correction disponible pour le moment.</p>
+        <button 
+          onClick={() => window.location.reload()}
+          style={{ 
+            padding: "8px 16px", 
+            borderRadius: "8px", 
+            border: "1px solid #7b1e3a", 
+            background: "#7b1e3a", 
+            color: "white", 
+            cursor: "pointer" 
+          }}
+        >
+          Actualiser
+        </button>
+      </section>
+    )
+  }
+
   const len = body.length
   const idx = (r: number) => Math.floor(len * r)
   const visibleA = body.slice(0, idx(0.2))
@@ -97,16 +183,15 @@ export default function AnnotatedTeaser({ submissionId }: { submissionId: string
   const markedA = useMemo(() => {
     let out = visibleA
     teaser.forEach((c, k) => {
+      if (!c.quote) return
       const n = k + 1
       const col = chipColor(c.tag)
       const badge = `<sup data-cidx="${k}" class="cm-badge" style="background:${col.bg};color:${col.fg};border:1px solid ${col.br}">${n}</sup>`
-      if (c.quote) {
-        out = replaceFirst(
-          out,
-          c.quote,
-          `<mark class="cm-hl" data-cidx="${k}" style="background:${col.bg};border:1px solid ${col.br}">${c.quote}${badge}</mark>`
-        )
-      }
+      out = replaceFirst(
+        out,
+        c.quote,
+        `<mark class="cm-hl" data-cidx="${k}" style="background:${col.bg};border:1px solid ${col.br}">${c.quote}${badge}</mark>`
+      )
     })
     return out
   }, [visibleA, teaser])
@@ -114,17 +199,15 @@ export default function AnnotatedTeaser({ submissionId }: { submissionId: string
   const markedB = useMemo(() => {
     let out = visibleB
     teaser.forEach((c, k) => {
-      if (!c.quote) return
-      if (out.includes(c.quote)) {
-        const col = chipColor(c.tag)
-        const n = k + 1
-        const badge = `<sup data-cidx="${k}" class="cm-badge" style="background:${col.bg};color:${col.fg};border:1px solid ${col.br}">${n}</sup>`
-        out = replaceFirst(
-          out,
-          c.quote,
-          `<mark class="cm-hl" data-cidx="${k}" style="background:${col.bg};border:1px solid ${col.br}">${c.quote}${badge}</mark>`
-        )
-      }
+      if (!c.quote || !out.includes(c.quote)) return
+      const col = chipColor(c.tag)
+      const n = k + 1
+      const badge = `<sup data-cidx="${k}" class="cm-badge" style="background:${col.bg};color:${col.fg};border:1px solid ${col.br}">${n}</sup>`
+      out = replaceFirst(
+        out,
+        c.quote,
+        `<mark class="cm-hl" data-cidx="${k}" style="background:${col.bg};border:1px solid ${col.br}">${c.quote}${badge}</mark>`
+      )
     })
     return out
   }, [visibleB, teaser])
@@ -134,11 +217,20 @@ export default function AnnotatedTeaser({ submissionId }: { submissionId: string
       const t = e.target as HTMLElement
       const el = t.closest?.(".cm-hl, .cm-badge") as HTMLElement | null
       if (!el) return
-      const cidx = Number(el.getAttribute("data-cidx"))
+      
+      const cidxAttr = el.getAttribute("data-cidx")
+      if (!cidxAttr) return
+      
+      const cidx = Number(cidxAttr)
+      if (isNaN(cidx)) return
+      
       setOpenIdx((cur) => (cur === cidx ? null : cidx))
       const a = anchors.current[cidx]
-      if (a) a.scrollIntoView({ behavior: "smooth", block: "center" })
+      if (a) {
+        a.scrollIntoView({ behavior: "smooth", block: "center" })
+      }
     }
+    
     document.addEventListener("click", onClick)
     return () => document.removeEventListener("click", onClick)
   }, [])
@@ -149,10 +241,10 @@ export default function AnnotatedTeaser({ submissionId }: { submissionId: string
 
   return (
     <section className="panel" style={{ position: "relative" }}>
-      <p style={justify} dangerouslySetInnerHTML={{ __html: markedA }} />
-      <p style={{ ...justify, ...blur }}>{blurredA}</p>
-      <p style={justify} dangerouslySetInnerHTML={{ __html: markedB }} />
-      <p style={{ ...justify, ...blur }}>{blurredB}</p>
+      <div dangerouslySetInnerHTML={{ __html: markedA }} style={justify} />
+      <div style={{ ...justify, ...blur }}>{blurredA}</div>
+      <div dangerouslySetInnerHTML={{ __html: markedB }} style={justify} />
+      <div style={{ ...justify, ...blur }}>{blurredB}</div>
 
       {teaser.length > 0 && (
         <aside
@@ -185,7 +277,6 @@ export default function AnnotatedTeaser({ submissionId }: { submissionId: string
               >
                 <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
                   <span
-                    className="cm-chip"
                     style={{
                       background: col.bg, 
                       color: col.fg, 
@@ -199,11 +290,11 @@ export default function AnnotatedTeaser({ submissionId }: { submissionId: string
                   >
                     {(c.tag || "NOTE").toUpperCase()} • {i + 1}
                   </span>
-                  {c.quote ? (
+                  {c.quote && (
                     <span style={{ fontStyle: "italic", opacity: 0.9 }}>
-                      &laquo; {c.quote} &raquo;
+                      « {c.quote} »
                     </span>
-                  ) : null}
+                  )}
                 </div>
                 <div style={{ fontWeight: 600, opacity: opened ? 1 : 0.9 }}>
                   {c.comment || "…"}
