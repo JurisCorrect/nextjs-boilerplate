@@ -1,9 +1,4 @@
 // app/api/submissions/create/route.ts
-export async function POST(req: Request) {
-  console.log("[create] *** ROUTE HIT - THIS SHOULD APPEAR IN LOGS ***");
-  try {
-    console.log("[create] POST request received");
-    // ... reste du code inchangé
 import { NextResponse } from "next/server";
 import { getSupabaseServer } from "@/lib/supabase/server";
 
