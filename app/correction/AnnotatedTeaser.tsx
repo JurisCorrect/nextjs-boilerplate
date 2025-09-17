@@ -245,8 +245,8 @@ export default function AnnotatedTeaser({ submissionId }: { submissionId: string
       {/* Instruction d'utilisation */}
       <div style={{
         textAlign: "center",
-        fontSize: "14px",
-        color: "#666",
+        fontSize: "16px",
+        color: "#333",
         marginBottom: "20px",
         fontStyle: "italic",
         padding: "8px 12px",
