@@ -19,9 +19,8 @@ export async function POST(req: Request) {
     const copie = `Document: ${body?.payload?.filename || "document.docx"}`;
     
     const submissionId = crypto.randomUUID();
-
     console.log("[create] Inserting with correct columns");
-
+    
     // INSERT avec les vraies colonnes de votre table
     const { error: insErr, data: insertResult } = await supabase
       .from("submissions")
@@ -33,9 +32,9 @@ export async function POST(req: Request) {
         copie: copie
       }])
       .select();
-
+    
     console.log("[create] Insert result:", insertResult);
-
+    
     if (insErr) {
       console.log("[create] Insert error:", insErr.message);
       return NextResponse.json({ 
@@ -46,23 +45,32 @@ export async function POST(req: Request) {
 
     console.log("[create] Submission created successfully:", submissionId);
 
-    // Lance la génération
+    // Lance la génération avec gestion d'erreur
     const base = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000";
     
-    console.log("[create] Calling generate API");
+    console.log("[create] Calling generate API with base:", base);
     
-    fetch(`${base}/api/corrections/generate`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ 
-        submissionId, 
-        payload: { 
-          text: `SUJET: ${sujet}\n\nCOPIE: ${copie}`,
-          exercise_kind: exerciseKind,
-          matiere: matiere
-        }
-      }),
-    }).catch(e => console.log("[create] Generate call failed:", e.message));
+    try {
+      const generateResponse = await fetch(`${base}/api/corrections/generate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          submissionId, 
+          payload: { 
+            text: `SUJET: ${sujet}\n\nCOPIE: ${copie}`,
+            exercise_kind: exerciseKind,
+            matiere: matiere
+          }
+        }),
+      });
+      
+      const result = await generateResponse.json();
+      console.log("[create] Generate response status:", generateResponse.status);
+      console.log("[create] Generate response:", result);
+      
+    } catch (fetchError: any) {
+      console.log("[create] Generate fetch failed:", fetchError.message);
+    }
 
     console.log("[create] Returning submissionId:", submissionId);
     return NextResponse.json({ submissionId });
