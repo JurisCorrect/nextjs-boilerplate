@@ -20,11 +20,11 @@ type StatusPayload = {
 function chipColor(tag?: string) {
   const t = (tag || "").toLowerCase()
   switch (t) {
-    case "green":  return { bg:"rgba(200,230,201,.45)", fg:"#1b5e20", br:"rgba(27,94,32,.25)" }
-    case "red":    return { bg:"rgba(255,205,210,.45)", fg:"#b71c1c", br:"rgba(183,28,28,.25)" }
-    case "orange": return { bg:"rgba(255,224,178,.55)", fg:"#e65100", br:"rgba(230,81,0,.25)" }
-    case "blue":   return { bg:"rgba(187,222,251,.55)", fg:"#0d47a1", br:"rgba(13,71,161,.25)" }
-    default:       return { bg:"rgba(240,240,240,.9)", fg:"#222",     br:"rgba(0,0,0,.12)" }
+    case "green":  return { bg: "rgba(200,230,201,.45)", fg: "#1b5e20", br: "rgba(27,94,32,.25)" }
+    case "red":    return { bg: "rgba(255,205,210,.45)", fg: "#b71c1c", br: "rgba(183,28,28,.25)" }
+    case "orange": return { bg: "rgba(255,224,178,.55)", fg: "#e65100", br: "rgba(230,81,0,.25)" }
+    case "blue":   return { bg: "rgba(187,222,251,.55)", fg: "#0d47a1", br: "rgba(13,71,161,.25)" }
+    default:       return { bg: "rgba(240,240,240,.9)", fg: "#222", br: "rgba(0,0,0,.12)" }
   }
 }
 
@@ -61,10 +61,19 @@ export default function AnnotatedTeaser({ submissionId }: { submissionId: string
 
   if (loading || !data || data.status !== "ready") {
     return (
-      <section className="panel" style={{ display:"grid", placeItems:"center", minHeight:"26vh", padding:"20px", position:"relative" }}>
-        <div style={{ display:"grid", placeItems:"center", gap:14, textAlign:"center" }}>
-          <div style={{ width:32, height:32, borderRadius:"50%", border:"3px solid rgba(123,30,58,.25)", borderTopColor:"#7b1e3a", animation:"spin 1s linear infinite" }} />
-          <p style={{ margin:0, lineHeight:1.5, fontSize:"clamp(18px, 2vw, 22px)" }}>
+      <section className="panel" style={{ display: "grid", placeItems: "center", minHeight: "26vh", padding: "20px", position: "relative" }}>
+        <div style={{ display: "grid", placeItems: "center", gap: 14, textAlign: "center" }}>
+          <div 
+            style={{
+              width: 32, 
+              height: 32, 
+              borderRadius: "50%", 
+              border: "3px solid rgba(123,30,58,.25)", 
+              borderTopColor: "#7b1e3a", 
+              animation: "spin 1s linear infinite" 
+            }} 
+          />
+          <p style={{ margin: 0, lineHeight: 1.5, fontSize: "clamp(18px, 2vw, 22px)" }}>
             Votre correction est en cours de génération… Un aperçu apparaîtra dès qu'il sera prêt.
           </p>
         </div>
@@ -81,9 +90,9 @@ export default function AnnotatedTeaser({ submissionId }: { submissionId: string
   const len = body.length
   const idx = (r: number) => Math.floor(len * r)
   const visibleA = body.slice(0, idx(0.2))
-  const blurredA  = body.slice(idx(0.2), idx(0.45))
+  const blurredA = body.slice(idx(0.2), idx(0.45))
   const visibleB = body.slice(idx(0.45), idx(0.55))
-  const blurredB  = body.slice(idx(0.55))
+  const blurredB = body.slice(idx(0.55))
 
   const markedA = useMemo(() => {
     let out = visibleA
@@ -134,13 +143,12 @@ export default function AnnotatedTeaser({ submissionId }: { submissionId: string
     return () => document.removeEventListener("click", onClick)
   }, [])
 
-  const justify: React.CSSProperties = { whiteSpace:"pre-wrap", textAlign:"justify" }
-  const blur: React.CSSProperties = { filter:"blur(6px)", userSelect:"none" }
-
+  const justify: React.CSSProperties = { whiteSpace: "pre-wrap", textAlign: "justify" }
+  const blur: React.CSSProperties = { filter: "blur(6px)", userSelect: "none" }
   const refId = data.submissionId
 
   return (
-    <section className="panel" style={{ position:"relative" }}>
+    <section className="panel" style={{ position: "relative" }}>
       <p style={justify} dangerouslySetInnerHTML={{ __html: markedA }} />
       <p style={{ ...justify, ...blur }}>{blurredA}</p>
       <p style={justify} dangerouslySetInnerHTML={{ __html: markedB }} />
@@ -149,8 +157,14 @@ export default function AnnotatedTeaser({ submissionId }: { submissionId: string
       {teaser.length > 0 && (
         <aside
           style={{
-            position:"sticky", top:10, marginTop:12, marginLeft:"auto",
-            maxWidth:420, width:"min(92%, 420px)", display:"grid", gap:12
+            position: "sticky", 
+            top: 10, 
+            marginTop: 12, 
+            marginLeft: "auto",
+            maxWidth: 420, 
+            width: "min(92%, 420px)", 
+            display: "grid", 
+            gap: 12
           }}
         >
           {teaser.map((c, i) => {
@@ -159,33 +173,52 @@ export default function AnnotatedTeaser({ submissionId }: { submissionId: string
             return (
               <div
                 key={i}
-                ref={(el) => { anchors.current[i] = el }}  {/* ✅ CORRECTION ICI */}
+                ref={(el) => { anchors.current[i] = el }}
                 style={{
-                  border:`1px solid ${col.br}`, background:"#fff", borderRadius:12,
+                  border: `1px solid ${col.br}`, 
+                  background: "#fff", 
+                  borderRadius: 12,
                   boxShadow: opened ? "0 8px 24px rgba(10,26,61,.18)" : "0 2px 12px rgba(10,26,61,.08)",
-                  padding:"12px 14px", transition:"box-shadow .2s ease"
+                  padding: "12px 14px", 
+                  transition: "box-shadow .2s ease"
                 }}
               >
-                <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:6 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
                   <span
                     className="cm-chip"
                     style={{
-                      background:col.bg, color:col.fg, border:`1px solid ${col.br}`,
-                      borderRadius:999, padding:"6px 10px", fontWeight:800, fontSize:12, letterSpacing:".2px"
+                      background: col.bg, 
+                      color: col.fg, 
+                      border: `1px solid ${col.br}`,
+                      borderRadius: 999, 
+                      padding: "6px 10px", 
+                      fontWeight: 800, 
+                      fontSize: 12, 
+                      letterSpacing: ".2px"
                     }}
                   >
-                    {(c.tag || "NOTE").toUpperCase()} • {i+1}
+                    {(c.tag || "NOTE").toUpperCase()} • {i + 1}
                   </span>
-                  {c.quote ? <span style={{ fontStyle:"italic", opacity:.9 }}>&laquo; {c.quote} &raquo;</span> : null}
+                  {c.quote ? (
+                    <span style={{ fontStyle: "italic", opacity: 0.9 }}>
+                      &laquo; {c.quote} &raquo;
+                    </span>
+                  ) : null}
                 </div>
-                <div style={{ fontWeight:600, opacity: opened ? 1 : .9 }}>
+                <div style={{ fontWeight: 600, opacity: opened ? 1 : 0.9 }}>
                   {c.comment || "…"}
                 </div>
                 <button
                   onClick={() => setOpenIdx(opened ? null : i)}
                   style={{
-                    marginTop:8, borderRadius:10, border:`1px solid ${col.br}`,
-                    background:"#fff", color:col.fg, fontWeight:800, padding:"6px 10px", cursor:"pointer"
+                    marginTop: 8, 
+                    borderRadius: 10, 
+                    border: `1px solid ${col.br}`,
+                    background: "#fff", 
+                    color: col.fg, 
+                    fontWeight: 800, 
+                    padding: "6px 10px", 
+                    cursor: "pointer"
                   }}
                 >
                   {opened ? "Masquer" : "Ouvrir le commentaire"}
@@ -198,27 +231,51 @@ export default function AnnotatedTeaser({ submissionId }: { submissionId: string
 
       <div
         style={{
-          position:"absolute", inset:0 as any, display:"flex", alignItems:"end",
-          justifyContent:"center", pointerEvents:"none"
+          position: "absolute", 
+          inset: 0, 
+          display: "flex", 
+          alignItems: "end",
+          justifyContent: "center", 
+          pointerEvents: "none"
         }}
         aria-hidden
       >
         <div
           style={{
-            pointerEvents:"auto", margin:"0 8px 12px", background:"rgba(255,255,255,.95)",
-            border:"1px solid rgba(0,0,0,.06)", borderRadius:12, padding:"14px 16px", boxShadow:"0 10px 30px rgba(0,0,0,.10)"
+            pointerEvents: "auto", 
+            margin: "0 8px 12px", 
+            background: "rgba(255,255,255,.95)",
+            border: "1px solid rgba(0,0,0,.06)", 
+            borderRadius: 12, 
+            padding: "14px 16px", 
+            boxShadow: "0 10px 30px rgba(0,0,0,.10)"
           }}
         >
-          <div style={{ fontWeight:900, marginBottom:6 }}>Débloquer la correction complète</div>
-          <div style={{ opacity:.9, marginBottom:10 }}>Accède à tout le texte et à l'ensemble des commentaires.</div>
+          <div style={{ fontWeight: 900, marginBottom: 6 }}>
+            Débloquer la correction complète
+          </div>
+          <div style={{ opacity: 0.9, marginBottom: 10 }}>
+            Accède à tout le texte et à l'ensemble des commentaires.
+          </div>
           <PaymentPanel refId={refId} />
         </div>
       </div>
 
       <style>{`
-        .cm-hl { border-radius: 6px; padding: 0 2px }
-        .cm-badge { display:inline-flex; align-items:center; justify-content:center;
-          margin-left:4px; width:18px; height:18px; border-radius:999px; font: 700 11px/1 ui-sans-serif,system-ui }
+        .cm-hl { 
+          border-radius: 6px; 
+          padding: 0 2px; 
+        }
+        .cm-badge { 
+          display: inline-flex; 
+          align-items: center; 
+          justify-content: center;
+          margin-left: 4px; 
+          width: 18px; 
+          height: 18px; 
+          border-radius: 999px; 
+          font: 700 11px/1 ui-sans-serif, system-ui;
+        }
       `}</style>
     </section>
   )
