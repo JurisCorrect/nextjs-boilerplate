@@ -1,4 +1,3 @@
-// app/cas-pratique/page.tsx
 "use client"
 import { useState } from "react"
 
@@ -12,13 +11,15 @@ export default function CasPratiquePage() {
 
   const handleFileSelect = (file: File | null) => {
     if (!file) return
-    if (!file.name.toLowerCase().endsWith(".docx")) {
+    const name = file.name.toLowerCase()
+    if (!name.endsWith(".docx")) {
       setErreur("Merci de déposer un fichier .docx.")
       return
     }
     setErreur("")
     setFichier(file)
   }
+
   const handleDragOver = (e: React.DragEvent) => { e.preventDefault(); setIsDragging(true) }
   const handleDragLeave = (e: React.DragEvent) => { e.preventDefault(); setIsDragging(false) }
   const handleDrop = (e: React.DragEvent) => {
@@ -29,32 +30,38 @@ export default function CasPratiquePage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setErreur(""); setResultat("")
-    if (!sujet.trim()) { setErreur("Merci d'indiquer l'énoncé du cas pratique."); return }
-    if (!fichier)      { setErreur("Merci de verser le document Word (.docx)."); return }
 
+    if (!sujet.trim()) { setErreur("Merci d'indiquer l'énoncé du cas pratique."); setResultat(""); return }
+    if (!fichier)      { setErreur("Merci de verser le document Word (.docx).");   setResultat(""); return }
+
+    setErreur("")
+    setResultat("")
     setIsLoading(true)
+
     try {
+      // ⬇️ Envoi en multipart/form-data (comme ta page Dissertation)
       const form = new FormData()
-      form.append("mode", "cas-pratique")
+      form.append("mode", "cas-pratique")  // le backend mettra exercise_kind="cas-pratique"
       form.append("sujet", sujet)
-      form.append("file", fichier) // 👈 envoi du .docx au serveur
+      form.append("file", fichier)
 
       const res = await fetch("/api/submissions/create", {
         method: "POST",
-        body: form, // 👈 pas d'entête Content-Type, le navigateur la gère
+        body: form, // ne PAS définir Content-Type : le navigateur s'en charge
       })
 
       const data = await res.json()
       if (!res.ok || !data?.submissionId) {
-        throw new Error(data?.error || "Erreur serveur")
+        setIsLoading(false)
+        setErreur(data?.error || "Erreur serveur")
+        return
       }
 
-      // ➜ redirection immédiate vers la page correction (spinner puis aperçu)
+      // ➜ redirection directe vers la page correction (spinner puis aperçu)
       window.location.href = `/correction/${encodeURIComponent(data.submissionId)}`
     } catch (err: any) {
-      setErreur(err?.message || "Erreur")
       setIsLoading(false)
+      setErreur(err?.message || "Erreur")
     }
   }
 
@@ -64,7 +71,7 @@ export default function CasPratiquePage() {
       <p className="helper">Colle ton énoncé de cas pratique, puis dépose ton document Word (.docx).</p>
 
       <section className="panel">
-        <form onSubmit={handleSubmit} className="form" noValidate>
+        <form onSubmit={handleSubmit} className="form" noValidate aria-busy={isLoading}>
           <div className="field">
             <label htmlFor="sujet">Énoncé de cas pratique</label>
             <textarea
@@ -74,6 +81,7 @@ export default function CasPratiquePage() {
               style={{ height: "3cm", minHeight: "3cm" }}
               value={sujet}
               onChange={(e) => setSujet(e.target.value)}
+              autoComplete="off"
             />
           </div>
 
@@ -84,7 +92,7 @@ export default function CasPratiquePage() {
                 id="docx-cp"
                 className="uploader-input"
                 type="file"
-                accept=".docx"
+                accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                 onChange={(e) => handleFileSelect(e.target.files?.[0] ?? null)}
               />
               <label
@@ -113,7 +121,7 @@ export default function CasPratiquePage() {
       </section>
 
       {isLoading && (
-        <div className="loader-overlay" role="status" aria-live="polite">
+        <div className="loader-overlay" role="status" aria-live="polite" aria-label="Envoi en cours">
           <div className="loader-ring" />
         </div>
       )}
