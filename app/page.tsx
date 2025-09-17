@@ -63,37 +63,58 @@ export default function Home() {
   } as const;
 
   // ── action du bouton de test (création submission + redirection)
-  async function runDevTest() {
-    try {
-      setLoadingTest(true);
-      setTestMsg("Création d’une soumission de démo…");
-      const r = await fetch("/api/submissions/create", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          payload: {
-            text:
-              "Sujet : La responsabilité administrative pour faute.\n" +
-              "Introduction — Depuis l'arrêt Blanco, la responsabilité de l'administration…\n" +
-              "I. La faute simple demeure le principe…\n" +
-              "II. Vers un régime plus objectif…\n" +
-              "Conclusion.",
-          },
-        }),
-      });
-      const d = await r.json();
-      if (!r.ok || !d?.submissionId) {
-        setTestMsg("Erreur : " + (d?.error || "inconnue"));
-        return;
-      }
-      setTestMsg("Redirection vers la page CORRECTION…");
-      router.replace(`/correction/${encodeURIComponent(d.submissionId)}`);
-    } catch (e: any) {
-      setTestMsg("Erreur : " + (e?.message || "inconnue"));
-    } finally {
-      setLoadingTest(false);
+async function runDevTest() {
+  try {
+    setLoadingTest(true);
+
+    // 1) Vérifie la session Supabase : si pas loggé → redirige vers /login
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      setTestMsg("Connexion requise… redirection vers la page de connexion.");
+      // après login, reviens sur la home pour recliquer le bouton
+      router.push("/login?next=/");
+      return;
     }
+
+    // 2) Crée la soumission de démo
+    setTestMsg("Création d’une soumission de démo…");
+    const r = await fetch("/api/submissions/create", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        payload: {
+          text:
+            "Sujet : La responsabilité administrative pour faute.\n" +
+            "Introduction — Depuis l'arrêt Blanco, la responsabilité de l'administration…\n" +
+            "I. La faute simple demeure le principe…\n" +
+            "II. Vers un régime plus objectif…\n" +
+            "Conclusion."
+        }
+      }),
+    });
+
+    // 3) Si l’API répond 401 (par sécurité), re-redirige vers /login
+    if (r.status === 401) {
+      setTestMsg("Connexion requise… redirection vers la page de connexion.");
+      router.push("/login?next=/");
+      return;
+    }
+
+    const d = await r.json();
+    if (!r.ok || !d?.submissionId) {
+      setTestMsg("Erreur : " + (d?.error || "inconnue"));
+      return;
+    }
+
+    // 4) OK → va sur la page CORRECTION
+    setTestMsg("Redirection vers la page CORRECTION…");
+    router.replace(`/correction/${encodeURIComponent(d.submissionId)}`);
+  } catch (e: any) {
+    setTestMsg("Erreur : " + (e?.message || "inconnue"));
+  } finally {
+    setLoadingTest(false);
   }
+}
 
   return (
     <main>
