@@ -62,9 +62,8 @@ export async function POST(req: Request) {
       const mammoth = await import("mammoth");
       const { value: docText = "" } = await mammoth.extractRawText({ buffer });
 
-      joinedText =
-        `ÉNONCÉ :\n${sujet}\n\n` +
-        `COPIE (.docx extrait) :\n${docText || "(extraction indisponible)"}\n`;
+      // ✅ Texte propre : sujet + doc, sans labels "ÉNONCÉ" / "COPIE"
+      joinedText = [sujet.trim(), (docText || "").trim()].filter(Boolean).join("\n\n");
     } else {
       // ============= JSON (compat anciennes pages) =============
       const body = await req.json().catch(() => ({} as any));
@@ -73,9 +72,9 @@ export async function POST(req: Request) {
       sujet = body?.payload?.sujet || body?.text || body?.sujet || "";
       filename = body?.payload?.filename || body?.filename || "document.docx";
       const payloadText = body?.payload?.text || body?.text || "";
-      joinedText =
-        payloadText ||
-        `ÉNONCÉ :\n${sujet}\n\nCOPIE :\n${filename}\n`;
+
+      // ✅ Pas de labels non plus dans le fallback JSON
+      joinedText = String(payloadText || sujet || "");
     }
 
     // INSERT minimal conforme à ton schéma
