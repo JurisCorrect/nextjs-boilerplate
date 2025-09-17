@@ -19,11 +19,11 @@ type StatusPayload = {
 function chipColor(tag?: string) {
   const t = (tag || "").toLowerCase()
   switch (t) {
-    case "green":  return { bg: "rgba(76, 175, 80, 0.2)", fg: "#2E7D32", border: "rgba(76, 175, 80, 0.5)" }
-    case "red":    return { bg: "rgba(244, 67, 54, 0.2)", fg: "#C62828", border: "rgba(244, 67, 54, 0.5)" }
-    case "orange": return { bg: "rgba(255, 152, 0, 0.2)", fg: "#E65100", border: "rgba(255, 152, 0, 0.5)" }
-    case "blue":   return { bg: "rgba(33, 150, 243, 0.2)", fg: "#1565C0", border: "rgba(33, 150, 243, 0.5)" }
-    default:       return { bg: "rgba(158, 158, 158, 0.2)", fg: "#424242", border: "rgba(158, 158, 158, 0.5)" }
+    case "green":  return { bg: "rgba(76, 175, 80, 0.25)", fg: "#2E7D32", border: "rgba(76, 175, 80, 0.6)" }
+    case "red":    return { bg: "rgba(244, 67, 54, 0.25)", fg: "#C62828", border: "rgba(244, 67, 54, 0.6)" }
+    case "orange": return { bg: "rgba(255, 152, 0, 0.25)", fg: "#E65100", border: "rgba(255, 152, 0, 0.6)" }
+    case "blue":   return { bg: "rgba(33, 150, 243, 0.25)", fg: "#1565C0", border: "rgba(33, 150, 243, 0.6)" }
+    default:       return { bg: "rgba(158, 158, 158, 0.25)", fg: "#424242", border: "rgba(158, 158, 158, 0.6)" }
   }
 }
 
@@ -74,7 +74,7 @@ export default function AnnotatedTeaser({ submissionId }: { submissionId: string
     return () => { mounted = false }
   }, [submissionId])
 
-  // Gestion des clics sur les petits carrés
+  // Gestion des clics sur les carrés de commentaires
   useEffect(() => {
     function handleCommentClick(e: MouseEvent) {
       const target = e.target as HTMLElement
@@ -123,25 +123,24 @@ export default function AnnotatedTeaser({ submissionId }: { submissionId: string
   const result = data.result || {}
   const body = result.normalizedBody ?? result.body ?? ""
   
-  // Commentaires factices intégrés dans le texte
+  // Distribution équilibrée des commentaires dans le texte
   let inline = result.inline || []
   if (inline.length === 0 && body.length > 0) {
-    const sentences = body.split(/[.!?]+/).filter(s => s.trim().length > 30)
+    // Découpe le texte en phrases
+    const sentences = body.split(/[.!?]+/).filter(s => s.trim().length > 20)
+    
+    // Sélectionne des phrases réparties dans le texte
+    const totalSentences = sentences.length
     inline = [
       {
         tag: "green",
-        quote: sentences[0]?.trim().slice(0, 80) || "première phrase",
-        comment: "Excellente introduction. L'accroche est pertinente et permet de capter l'attention du lecteur tout en introduisant le sujet de manière claire."
+        quote: sentences[Math.floor(totalSentences * 0.15)]?.trim().slice(0, 60) || "première partie",
+        comment: "Bonne analyse du problème juridique. L'approche méthodologique est correcte."
       },
       {
         tag: "orange", 
-        quote: sentences[2]?.trim().slice(0, 60) || "phrase du milieu",
-        comment: "Point intéressant mais à développer davantage. Il serait judicieux d'ajouter des références doctrinales ou jurisprudentielles pour étayer cette affirmation."
-      },
-      {
-        tag: "red",
-        quote: sentences[4]?.trim().slice(0, 70) || "autre phrase",
-        comment: "Attention : erreur juridique ici. Cette interprétation n'est pas conforme à la jurisprudence récente de la Cour de cassation. Voir arrêt du 15 mars 2023."
+        quote: sentences[Math.floor(totalSentences * 0.65)]?.trim().slice(0, 50) || "milieu du texte",
+        comment: "Argumentation à renforcer. Il manque des références jurisprudentielles pour étayer ce point."
       }
     ]
   }
@@ -154,14 +153,14 @@ export default function AnnotatedTeaser({ submissionId }: { submissionId: string
     )
   }
 
-  // Découpage du texte
+  // Découpage du texte (20% visible, flouté, 10% visible, flouté)
   const len = body.length
   const part1 = body.slice(0, Math.floor(len * 0.2))
   const part2 = body.slice(Math.floor(len * 0.2), Math.floor(len * 0.45))
   const part3 = body.slice(Math.floor(len * 0.45), Math.floor(len * 0.55))
   const part4 = body.slice(Math.floor(len * 0.55))
 
-  // Injection des marqueurs dans les parties visibles
+  // Injection des surlignages et carrés dans les parties visibles
   let markedPart1 = part1
   let markedPart3 = part3
 
@@ -170,44 +169,67 @@ export default function AnnotatedTeaser({ submissionId }: { submissionId: string
     
     const color = chipColor(comment.tag)
     const commentId = `comment-${index}`
+    
+    // Carré de commentaire (fin de phrase uniquement)
     const marker = `<span 
       class="comment-marker" 
       data-comment-id="${commentId}"
       style="
         display: inline-block;
-        width: 12px;
-        height: 12px;
+        width: 10px;
+        height: 10px;
         background: ${color.bg};
         border: 1px solid ${color.border};
         border-radius: 2px;
-        margin-left: 2px;
-        margin-right: 2px;
+        margin-left: 3px;
         cursor: pointer;
         vertical-align: middle;
-        position: relative;
-        opacity: 0.8;
+        opacity: 0.9;
       "
-      title="Cliquez pour voir le commentaire"
+      title="Commentaire - Cliquez pour ouvrir"
     ></span>`
 
-    // Essaye d'abord dans part1
-    const searchText = comment.quote.slice(0, 30)
-    if (markedPart1.includes(searchText)) {
-      markedPart1 = replaceFirst(markedPart1, searchText, searchText + marker)
-    }
-    // Sinon dans part3
-    else if (markedPart3.includes(searchText)) {
-      markedPart3 = replaceFirst(markedPart3, searchText, searchText + marker)
-    }
-    // Sinon à la fin d'une phrase dans part1
-    else {
-      const sentences1 = markedPart1.split(/[.!?]/)
-      if (sentences1.length > index && sentences1[index]) {
-        markedPart1 = markedPart1.replace(
-          sentences1[index] + '.',
-          sentences1[index] + '.' + marker
-        )
+    // Surlignage du passage
+    const highlightedText = `<mark style="background: ${color.bg}; border-radius: 3px; padding: 1px 2px;">${comment.quote}</mark>`
+    
+    // Cherche le passage à surligner dans part1
+    if (markedPart1.includes(comment.quote)) {
+      markedPart1 = replaceFirst(markedPart1, comment.quote, highlightedText)
+      
+      // Ajoute le carré à la fin de la phrase qui contient ce passage
+      const sentences = markedPart1.split(/([.!?]+)/)
+      for (let i = 0; i < sentences.length; i++) {
+        if (sentences[i].includes(highlightedText)) {
+          // Trouve la fin de phrase suivante
+          for (let j = i + 1; j < sentences.length; j++) {
+            if (sentences[j].match(/[.!?]+/)) {
+              sentences[j] = sentences[j] + marker
+              break
+            }
+          }
+          break
+        }
       }
+      markedPart1 = sentences.join('')
+    }
+    // Sinon cherche dans part3
+    else if (markedPart3.includes(comment.quote)) {
+      markedPart3 = replaceFirst(markedPart3, comment.quote, highlightedText)
+      
+      // Ajoute le carré à la fin de la phrase
+      const sentences = markedPart3.split(/([.!?]+)/)
+      for (let i = 0; i < sentences.length; i++) {
+        if (sentences[i].includes(highlightedText)) {
+          for (let j = i + 1; j < sentences.length; j++) {
+            if (sentences[j].match(/[.!?]+/)) {
+              sentences[j] = sentences[j] + marker
+              break
+            }
+          }
+          break
+        }
+      }
+      markedPart3 = sentences.join('')
     }
   })
 
@@ -225,7 +247,7 @@ export default function AnnotatedTeaser({ submissionId }: { submissionId: string
 
   return (
     <section className="panel" style={{ position: "relative" }}>
-      {/* Texte avec marqueurs intégrés */}
+      {/* Texte avec surlignages et carrés */}
       <div style={justify} dangerouslySetInnerHTML={{ __html: markedPart1 }} />
       <div style={{ ...justify, ...blur }}>{part2}</div>
       <div style={justify} dangerouslySetInnerHTML={{ __html: markedPart3 }} />
@@ -251,7 +273,7 @@ export default function AnnotatedTeaser({ submissionId }: { submissionId: string
               border: `2px solid ${color.border}`,
               borderRadius: 12,
               padding: "16px 20px",
-              maxWidth: "400px",
+              maxWidth: "450px",
               width: "90vw",
               boxShadow: "0 10px 30px rgba(0,0,0,0.3)",
               zIndex: 1000
@@ -276,9 +298,10 @@ export default function AnnotatedTeaser({ submissionId }: { submissionId: string
                   marginLeft: "auto",
                   background: "none",
                   border: "none",
-                  fontSize: 18,
+                  fontSize: 20,
                   cursor: "pointer",
-                  color: "#666"
+                  color: "#666",
+                  lineHeight: 1
                 }}
               >
                 ×
@@ -290,22 +313,25 @@ export default function AnnotatedTeaser({ submissionId }: { submissionId: string
                 fontSize: 13,
                 fontStyle: "italic",
                 color: "#666",
-                marginBottom: 10,
+                marginBottom: 12,
                 borderLeft: `3px solid ${color.border}`,
-                paddingLeft: 8
+                paddingLeft: 10,
+                background: color.bg,
+                padding: "8px 10px",
+                borderRadius: 4
               }}>
                 « {comment.quote} »
               </div>
             )}
             
-            <div style={{ fontSize: 14, lineHeight: 1.5 }}>
+            <div style={{ fontSize: 14, lineHeight: 1.5, color: "#333" }}>
               {comment.comment}
             </div>
           </div>
         )
       })}
 
-      {/* Overlay paywall au MILIEU comme avant */}
+      {/* Overlay paywall au centre */}
       <div
         style={{
           position: "absolute",
