@@ -19,11 +19,11 @@ type StatusPayload = {
 function chipColor(tag?: string) {
   const t = (tag || "").toLowerCase()
   switch (t) {
-    case "green":  return { bg: "rgba(76, 175, 80, 0.25)", fg: "#2E7D32", border: "rgba(76, 175, 80, 0.6)" }
-    case "red":    return { bg: "rgba(244, 67, 54, 0.25)", fg: "#C62828", border: "rgba(244, 67, 54, 0.6)" }
-    case "orange": return { bg: "rgba(255, 152, 0, 0.25)", fg: "#E65100", border: "rgba(255, 152, 0, 0.6)" }
-    case "blue":   return { bg: "rgba(33, 150, 243, 0.25)", fg: "#1565C0", border: "rgba(33, 150, 243, 0.6)" }
-    default:       return { bg: "rgba(158, 158, 158, 0.25)", fg: "#424242", border: "rgba(158, 158, 158, 0.6)" }
+    case "green":  return { bg: "rgba(76, 175, 80, 0.3)", fg: "#2E7D32", border: "#4CAF50" }
+    case "red":    return { bg: "rgba(244, 67, 54, 0.3)", fg: "#C62828", border: "#F44336" }
+    case "orange": return { bg: "rgba(255, 152, 0, 0.3)", fg: "#E65100", border: "#FF9800" }
+    case "blue":   return { bg: "rgba(33, 150, 243, 0.3)", fg: "#1565C0", border: "#2196F3" }
+    default:       return { bg: "rgba(158, 158, 158, 0.3)", fg: "#424242", border: "#9E9E9E" }
   }
 }
 
@@ -74,19 +74,19 @@ export default function AnnotatedTeaser({ submissionId }: { submissionId: string
     return () => { mounted = false }
   }, [submissionId])
 
-  // Gestion des clics sur les carrés de commentaires
+  // Gestion des clics sur les surlignages
   useEffect(() => {
-    function handleCommentClick(e: MouseEvent) {
+    function handleHighlightClick(e: MouseEvent) {
       const target = e.target as HTMLElement
-      if (target.classList.contains('comment-marker')) {
+      if (target.classList.contains('highlight-comment')) {
         e.stopPropagation()
         const commentId = target.getAttribute('data-comment-id')
         setOpenCommentId(prev => prev === commentId ? null : commentId)
       }
     }
 
-    document.addEventListener('click', handleCommentClick)
-    return () => document.removeEventListener('click', handleCommentClick)
+    document.addEventListener('click', handleHighlightClick)
+    return () => document.removeEventListener('click', handleHighlightClick)
   }, [])
 
   if (loading) {
@@ -123,24 +123,22 @@ export default function AnnotatedTeaser({ submissionId }: { submissionId: string
   const result = data.result || {}
   const body = result.normalizedBody ?? result.body ?? ""
   
-  // Distribution équilibrée des commentaires dans le texte
+  // Commentaires axés correction (rouge/orange prioritaires)
   let inline = result.inline || []
   if (inline.length === 0 && body.length > 0) {
-    // Découpe le texte en phrases
-    const sentences = body.split(/[.!?]+/).filter(s => s.trim().length > 20)
+    // Trouve des phrases ou expressions complètes
+    const words = body.split(' ')
     
-    // Sélectionne des phrases réparties dans le texte
-    const totalSentences = sentences.length
     inline = [
       {
-        tag: "green",
-        quote: sentences[Math.floor(totalSentences * 0.15)]?.trim().slice(0, 60) || "première partie",
-        comment: "Bonne analyse du problème juridique. L'approche méthodologique est correcte."
+        tag: "red",
+        quote: "Le professeur de droit public, Léon Duguit, disait",
+        comment: "Erreur méthodologique : il manque l'annonce de plan dans cette introduction. Une problématique claire doit être formulée avant de développer les arguments."
       },
       {
         tag: "orange", 
-        quote: sentences[Math.floor(totalSentences * 0.65)]?.trim().slice(0, 50) || "milieu du texte",
-        comment: "Argumentation à renforcer. Il manque des références jurisprudentielles pour étayer ce point."
+        quote: "Ce à quoi Jean-Claude Soyer a rétorqué",
+        comment: "Référence incomplète : il faudrait préciser la date et la source exacte de cette citation. L'autorité de l'argument en dépend."
       }
     ]
   }
@@ -153,14 +151,14 @@ export default function AnnotatedTeaser({ submissionId }: { submissionId: string
     )
   }
 
-  // Découpage du texte (20% visible, flouté, 10% visible, flouté)
+  // Découpage du texte
   const len = body.length
   const part1 = body.slice(0, Math.floor(len * 0.2))
   const part2 = body.slice(Math.floor(len * 0.2), Math.floor(len * 0.45))
   const part3 = body.slice(Math.floor(len * 0.45), Math.floor(len * 0.55))
   const part4 = body.slice(Math.floor(len * 0.55))
 
-  // Injection des surlignages et carrés dans les parties visibles
+  // Injection des surlignages cliquables
   let markedPart1 = part1
   let markedPart3 = part3
 
@@ -170,66 +168,28 @@ export default function AnnotatedTeaser({ submissionId }: { submissionId: string
     const color = chipColor(comment.tag)
     const commentId = `comment-${index}`
     
-    // Carré de commentaire (fin de phrase uniquement)
-    const marker = `<span 
-      class="comment-marker" 
+    // Surlignage cliquable
+    const highlightedText = `<span 
+      class="highlight-comment" 
       data-comment-id="${commentId}"
       style="
-        display: inline-block;
-        width: 10px;
-        height: 10px;
         background: ${color.bg};
-        border: 1px solid ${color.border};
-        border-radius: 2px;
-        margin-left: 3px;
+        border-radius: 3px;
+        padding: 1px 2px;
         cursor: pointer;
-        vertical-align: middle;
-        opacity: 0.9;
+        border-bottom: 2px solid ${color.border};
+        transition: all 0.2s ease;
       "
-      title="Commentaire - Cliquez pour ouvrir"
-    ></span>`
+      title="Cliquez pour voir le commentaire"
+    >${comment.quote}</span>`
 
-    // Surlignage du passage
-    const highlightedText = `<mark style="background: ${color.bg}; border-radius: 3px; padding: 1px 2px;">${comment.quote}</mark>`
-    
-    // Cherche le passage à surligner dans part1
+    // Remplace dans part1 d'abord
     if (markedPart1.includes(comment.quote)) {
       markedPart1 = replaceFirst(markedPart1, comment.quote, highlightedText)
-      
-      // Ajoute le carré à la fin de la phrase qui contient ce passage
-      const sentences = markedPart1.split(/([.!?]+)/)
-      for (let i = 0; i < sentences.length; i++) {
-        if (sentences[i].includes(highlightedText)) {
-          // Trouve la fin de phrase suivante
-          for (let j = i + 1; j < sentences.length; j++) {
-            if (sentences[j].match(/[.!?]+/)) {
-              sentences[j] = sentences[j] + marker
-              break
-            }
-          }
-          break
-        }
-      }
-      markedPart1 = sentences.join('')
     }
-    // Sinon cherche dans part3
+    // Sinon dans part3
     else if (markedPart3.includes(comment.quote)) {
       markedPart3 = replaceFirst(markedPart3, comment.quote, highlightedText)
-      
-      // Ajoute le carré à la fin de la phrase
-      const sentences = markedPart3.split(/([.!?]+)/)
-      for (let i = 0; i < sentences.length; i++) {
-        if (sentences[i].includes(highlightedText)) {
-          for (let j = i + 1; j < sentences.length; j++) {
-            if (sentences[j].match(/[.!?]+/)) {
-              sentences[j] = sentences[j] + marker
-              break
-            }
-          }
-          break
-        }
-      }
-      markedPart3 = sentences.join('')
     }
   })
 
@@ -247,7 +207,7 @@ export default function AnnotatedTeaser({ submissionId }: { submissionId: string
 
   return (
     <section className="panel" style={{ position: "relative" }}>
-      {/* Texte avec surlignages et carrés */}
+      {/* Texte avec surlignages cliquables */}
       <div style={justify} dangerouslySetInnerHTML={{ __html: markedPart1 }} />
       <div style={{ ...justify, ...blur }}>{part2}</div>
       <div style={justify} dangerouslySetInnerHTML={{ __html: markedPart3 }} />
@@ -272,25 +232,27 @@ export default function AnnotatedTeaser({ submissionId }: { submissionId: string
               background: "white",
               border: `2px solid ${color.border}`,
               borderRadius: 12,
-              padding: "16px 20px",
-              maxWidth: "450px",
+              padding: "18px 22px",
+              maxWidth: "500px",
               width: "90vw",
-              boxShadow: "0 10px 30px rgba(0,0,0,0.3)",
+              boxShadow: "0 15px 35px rgba(0,0,0,0.3)",
               zIndex: 1000
             }}
           >
-            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
               <span style={{
                 background: color.bg,
                 color: color.fg,
                 border: `1px solid ${color.border}`,
                 borderRadius: 999,
-                padding: "4px 12px",
+                padding: "5px 14px",
                 fontSize: 11,
                 fontWeight: 800,
                 textTransform: "uppercase"
               }}>
-                {comment.tag || "NOTE"}
+                {comment.tag === "red" ? "ERREUR" : 
+                 comment.tag === "orange" ? "À AMÉLIORER" :
+                 comment.tag === "blue" ? "SUGGESTION" : "NOTE"}
               </span>
               <button
                 onClick={() => setOpenCommentId(null)}
@@ -298,7 +260,7 @@ export default function AnnotatedTeaser({ submissionId }: { submissionId: string
                   marginLeft: "auto",
                   background: "none",
                   border: "none",
-                  fontSize: 20,
+                  fontSize: 22,
                   cursor: "pointer",
                   color: "#666",
                   lineHeight: 1
@@ -308,23 +270,21 @@ export default function AnnotatedTeaser({ submissionId }: { submissionId: string
               </button>
             </div>
             
-            {comment.quote && (
-              <div style={{
-                fontSize: 13,
-                fontStyle: "italic",
-                color: "#666",
-                marginBottom: 12,
-                borderLeft: `3px solid ${color.border}`,
-                paddingLeft: 10,
-                background: color.bg,
-                padding: "8px 10px",
-                borderRadius: 4
-              }}>
-                « {comment.quote} »
-              </div>
-            )}
+            <div style={{
+              fontSize: 13,
+              fontStyle: "italic",
+              color: "#666",
+              marginBottom: 12,
+              borderLeft: `4px solid ${color.border}`,
+              paddingLeft: 12,
+              background: color.bg,
+              padding: "10px 12px",
+              borderRadius: 6
+            }}>
+              « {comment.quote} »
+            </div>
             
-            <div style={{ fontSize: 14, lineHeight: 1.5, color: "#333" }}>
+            <div style={{ fontSize: 15, lineHeight: 1.6, color: "#333" }}>
               {comment.comment}
             </div>
           </div>
@@ -367,6 +327,14 @@ export default function AnnotatedTeaser({ submissionId }: { submissionId: string
           <PaymentPanel refId={data.submissionId} />
         </div>
       </div>
+
+      {/* Styles pour les effets hover */}
+      <style>{`
+        .highlight-comment:hover {
+          transform: translateY(-1px);
+          box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+      `}</style>
     </section>
   )
 }
