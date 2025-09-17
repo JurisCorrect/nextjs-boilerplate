@@ -28,7 +28,6 @@ function chipColor(tag?: string) {
   }
 }
 
-/** Remplace en sécurité la 1ère occurrence de `needle` dans `hay` par `repl` */
 function replaceFirst(hay: string, needle: string, repl: string) {
   if (!needle) return hay
   const i = hay.indexOf(needle)
@@ -40,9 +39,9 @@ export default function AnnotatedTeaser({ submissionId }: { submissionId: string
   const [data, setData] = useState<StatusPayload | null>(null)
   const [loading, setLoading] = useState(true)
   const [openIdx, setOpenIdx] = useState<number | null>(null)
-  const anchors = useRef<Record<number, HTMLElement | null>>({})
 
-  // Poll status jusqu'à ready
+  const anchors = useRef<Record<number, HTMLDivElement | null>>({})
+
   useEffect(() => {
     let stop = false
     async function tick() {
@@ -60,14 +59,13 @@ export default function AnnotatedTeaser({ submissionId }: { submissionId: string
     return () => { stop = true }
   }, [submissionId])
 
-  // Spinner
   if (loading || !data || data.status !== "ready") {
     return (
       <section className="panel" style={{ display:"grid", placeItems:"center", minHeight:"26vh", padding:"20px", position:"relative" }}>
         <div style={{ display:"grid", placeItems:"center", gap:14, textAlign:"center" }}>
           <div style={{ width:32, height:32, borderRadius:"50%", border:"3px solid rgba(123,30,58,.25)", borderTopColor:"#7b1e3a", animation:"spin 1s linear infinite" }} />
           <p style={{ margin:0, lineHeight:1.5, fontSize:"clamp(18px, 2vw, 22px)" }}>
-            Votre correction est en cours de génération… Un aperçu apparaîtra dès qu’il sera prêt.
+            Votre correction est en cours de génération… Un aperçu apparaîtra dès qu'il sera prêt.
           </p>
         </div>
         <style>{`@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}`}</style>
@@ -78,25 +76,28 @@ export default function AnnotatedTeaser({ submissionId }: { submissionId: string
   const result = data.result || {}
   const body = result.normalizedBody ?? result.body ?? ""
   const inlineAll = Array.isArray(result.inline) ? (result.inline as InlineItem[]) : []
-  const teaser = inlineAll.slice(0, 2) // 2 commentaires visibles en aperçu
+  const teaser = inlineAll.slice(0, 2)
 
-  // Texte partiel (20% début + 10% milieu ; le reste flouté)
   const len = body.length
   const idx = (r: number) => Math.floor(len * r)
   const visibleA = body.slice(0, idx(0.2))
-  const blurredA = body.slice(idx(0.2), idx(0.45))
+  const blurredA  = body.slice(idx(0.2), idx(0.45))
   const visibleB = body.slice(idx(0.45), idx(0.55))
-  const blurredB = body.slice(idx(0.55))
+  const blurredB  = body.slice(idx(0.55))
 
-  // Injecte les marqueurs (numérotés) seulement dans les parties visibles
   const markedA = useMemo(() => {
     let out = visibleA
     teaser.forEach((c, k) => {
       const n = k + 1
       const col = chipColor(c.tag)
-      const badge =
-        `<sup data-cidx="${k}" class="cm-badge" style="background:${col.bg};color:${col.fg};border:1px solid ${col.br}">${n}</sup>`
-      if (c.quote) out = replaceFirst(out, c.quote, `<mark class="cm-hl" data-cidx="${k}" style="background:${col.bg};border:1px solid ${col.br}">${c.quote}${badge}</mark>`)
+      const badge = `<sup data-cidx="${k}" class="cm-badge" style="background:${col.bg};color:${col.fg};border:1px solid ${col.br}">${n}</sup>`
+      if (c.quote) {
+        out = replaceFirst(
+          out,
+          c.quote,
+          `<mark class="cm-hl" data-cidx="${k}" style="background:${col.bg};border:1px solid ${col.br}">${c.quote}${badge}</mark>`
+        )
+      }
     })
     return out
   }, [visibleA, teaser])
@@ -108,15 +109,17 @@ export default function AnnotatedTeaser({ submissionId }: { submissionId: string
       if (out.includes(c.quote)) {
         const col = chipColor(c.tag)
         const n = k + 1
-        const badge =
-          `<sup data-cidx="${k}" class="cm-badge" style="background:${col.bg};color:${col.fg};border:1px solid ${col.br}">${n}</sup>`
-        out = replaceFirst(out, c.quote, `<mark class="cm-hl" data-cidx="${k}" style="background:${col.bg};border:1px solid ${col.br}">${c.quote}${badge}</mark>`)
+        const badge = `<sup data-cidx="${k}" class="cm-badge" style="background:${col.bg};color:${col.fg};border:1px solid ${col.br}">${n}</sup>`
+        out = replaceFirst(
+          out,
+          c.quote,
+          `<mark class="cm-hl" data-cidx="${k}" style="background:${col.bg};border:1px solid ${col.br}">${c.quote}${badge}</mark>`
+        )
       }
     })
     return out
   }, [visibleB, teaser])
 
-  // Gestion clic sur badge / highlight → ouvre la carte correspondante
   useEffect(() => {
     function onClick(e: MouseEvent) {
       const t = e.target as HTMLElement
@@ -138,13 +141,11 @@ export default function AnnotatedTeaser({ submissionId }: { submissionId: string
 
   return (
     <section className="panel" style={{ position:"relative" }}>
-      {/* Texte avec marqueurs */}
       <p style={justify} dangerouslySetInnerHTML={{ __html: markedA }} />
       <p style={{ ...justify, ...blur }}>{blurredA}</p>
       <p style={justify} dangerouslySetInnerHTML={{ __html: markedB }} />
       <p style={{ ...justify, ...blur }}>{blurredB}</p>
 
-      {/* Bande latérale de commentaires (façon Word) */}
       {teaser.length > 0 && (
         <aside
           style={{
@@ -158,7 +159,7 @@ export default function AnnotatedTeaser({ submissionId }: { submissionId: string
             return (
               <div
                 key={i}
-                ref={(el) => (anchors.current[i] = el)}
+                ref={(el) => { anchors.current[i] = el }}  {/* ✅ CORRECTION ICI */}
                 style={{
                   border:`1px solid ${col.br}`, background:"#fff", borderRadius:12,
                   boxShadow: opened ? "0 8px 24px rgba(10,26,61,.18)" : "0 2px 12px rgba(10,26,61,.08)",
@@ -195,7 +196,6 @@ export default function AnnotatedTeaser({ submissionId }: { submissionId: string
         </aside>
       )}
 
-      {/* Paywall par-dessus (débloquera le reste du texte et les autres commentaires) */}
       <div
         style={{
           position:"absolute", inset:0 as any, display:"flex", alignItems:"end",
@@ -210,12 +210,11 @@ export default function AnnotatedTeaser({ submissionId }: { submissionId: string
           }}
         >
           <div style={{ fontWeight:900, marginBottom:6 }}>Débloquer la correction complète</div>
-          <div style={{ opacity:.9, marginBottom:10 }}>Accède à tout le texte et à l’ensemble des commentaires.</div>
+          <div style={{ opacity:.9, marginBottom:10 }}>Accède à tout le texte et à l'ensemble des commentaires.</div>
           <PaymentPanel refId={refId} />
         </div>
       </div>
 
-      {/* styles des marqueurs */}
       <style>{`
         .cm-hl { border-radius: 6px; padding: 0 2px }
         .cm-badge { display:inline-flex; align-items:center; justify-content:center;
