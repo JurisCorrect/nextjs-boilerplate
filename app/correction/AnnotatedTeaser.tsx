@@ -126,60 +126,8 @@ export default function AnnotatedTeaser({ submissionId }: { submissionId: string
   const isUnlocked = data.isUnlocked || false
   const body = result.normalizedBody ?? result.body ?? ""
   
-  // Commentaires bien répartis sur TOUTE la longueur des parties visibles
+  // Utiliser les vraies corrections générées par l'IA
   let inline = result.inline || []
-  if (inline.length === 0 && body.length > 0) {
-    inline = [
-      // Premier commentaire - début (2% du texte)
-      {
-        tag: "red",
-        quote: "Le professeur de droit public, Léon Duguit, disait",
-        comment: "Erreur méthodologique : il manque l'annonce de plan dans cette introduction. Une problématique claire doit être formulée."
-      },
-      // Deuxième commentaire - fin du premier paragraphe (18% du texte)
-      {
-        tag: "orange",
-        quote: "Un tel caractère révèle alors certaines difficultés quant à appréhender la notion de personne morale",
-        comment: "Formulation imprécise : cette phrase manque de clarté. Il faudrait reformuler de manière plus directe."
-      },
-      // Troisième commentaire - début du grand paragraphe du milieu (46% du texte)
-      {
-        tag: "orange", 
-        quote: "Par conséquent, il convient de définir la personne morale",
-        comment: "Transition correcte mais gagnerait à être plus explicite sur le lien avec le développement précédent."
-      },
-      // Quatrième commentaire - milieu du grand paragraphe (49% du texte)
-      {
-        tag: "red",
-        quote: "De tels groupements font partie des personnes morales de droit privé",
-        comment: "Erreur de classification : cette affirmation est inexacte selon la distinction établie par la doctrine majoritaire."
-      },
-      // Cinquième commentaire - fin du grand paragraphe (52% du texte)
-      {
-        tag: "blue", 
-        quote: "D'autre part, les défenseurs de la théorie de la réalité prône la légitimité",
-        comment: "Suggestion stylistique : 'prônent' (accord du verbe) et développer davantage cette théorie avec des auteurs précis."
-      },
-      // Sixième commentaire - début de la partie du milieu visible (47% du texte)
-      {
-        tag: "orange",
-        quote: "Ainsi la théorie de la réalité découle",
-        comment: "Lien logique insuffisant : il faudrait mieux expliquer comment cette théorie découle des éléments précédents."
-      },
-      // Septième commentaire - milieu de la partie visible du milieu (50% du texte)  
-      {
-        tag: "red",
-        quote: "La personnalité juridique tient en l'acception que nous donne l'étymologie latine",
-        comment: "Erreur d'analyse : cette approche étymologique est réductrice et ne correspond pas à l'analyse juridique moderne."
-      },
-      // Huitième commentaire - fin de la partie visible du milieu (53% du texte)
-      {
-        tag: "orange",
-        quote: "ce qui nous concerne la chose est donc le groupement",
-        comment: "Syntaxe défaillante : cette phrase est mal construite et nuit à la compréhension de l'argument."
-      }
-    ]
-  }
 
   if (!body) {
     return (
