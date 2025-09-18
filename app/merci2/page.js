@@ -1,53 +1,51 @@
 // app/merci2/page.js
 'use client'
-
-// ⛔️ Empêche tout prerender/ISR côté Vercel
-export const dynamic = 'force-dynamic'
-export const revalidate = 0
-
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 
 export default function Merci2Page() {
-  // ✅ Garde SSR : si Next tente quand même un rendu serveur, on renvoie un shell neutre
-  if (typeof window === 'undefined') {
-    return (
-      <main style={{ background:'#fff', minHeight:'100vh' }}>
-        <div className="container" style={{ position:'relative', zIndex:1, padding:'24px 16px 40px', maxWidth:980, margin:'0 auto' }}>
-          <section style={{background:'#fff',borderRadius:16,padding:'clamp(18px,2.4vw,26px)',boxShadow:'0 10px 30px rgba(0,0,0,.08)',border:'1px solid rgba(0,0,0,.04)',marginTop:12}}>
-            <h1 style={{ color:'var(--brand)', fontWeight:900, margin:'0 0 8px', lineHeight:1.05 }}>
-              Paiement réussi 🎉
-            </h1>
-            <p style={{ color:'var(--muted)', margin:0 }}>Chargement…</p>
-          </section>
-        </div>
-      </main>
-    )
-  }
-
-  const [corrLink, setCorrLink] = useState('/correction')
+  const [corrLink, setCorrLink] = useState('/correction-complete')
+  const [accountLink, setAccountLink] = useState('/dashboard') // Changé de /login vers /dashboard
   const [ver, setVer] = useState('')
 
   useEffect(() => {
-    try {
-      const q = new URLSearchParams(window.location.search)
-      // ID de soumission ajouté par success_url dans /api/checkout
-      const directId =
-        q.get('submissionId') ||
-        q.get('submission_id') ||
-        q.get('id') ||
-        q.get('correctionId')
+    async function run() {
+      try {
+        const q = new URLSearchParams(window.location.search)
+        const directId = q.get('id') || q.get('submissionId') || q.get('correctionId')
+        const sid = q.get('sid') // renvoyé par success_url: ?sid={CHECKOUT_SESSION_ID}
 
-      if (directId) {
-        setCorrLink(`/correction/${encodeURIComponent(directId)}`)
-      } else {
-        // Pas d’ID → on renvoie proprement à l’accueil (évite tout flux d’auth)
-        setCorrLink('/')
-      }
-    } catch {
-      setCorrLink('/')
+        // 1) si on a déjà un id dans l'URL, on le garde (comportement identique à avant)
+        if (directId) {
+          setCorrLink(`/correction/${encodeURIComponent(directId)}`)
+        }
+        // 2) sinon, on essaie de résoudre via l'ID de session Stripe
+        else if (sid) {
+          for (let i = 0; i < 15; i++) {
+            try {
+              const r = await fetch(`/api/corrections/from-session?sid=${encodeURIComponent(sid)}`, { cache: 'no-store' })
+              const data = await r.json()
+              if (data?.correctionId && data?.ready) {
+                setCorrLink(`/correction/${encodeURIComponent(data.correctionId)}`)
+                break
+              }
+            } catch {}
+            await new Promise(res => setTimeout(res, 1500))
+          }
+        }
+
+        // Définir le lien vers le compte selon le contexte
+        if (sid) {
+          // Si on vient d'un paiement Stripe, on peut aller vers login avec l'ID session
+          setAccountLink(`/dashboard`) // Ou garder /dashboard si pas besoin de l'ID session
+        } else {
+          // Sinon, vers le dashboard normal
+          setAccountLink('/dashboard')
+        }
+      } catch {}
+      setVer(new Date().toLocaleString('fr-FR'))
     }
-    setVer(new Date().toLocaleString('fr-FR'))
+    run()
   }, [])
 
   const BRAND  = 'var(--brand)'
@@ -110,7 +108,7 @@ export default function Merci2Page() {
           <div style={{ ...card, padding:'16px', boxShadow:'none', border:'1px dashed rgba(0,0,0,.08)', marginTop:8 }}>
             <h3 style={{ color:'#222', fontWeight:900, margin:'0 0 8px' }}>Que se passe-t-il maintenant&nbsp;?</h3>
             <ul style={{ color:MUTED, margin:'0 0 8px 18px', lineHeight:1.7 }}>
-              <li>📬 <strong>Pense à vérifier tes spams</strong>.</li>
+              <li>📬 <strong>N&apos;oublie pas de regarder dans tes courriers indésirables (spam)</strong>.</li>
               <li>
                 Un email de confirmation <strong>ou</strong> un email de création de mot de passe t&apos;a été envoyé
                 <em> (si c&apos;est ta première fois)</em>.
@@ -122,7 +120,7 @@ export default function Merci2Page() {
 
           <div style={{ display:'flex', flexWrap:'wrap', gap:12, marginTop:18 }}>
             <a href={corrLink} style={cta}>Voir la correction</a>
-            <Link href="/login" style={ghost}>Accéder à mon compte</Link>
+            <Link href={accountLink} style={ghost}>Accéder à mon compte</Link>
           </div>
 
           <div style={{ marginTop:12, color:MUTED, fontSize:12 }}>
