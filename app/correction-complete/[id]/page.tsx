@@ -94,13 +94,16 @@ Par conséquent, il convient de définir la personne morale. Celle-ci-désigne l
     return text.substring(0, index) + replace + text.substring(index + search.length)
   }
 
-  // Injection des surlignages dans le texte complet
+  // Injection des surlignages dans le texte complet (version simplifiée)
   let markedBody = body
   inline.forEach((comment: any, index: number) => {
     if (!comment.quote) return
     
     const color = chipColor(comment.tag)
-    const highlightedText = `<span style="background: ${color.bg}; border-radius: 3px; padding: 1px 2px; border-bottom: 2px solid ${color.border};" title="${comment.comment}">${comment.quote}</span>`
+    // Version simple sans guillemets imbriqués
+    const highlightStart = '<span style="background: ' + color.bg + '; border-radius: 3px; padding: 1px 2px; border-bottom: 2px solid ' + color.border + ';">'
+    const highlightEnd = '</span>'
+    const highlightedText = highlightStart + comment.quote + highlightEnd
     
     if (markedBody.includes(comment.quote)) {
       markedBody = replaceFirst(markedBody, comment.quote, highlightedText)
