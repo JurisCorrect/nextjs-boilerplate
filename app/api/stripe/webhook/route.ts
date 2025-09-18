@@ -1,6 +1,4 @@
 // app/api/stripe/webhook/route.ts
-export async function POST(req: Request) {
-  console.log("=== WEBHOOK POST APPELÉ - DÉBUT ===");
 import Stripe from "stripe";
 import { Buffer } from "node:buffer";
 
@@ -28,6 +26,7 @@ async function getSupabaseAdmin() {
 const stripe = new Stripe(STRIPE_SECRET_KEY, { apiVersion: "2023-10-16" });
 
 export async function POST(req: Request) {
+  console.log("=== WEBHOOK POST APPELÉ - DÉBUT ===");
   console.log("WEBHOOK APPELÉ");
   
   try {
