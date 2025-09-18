@@ -18,30 +18,48 @@ export default function CallbackClient() {
   const [password, setPassword] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
 
+  function clearOAuthBitsFromUrl() {
+    try {
+      // supprime le hash (#access_token=...) mais garde path + query
+      const clean = window.location.pathname + window.location.search;
+      window.history.replaceState(null, "", clean);
+    } catch {}
+  }
+
   // Gère ?code=... (OAuth/Invite) et #access_token=... (magic link)
   useEffect(() => {
     (async () => {
       try {
+        const url = new URL(window.location.href);
+        const code = url.searchParams.get("code");
+        const hash = window.location.hash || "";
+        const hasToken = hash.includes("access_token=");
+
+        // ⛔ PAS un vrai callback : on renvoie à l'accueil
+        if (!code && !hasToken) {
+          window.location.replace("/");
+          return;
+        }
+
         // 1) Déjà connecté ? (cas lien avec #access_token)
         const { data: { session } } = await supabase.auth.getSession();
         if (session) {
+          clearOAuthBitsFromUrl();
           setPhase("ready");
           return;
         }
 
         // 2) Cas ?code=... → on échange pour une session
-        const url = new URL(window.location.href);
-        const code = url.searchParams.get("code");
         if (code) {
           const { error } = await supabase.auth.exchangeCodeForSession(code);
           if (error) throw error;
+          clearOAuthBitsFromUrl();
           setPhase("ready");
           return;
         }
 
         // 3) Cas #access_token=... dans le hash (format Supabase)
-        const hash = window.location.hash; // #access_token=...&refresh_token=...&type=invite
-        if (hash && hash.includes("access_token=")) {
+        if (hasToken) {
           const params = new URLSearchParams(hash.slice(1));
           const accessToken = params.get("access_token");
           const refreshToken = params.get("refresh_token") || "";
@@ -52,6 +70,7 @@ export default function CallbackClient() {
             });
             if (error) throw error;
             if (data?.session) {
+              clearOAuthBitsFromUrl();
               setPhase("ready");
               return;
             }
@@ -139,7 +158,6 @@ export default function CallbackClient() {
           </div>
         )}
 
-        {/* ✅ On affiche le formulaire quand phase === "ready" OU "saving" */}
         {(phase === "ready" || phase === "saving") && (
           <form onSubmit={onSubmit}>
             <label style={LABEL}>Nouveau mot de passe</label>
