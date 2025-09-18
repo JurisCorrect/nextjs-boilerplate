@@ -47,24 +47,25 @@ export async function POST(req: Request) {
       
       console.log("Email:", email, "SubmissionId:", submissionId);
       
-      // TEST TEMPORAIRE - pas d'insertion pour éviter le crash
+      // Test d'insertion minimale
       if (email && submissionId) {
         try {
-          console.log("🔓 Test webhook sans insertion...");
-          console.log("📋 Données reçues:", { email, submissionId, emailType: typeof email, submissionIdType: typeof submissionId });
+          console.log("🔓 Test insertion minimale...");
+          console.log("📋 Email:", email, "SubmissionId:", submissionId);
           
           const supabaseAdmin = await getSupabaseAdmin();
           console.log("✅ Connexion Supabase OK");
           
-          // Juste logger ce qu'on voudrait insérer
-          const insertData = {
-            submission_id: String(submissionId),
-            email: String(email),
-            user_id: null
-          };
+          // Test 1: Insertion avec juste submission_id
+          const { error } = await supabaseAdmin
+            .from('unlocked_corrections')
+            .insert({ submission_id: submissionId });
           
-          console.log("💾 Données qu'on voudrait insérer:", JSON.stringify(insertData));
-          console.log("✅ Test terminé - pas d'insertion pour éviter le crash");
+          if (error) {
+            console.log("❌ Erreur:", error.message, error.code, error.details);
+          } else {
+            console.log("✅ Insertion réussie !");
+          }
           
         } catch (e: any) {
           console.log("⚠️ Exception:", e.message);
