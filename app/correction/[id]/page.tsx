@@ -1,248 +1,132 @@
-// app/correction/[id]/page.tsx
-import AnnotatedTeaser from "../AnnotatedTeaser"
+'use client'
+import Link from 'next/link'
+import { useEffect, useState } from 'react'
 
-export const dynamic = "force-dynamic"
+export default function Merci2Page() {
+  const [corrLink, setCorrLink] = useState('/correction-complete')
+  const [accountLink, setAccountLink] = useState('/dashboard') // Changé de /login vers /dashboard
+  const [ver, setVer] = useState('')
 
-type Props = { params: { id: string } }
+  useEffect(() => {
+    async function run() {
+      try {
+        const q = new URLSearchParams(window.location.search)
+        const directId = q.get('id') || q.get('submissionId') || q.get('correctionId')
+        const sid = q.get('sid') // renvoyé par success_url: ?sid={CHECKOUT_SESSION_ID}
 
-export default async function CorrectionPage({ params }: Props) {
-  const correctionId = params.id
-  
-  // URL de base pour l'appel serveur
-  const base =
-    (process.env.NEXT_PUBLIC_SITE_URL && process.env.NEXT_PUBLIC_SITE_URL.replace(/\/$/, "")) ||
-    (process.env.VERCEL_URL && `https://${process.env.VERCEL_URL.replace(/\/$/, "")}`) ||
-    "http://localhost:3000"
+        // 1) si on a déjà un id dans l'URL, on le garde (comportement identique à avant)
+        if (directId) {
+          setCorrLink(`/correction/${encodeURIComponent(directId)}`)
+        }
+        // 2) sinon, on essaie de résoudre via l'ID de session Stripe
+        else if (sid) {
+          for (let i = 0; i < 15; i++) {
+            try {
+              const r = await fetch(`/api/corrections/from-session?sid=${encodeURIComponent(sid)}`, { cache: 'no-store' })
+              const data = await r.json()
+              if (data?.correctionId && data?.ready) {
+                setCorrLink(`/correction/${encodeURIComponent(data.correctionId)}`)
+                break
+              }
+            } catch {}
+            await new Promise(res => setTimeout(res, 1500))
+          }
+        }
 
-  let correction: {
-    status: string
-    result?: any
-    isUnlocked?: boolean
-  } | null = null
-
-  try {
-    const r = await fetch(
-      `${base}/api/corrections/status?submissionId=${encodeURIComponent(correctionId)}`,
-      { cache: "no-store" }
-    )
-    if (r.ok) {
-      const data = await r.json()
-      correction = {
-        status: data.status,
-        result: data.result || {},
-        isUnlocked: data.isUnlocked || false
-      }
+        // Définir le lien vers le compte selon le contexte
+        if (sid) {
+          // Si on vient d'un paiement Stripe, on peut aller vers login avec l'ID session
+          setAccountLink(`/dashboard`) // Ou garder /dashboard si pas besoin de l'ID session
+        } else {
+          // Sinon, vers le dashboard normal
+          setAccountLink('/dashboard')
+        }
+      } catch {}
+      setVer(new Date().toLocaleString('fr-FR'))
     }
-  } catch (err) {
-    console.error('Error fetching correction:', err)
+    run()
+  }, [])
+
+  const BRAND  = 'var(--brand)'
+  const BRAND2 = 'var(--brand-2)'
+  const MUTED  = 'var(--muted)'
+
+  const card = {
+    background:'#fff',
+    borderRadius:16,
+    padding:'clamp(18px, 2.4vw, 26px)',
+    boxShadow:'0 10px 30px rgba(0,0,0,.08)',
+    border:'1px solid rgba(0,0,0,.04)'
   }
 
-  // Si pas de correction ou pas encore ready
-  if (!correction || correction.status !== "ready") {
-    return (
-      <main className="page-wrap correction">
-        <h1 className="page-title">CORRECTION</h1>
-        <AnnotatedTeaser submissionId={correctionId} />
-      </main>
-    )
+  const cta = {
+    display:'inline-flex',
+    alignItems:'center',
+    justifyContent:'center',
+    gap:8,
+    padding:'12px 18px',
+    borderRadius:14,
+    fontWeight:800,
+    background: `linear-gradient(180deg, ${BRAND} 0%, ${BRAND2} 100%)`,
+    color:'#fff',
+    textDecoration:'none',
+    border:'none',
+    boxShadow:'0 12px 30px rgba(123,30,58,.35)',
+    cursor:'pointer',
+    minWidth:220
   }
 
-  // Si pas débloqué, afficher la version teaser
-  if (!correction.isUnlocked) {
-    return (
-      <main className="page-wrap correction">
-        <h1 className="page-title">CORRECTION</h1>
-        <AnnotatedTeaser submissionId={correctionId} />
-      </main>
-    )
+  const ghost = {
+    display:'inline-flex',
+    alignItems:'center',
+    justifyContent:'center',
+    gap:8,
+    padding:'12px 18px',
+    borderRadius:14,
+    fontWeight:800,
+    background:'rgba(123,30,58,.08)',
+    color:BRAND,
+    textDecoration:'none',
+    border:'1px solid rgba(123,30,58,.25)',
+    cursor:'pointer',
+    minWidth:220
   }
-
-  // Version complète débloquée
-  const result = correction.result || {}
-  const body = result.normalizedBody ?? result.body ?? ""
-  const globalComment = result.globalComment ?? result.global_comment ?? ""
-  const inline = Array.isArray(result.inline) ? result.inline : []
-
-  const justify: React.CSSProperties = { 
-    whiteSpace: "pre-wrap", 
-    textAlign: "justify", 
-    lineHeight: 1.6 
-  }
-
-  function chipColor(tag?: string) {
-    const t = (tag || "").toLowerCase()
-    switch (t) {
-      case "green":  return { bg: "rgba(76, 175, 80, 0.25)", fg: "#2E7D32", border: "#4CAF50" }
-      case "red":    return { bg: "rgba(244, 67, 54, 0.25)", fg: "#C62828", border: "#F44336" }
-      case "orange": return { bg: "rgba(255, 152, 0, 0.25)", fg: "#E65100", border: "#FF9800" }
-      case "blue":   return { bg: "rgba(33, 150, 243, 0.25)", fg: "#1565C0", border: "#2196F3" }
-      default:       return { bg: "rgba(158, 158, 158, 0.25)", fg: "#424242", border: "#9E9E9E" }
-    }
-  }
-
-  function replaceFirst(text: string, search: string, replace: string): string {
-    if (!search) return text
-    const index = text.indexOf(search)
-    if (index === -1) return text
-    return text.substring(0, index) + replace + text.substring(index + search.length)
-  }
-
-  // Injection des surlignages dans le texte complet
-  let markedBody = body
-  inline.forEach((comment: any, index: number) => {
-    if (!comment.quote) return
-    
-    const color = chipColor(comment.tag)
-    const highlightedText = `<span 
-      style="
-        background: ${color.bg};
-        border-radius: 3px;
-        padding: 1px 2px;
-        border-bottom: 2px solid ${color.border};
-      "
-      title="${comment.comment}"
-    >${comment.quote}</span>`
-    
-    if (markedBody.includes(comment.quote)) {
-      markedBody = replaceFirst(markedBody, comment.quote, highlightedText)
-    }
-  })
 
   return (
-    <main className="page-wrap correction">
-      <h1 className="page-title">CORRECTION COMPLÈTE</h1>
-      
-      {/* Badge de statut débloqué */}
-      <div style={{
-        textAlign: "center",
-        marginBottom: "20px"
-      }}>
-        <span style={{
-          display: "inline-block",
-          background: "#4CAF50",
-          color: "white",
-          padding: "8px 16px",
-          borderRadius: "20px",
-          fontSize: "14px",
-          fontWeight: 600
-        }}>
-          ✅ Correction débloquée
-        </span>
-      </div>
-
-      <section className="panel" style={{ position: "relative" }}>
-        {/* Texte complet avec tous les surlignages */}
-        <div style={justify} dangerouslySetInnerHTML={{ __html: markedBody }} />
-
-        {/* Commentaires détaillés */}
-        {inline.length > 0 && (
-          <div style={{ marginTop: "40px" }}>
-            <h3 style={{ color: "#7b1e3a", marginBottom: "20px" }}>Commentaires détaillés</h3>
-            <div style={{ display: "grid", gap: 16 }}>
-              {inline.map((comment: any, index: number) => {
-                const color = chipColor(comment.tag)
-                return (
-                  <div
-                    key={index}
-                    style={{
-                      border: `1px solid ${color.border}`,
-                      background: "#fff",
-                      borderRadius: 12,
-                      padding: "16px 18px",
-                      boxShadow: "0 2px 12px rgba(10,26,61,.08)"
-                    }}
-                  >
-                    <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
-                      <span style={{
-                        background: color.bg,
-                        color: color.fg,
-                        border: `1px solid ${color.border}`,
-                        borderRadius: 999,
-                        padding: "5px 14px",
-                        fontSize: 11,
-                        fontWeight: 800,
-                        textTransform: "uppercase"
-                      }}>
-                        {comment.tag === "red" ? "ERREUR" : 
-                         comment.tag === "orange" ? "À AMÉLIORER" :
-                         comment.tag === "blue" ? "SUGGESTION" : 
-                         comment.tag === "green" ? "TRÈS BIEN" : "NOTE"}
-                      </span>
-                    </div>
-                    
-                    {comment.quote && (
-                      <div style={{
-                        fontSize: 14,
-                        fontStyle: "italic",
-                        color: "#666",
-                        marginBottom: 12,
-                        borderLeft: `4px solid ${color.border}`,
-                        paddingLeft: 12,
-                        background: color.bg,
-                        padding: "10px 12px",
-                        borderRadius: 6
-                      }}>
-                        « {comment.quote} »
-                      </div>
-                    )}
-                    
-                    <div style={{ fontSize: 15, lineHeight: 1.6, color: "#333" }}>
-                      {comment.comment}
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-          </div>
-        )}
-
-        {/* Commentaire global */}
-        {globalComment && (
-          <div style={{ marginTop: "40px" }}>
-            <h3 style={{ color: "#7b1e3a", marginBottom: "16px" }}>Commentaire général</h3>
-            <div style={{
-              background: "#f8f9fa",
-              border: "1px solid #e9ecef",
-              borderRadius: 12,
-              padding: "20px",
-              fontSize: 15,
-              lineHeight: 1.6
-            }}>
-              <div style={justify}>{globalComment}</div>
-            </div>
-          </div>
-        )}
-
-        {/* Actions en bas */}
-        <div style={{
-          marginTop: "40px",
-          padding: "20px",
-          background: "#f8f9fa",
-          borderRadius: 12,
-          textAlign: "center"
-        }}>
-          <h4 style={{ marginBottom: "12px", color: "#7b1e3a" }}>Besoin d'aide ?</h4>
-          <p style={{ marginBottom: "16px", color: "#666" }}>
-            Des questions sur cette correction ? Contactez-nous !
+    <main style={{ background:'#fff', minHeight:'100vh' }}>
+      <div style={{ position:'fixed', inset:0, background:'#fff', zIndex:0 }} />
+      <div className="container" style={{ position:'relative', zIndex:1, padding:'24px 16px 40px', maxWidth:980, margin:'0 auto' }}>
+        <section style={{ ...card, marginTop:12 }}>
+          <h1 style={{ color:BRAND, fontWeight:900, margin:'0 0 8px', lineHeight:1.05 }}>
+            Paiement réussi 🎉
+          </h1>
+          <p style={{ color:MUTED, margin:'0 0 18px' }}>
+            Merci pour ton achat. Ton paiement a bien été traité.
           </p>
-          <a 
-            href="mailto:marie.terki@icloud.com"
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 8,
-              padding: "12px 24px",
-              background: "#7b1e3a",
-              color: "white",
-              borderRadius: 8,
-              textDecoration: "none",
-              fontWeight: 600
-            }}
-          >
-            📧 Nous contacter
-          </a>
-        </div>
-      </section>
+
+          <div style={{ ...card, padding:'16px', boxShadow:'none', border:'1px dashed rgba(0,0,0,.08)', marginTop:8 }}>
+            <h3 style={{ color:'#222', fontWeight:900, margin:'0 0 8px' }}>Que se passe-t-il maintenant&nbsp;?</h3>
+            <ul style={{ color:MUTED, margin:'0 0 8px 18px', lineHeight:1.7 }}>
+              <li>📬 <strong>N&apos;oublie pas de regarder dans tes courriers indésirables (spam)</strong>.</li>
+              <li>
+                Un email de confirmation <strong>ou</strong> un email de création de mot de passe t&apos;a été envoyé
+                <em> (si c&apos;est ta première fois)</em>.
+              </li>
+              <li>Ta correction est accessible immédiatement.</li>
+              <li>Besoin d&apos;aide ? <a href="mailto:marie.terki@icloud.com" style={{ color:BRAND, fontWeight:700 }}>marie.terki@icloud.com</a></li>
+            </ul>
+          </div>
+
+          <div style={{ display:'flex', flexWrap:'wrap', gap:12, marginTop:18 }}>
+            <a href={corrLink} style={cta}>Voir la correction</a>
+            <Link href="/login" style={ghost}>Accéder à mon compte</Link>
+          </div>
+
+          <div style={{ marginTop:12, color:MUTED, fontSize:12 }}>
+            version: <code>{ver}</code>
+          </div>
+        </section>
+      </div>
     </main>
   )
 }
