@@ -46,29 +46,31 @@ export async function POST(req: Request) {
       
       console.log("Email:", email, "SubmissionId:", submissionId);
       
-      // Test simple de connexion Supabase
+      // Insertion simplifiée dans unlocked_corrections
       if (email && submissionId) {
         try {
-          console.log("🔓 Test connexion Supabase...");
+          console.log("🔓 Déverrouillage simple...");
           const supabaseAdmin = await getSupabaseAdmin();
           console.log("✅ Connexion Supabase OK");
           
-          // Test JUSTE la requête corrections (sans insertion)
-          console.log("🔍 Test requête corrections pour:", submissionId);
-          const { data: correction, error: correctionError } = await supabaseAdmin
-            .from('corrections')
-            .select('id')
-            .eq('submission_id', submissionId)
-            .single();
+          // Insertion directe avec submission_id + email
+          console.log("💾 Insertion dans unlocked_corrections:", { submissionId, email });
+          const { error: insertError } = await supabaseAdmin
+            .from('unlocked_corrections')
+            .insert({
+              submission_id: submissionId,
+              email: email,
+              user_id: null // on garde null pour l'instant
+            });
           
-          if (correctionError) {
-            console.log("⚠️ Erreur requête corrections:", correctionError.message);
+          if (insertError) {
+            console.log("⚠️ Erreur insertion:", insertError.message);
           } else {
-            console.log("✅ Correction trouvée:", correction?.id || "null");
+            console.log("✅ Correction débloquée avec succès!");
           }
           
         } catch (e: any) {
-          console.log("⚠️ Exception:", e.message);
+          console.log("⚠️ Exception déverrouillage:", e.message);
         }
       }
     }
