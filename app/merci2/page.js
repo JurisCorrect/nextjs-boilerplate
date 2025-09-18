@@ -1,24 +1,37 @@
 // app/merci2/page.js
 'use client'
 
-export const dynamic = 'force-dynamic'   // ← pas de prerender
-export const revalidate = 0              // ← désactive l’ISR côté Vercel
+// ⛔️ Empêche tout prerender/ISR côté Vercel
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 
 export default function Merci2Page() {
-  // Lien vers la correction (résolu dès que possible)
+  // ✅ Garde SSR : si Next tente quand même un rendu serveur, on renvoie un shell neutre
+  if (typeof window === 'undefined') {
+    return (
+      <main style={{ background:'#fff', minHeight:'100vh' }}>
+        <div className="container" style={{ position:'relative', zIndex:1, padding:'24px 16px 40px', maxWidth:980, margin:'0 auto' }}>
+          <section style={{background:'#fff',borderRadius:16,padding:'clamp(18px,2.4vw,26px)',boxShadow:'0 10px 30px rgba(0,0,0,.08)',border:'1px solid rgba(0,0,0,.04)',marginTop:12}}>
+            <h1 style={{ color:'var(--brand)', fontWeight:900, margin:'0 0 8px', lineHeight:1.05 }}>
+              Paiement réussi 🎉
+            </h1>
+            <p style={{ color:'var(--muted)', margin:0 }}>Chargement…</p>
+          </section>
+        </div>
+      </main>
+    )
+  }
+
   const [corrLink, setCorrLink] = useState('/correction')
-  // Bouton “Accéder à mon compte” → ta page /login qui marche déjà
-  const [accountLink] = useState('/login')
   const [ver, setVer] = useState('')
 
   useEffect(() => {
     try {
       const q = new URLSearchParams(window.location.search)
-
-      // ID de la soumission ajouté par /api/checkout dans success_url
+      // ID de soumission ajouté par success_url dans /api/checkout
       const directId =
         q.get('submissionId') ||
         q.get('submission_id') ||
@@ -28,7 +41,7 @@ export default function Merci2Page() {
       if (directId) {
         setCorrLink(`/correction/${encodeURIComponent(directId)}`)
       } else {
-        // En dernier recours, on renvoie à l’accueil (évite tout clignotement)
+        // Pas d’ID → on renvoie proprement à l’accueil (évite tout flux d’auth)
         setCorrLink('/')
       }
     } catch {
@@ -109,7 +122,7 @@ export default function Merci2Page() {
 
           <div style={{ display:'flex', flexWrap:'wrap', gap:12, marginTop:18 }}>
             <a href={corrLink} style={cta}>Voir la correction</a>
-            <Link href={accountLink} style={ghost}>Accéder à mon compte</Link>
+            <Link href="/login" style={ghost}>Accéder à mon compte</Link>
           </div>
 
           <div style={{ marginTop:12, color:MUTED, fontSize:12 }}>
