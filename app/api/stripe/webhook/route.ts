@@ -48,7 +48,7 @@ async function sendPurchaseConfirmationEmailSMTP(to: string) {
     return { ok: false, text: "Missing SMTP creds" };
   }
 
-  const transporter = nodemailer.createTransporter({
+  const transporter = nodemailer.createTransport({
     host: SMTP_HOST,
     port: SMTP_PORT,
     secure: SMTP_PORT === 465, // 587 = STARTTLS
