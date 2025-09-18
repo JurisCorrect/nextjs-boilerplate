@@ -100,15 +100,7 @@ Par conséquent, il convient de définir la personne morale. Celle-ci-désigne l
     if (!comment.quote) return
     
     const color = chipColor(comment.tag)
-    const highlightedText = `<span 
-      style="
-        background: ${color.bg};
-        border-radius: 3px;
-        padding: 1px 2px;
-        border-bottom: 2px solid ${color.border};
-      "
-      title="${comment.comment}"
-    >${comment.quote}</span>`
+    const highlightedText = `<span style="background: ${color.bg}; border-radius: 3px; padding: 1px 2px; border-bottom: 2px solid ${color.border};" title="${comment.comment}">${comment.quote}</span>`
     
     if (markedBody.includes(comment.quote)) {
       markedBody = replaceFirst(markedBody, comment.quote, highlightedText)
