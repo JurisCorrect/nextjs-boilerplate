@@ -52,8 +52,23 @@ export async function POST(req: Request) {
           console.log("🔓 Test connexion Supabase...");
           const supabaseAdmin = await getSupabaseAdmin();
           console.log("✅ Connexion Supabase OK");
+          
+          // Test JUSTE la requête corrections (sans insertion)
+          console.log("🔍 Test requête corrections pour:", submissionId);
+          const { data: correction, error: correctionError } = await supabaseAdmin
+            .from('corrections')
+            .select('id')
+            .eq('submission_id', submissionId)
+            .single();
+          
+          if (correctionError) {
+            console.log("⚠️ Erreur requête corrections:", correctionError.message);
+          } else {
+            console.log("✅ Correction trouvée:", correction?.id || "null");
+          }
+          
         } catch (e: any) {
-          console.log("⚠️ Erreur Supabase:", e.message);
+          console.log("⚠️ Exception:", e.message);
         }
       }
     }
