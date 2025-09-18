@@ -151,16 +151,13 @@ export default function Merci2Page() {
           </div>
 
           <div style={{ display:'flex', flexWrap:'wrap', gap:12, marginTop:18 }}>
-            {/* Voir la correction */}
             <a
               href={corrLink || '#'}
               style={{ ...cta, ...(loading ? disabledBtn : {}) }}
-              aria-disabled={loading}
             >
               {loading ? 'Chargement...' : 'Voir la correction'}
             </a>
             
-            {/* Accéder à mon compte */}
             <Link href={accountLink} style={ghost}>
               Accéder à mon compte
             </Link>
