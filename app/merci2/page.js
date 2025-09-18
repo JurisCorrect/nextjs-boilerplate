@@ -1,53 +1,58 @@
-// app/merci2/page.js
 'use client'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 
 export default function Merci2Page() {
-  // Lien vers la correction (résolu au chargement)
-  const [corrLink, setCorrLink] = useState('/correction')
-  // Ton bouton “Accéder à mon compte” → page de connexion existante
+  const [corrLink, setCorrLink] = useState<string | null>(null)
   const [accountLink] = useState('/login')
   const [ver, setVer] = useState('')
 
   useEffect(() => {
-    try {
-      const q = new URLSearchParams(window.location.search)
+    (async () => {
+      try {
+        const q = new URLSearchParams(window.location.search)
 
-      // 1) Cas normal : l’ID de soumission est dans l’URL (ajouté par /api/checkout)
-      const directId =
-        q.get('submissionId') ||
-        q.get('submission_id') ||
-        q.get('id') ||
-        q.get('correctionId')
+        // ✅ Cas normal : on reçoit submissionId via success_url (déjà géré dans /api/checkout)
+        const submissionId =
+          q.get('submissionId') ||
+          q.get('submission_id') ||
+          q.get('id') // compat antérieure
 
-      if (directId) {
-        setCorrLink(`/correction/${encodeURIComponent(directId)}`)
-      } else {
-        // 2) Fallback : essayer via l’ID de session Stripe (sans auth)
-        const sid = q.get('sid') || q.get('session_id') || q.get('sessionId')
-        if (sid) {
-          fetch(`/api/corrections/from-session?sid=${encodeURIComponent(sid)}`, { cache: 'no-store' })
-            .then(r => (r.ok ? r.json() : null))
-            .then(d => {
-              if (d?.submissionId) {
-                setCorrLink(`/correction/${encodeURIComponent(d.submissionId)}`)
-              } else if (d?.correctionId) {
-                setCorrLink(`/correction/${encodeURIComponent(d.correctionId)}`)
-              } else {
-                setCorrLink('/')
-              }
-            })
-            .catch(() => setCorrLink('/'))
-        } else {
-          // 3) Ultime sécurité
-          setCorrLink('/')
+        if (submissionId) {
+          setCorrLink(`/correction/${encodeURIComponent(submissionId)}`)
+          setVer(new Date().toLocaleString('fr-FR'))
+          return
         }
+
+        // 🔁 Fallback léger : on tente via session Stripe (aucune auth requise)
+        const sid = q.get('session_id') || q.get('sid') || q.get('sessionId')
+        if (sid) {
+          const r = await fetch(`/api/corrections/from-session?sid=${encodeURIComponent(sid)}`, { cache: 'no-store' })
+          if (r.ok) {
+            const d = await r.json()
+            const subId = d?.submissionId || d?.submission_id
+            if (subId) {
+              setCorrLink(`/correction/${encodeURIComponent(subId)}`)
+              setVer(new Date().toLocaleString('fr-FR'))
+              return
+            }
+            // compat si l’API renvoie directement l’id de correction
+            if (d?.correctionId) {
+              setCorrLink(`/correction/${encodeURIComponent(d.correctionId)}`)
+              setVer(new Date().toLocaleString('fr-FR'))
+              return
+            }
+          }
+        }
+
+        // 🧯 Dernier filet : accueil
+        setCorrLink('/')
+        setVer(new Date().toLocaleString('fr-FR'))
+      } catch {
+        setCorrLink('/')
+        setVer(new Date().toLocaleString('fr-FR'))
       }
-    } catch {
-      setCorrLink('/')
-    }
-    setVer(new Date().toLocaleString('fr-FR'))
+    })()
   }, [])
 
   const BRAND  = 'var(--brand)'
@@ -76,7 +81,9 @@ export default function Merci2Page() {
     border:'none',
     boxShadow:'0 12px 30px rgba(123,30,58,.35)',
     cursor:'pointer',
-    minWidth:220
+    minWidth:220,
+    opacity: corrLink ? 1 : .6,
+    pointerEvents: corrLink ? 'auto' : 'none'
   }
 
   const ghost = {
@@ -104,42 +111,22 @@ export default function Merci2Page() {
             Paiement réussi 🎉
           </h1>
           <p style={{ color:MUTED, margin:'0 0 18px' }}>
-            Merci pour ton achat. Ton paiement a bien été traité.
+            Merci pour ton achat. Ta correction est accessible immédiatement.
           </p>
 
           <div style={{ ...card, padding:'16px', boxShadow:'none', border:'1px dashed rgba(0,0,0,.08)', marginTop:8 }}>
-            <h3 style={{ color:'#222', fontWeight:900, margin:'0 0 8px' }}>Que se passe-t-il maintenant&nbsp;?</h3>
+            <h3 style={{ color:'#222', fontWeight:900, margin:'0 0 8px' }}>Et maintenant&nbsp;?</h3>
             <ul style={{ color:MUTED, margin:'0 0 8px 18px', lineHeight:1.7 }}>
-              <li>📬 <strong>Pense à vérifier tes spams</strong>.</li>
-              <li>
-                Un email de confirmation <strong>ou</strong> un email de création de mot de passe t&apos;a été envoyé
-                <em> (si c&apos;est ta première fois)</em>.
-              </li>
-              <li>Ta correction est accessible immédiatement.</li>
-              <li>Besoin d&apos;aide ? <a href="mailto:marie.terki@icloud.com" style={{ color:BRAND, fontWeight:700 }}>marie.terki@icloud.com</a></li>
+              <li>📬 Pense à vérifier tes spams (email de confirmation / création de mot de passe).</li>
+              <li>🧾 Aucun compte requis pour voir la correction payée.</li>
+              <li>🗝️ Tu peux créer un compte plus tard pour tout retrouver au même endroit.</li>
             </ul>
           </div>
 
           <div style={{ display:'flex', flexWrap:'wrap', gap:12, marginTop:18 }}>
-            {/* ✅ Navigation “propre” : on purge query & hash pour éviter /auth/callback */}
-            <button
-              type="button"
-              style={cta}
-              onClick={() => {
-                try {
-                  const u = new URL(window.location.origin)
-                  u.pathname = corrLink            // ex: /correction/xxxxxxxx-xxxx
-                  u.search = ''                   // pas de query parasite
-                  u.hash = ''                     // surtout : on supprime #access_token
-                  window.location.assign(u.toString())
-                } catch {
-                  window.location.href = corrLink
-                }
-              }}
-            >
-              Voir la correction
-            </button>
-
+            <a href={corrLink || '#'} style={cta}>
+              {corrLink ? 'Voir la correction' : 'Préparation du lien…'}
+            </a>
             <Link href={accountLink} style={ghost}>Accéder à mon compte</Link>
           </div>
 
