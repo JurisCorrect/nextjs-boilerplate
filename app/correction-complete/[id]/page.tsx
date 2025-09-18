@@ -19,33 +19,13 @@ export default async function CorrectionCompletePage({ params }: Props) {
     result?: any
   } | null = null
 
-  try {
-    const r = await fetch(
-      `${base}/api/corrections/status?submissionId=${encodeURIComponent(correctionId)}`,
-      { cache: "no-store" }
-    )
-    if (r.ok) {
-      const data = await r.json()
-      correction = {
-        status: data.status,
-        result: data.result || {}
-      }
-    }
-  } catch (err) {
-    console.error('Error fetching correction:', err)
-  }
+  // TEMPORAIRE : Données de test pour voir l'interface
+  correction = {
+    status: "ready",
+    result: {
+      normalizedBody: `Le professeur de droit public, Léon Duguit, disait : « Je n'ai jamais déjeuné avec une personne morale ». Ce à quoi Jean-Claude Soyer a rétorqué « Moi non plus, mais je l'ai souvent vu payer l'addition ». Ces deux citations mettent toutes deux en exergue le caractère illusoire du concept de personne morale. Cela se traduit par le verbe « voir » qu'emploie Jean-Claude Soyer. A l'inverse, Léon Duguit raisonne par analogie en se référant à l'action de déjeuner qui ne peut se réaliser qu'avec une personne physique. Un tel caractère révèle alors certaines difficultés quant à appréhender la notion de personne morale.
 
-  // Si pas de correction ou pas encore ready
-  if (!correction || correction.status !== "ready") {
-    return (
-      <main className="page-wrap correction">
-        <h1 className="page-title">CORRECTION COMPLÈTE</h1>
-        <section className="panel">
-          <p>Correction en cours de chargement...</p>
-        </section>
-      </main>
-    )
-  }
+Par conséquent, il convient de définir la personne morale. Celle-ci-désigne la personnalité juridique attribuée à un groupement, celui-ci pouvant être de personnes ou de biens. De tels groupements font partie des personnes morales de droit privé. Les personnes morales sont appréhendées de manière fictive ou réelle. En d'autres termes, la personnalité juridique d'un groupement ont été étudiées selon deux théories. D'une part, la théorie de la fiction reconnaît la personne morale en tant qu'elle est l'opposé de la personne physique : elle n'est pas pourvue de matérialité. Il ne s'agit que d'une conception purement intellectuelle qui acquiert sa personnalité juridique par les textes. D'autre part, les défenseurs de la théorie de la réalité prône la légitimité, la reconnaissance de la personnalité juridique d'un groupement dès lors que celui-ci s'organise avec une volonté collective qui peut la déf
 
   // Version complète débloquée (toujours accessible depuis cette page)
   const result = correction.result || {}
