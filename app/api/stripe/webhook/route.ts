@@ -48,7 +48,7 @@ async function sendPurchaseConfirmationEmailSMTP(to: string) {
     return { ok: false, text: "Missing SMTP creds" };
   }
 
-  const transporter = nodemailer.createTransport({
+  const transporter = nodemailer.createTransporter({
     host: SMTP_HOST,
     port: SMTP_PORT,
     secure: SMTP_PORT === 465, // 587 = STARTTLS
@@ -80,7 +80,7 @@ async function sendPurchaseConfirmationEmailSMTP(to: string) {
       ou sur TikTok <strong>Marie Terki</strong> 📱, pour toute question ou autre.
     </p>
 
-    <p style="margin-top:12px">L’équipe JurisCorrect ❤️</p>
+    <p style="margin-top:12px">L'équipe JurisCorrect ❤️</p>
   </div>
   `;
 
@@ -127,6 +127,73 @@ async function triggerCorrectionGeneration(submissionId: string) {
   }
 }
 
+/** === NOUVELLE FONCTION ===
+ * Débloque une correction après paiement réussi
+ * 1. Trouve user_id via email dans auth.users
+ * 2. Trouve correction_id via submissionId dans corrections
+ * 3. Ajoute dans unlocked_corrections
+ */
+async function unlockCorrection(email: string, submissionId: string) {
+  try {
+    console.log("🔓 Début déverrouillage:", { email, submissionId });
+    const supabaseAdmin = await getSupabaseAdmin();
+
+    // 1. Trouver user_id via email dans auth.users
+    const { data: user, error: userError } = await supabaseAdmin.auth.admin.listUsers();
+    if (userError) {
+      console.log("⚠️ Erreur listUsers:", userError.message);
+      return { ok: false, error: userError.message };
+    }
+
+    const foundUser = user.users.find(u => u.email === email);
+    if (!foundUser) {
+      console.log("⚠️ Utilisateur non trouvé pour email:", email);
+      return { ok: false, error: "User not found" };
+    }
+
+    console.log("✅ User trouvé:", foundUser.id);
+
+    // 2. Trouver correction_id via submissionId dans corrections
+    const { data: correction, error: correctionError } = await supabaseAdmin
+      .from('corrections')
+      .select('id')
+      .eq('submission_id', submissionId)
+      .single();
+
+    if (correctionError) {
+      console.log("⚠️ Erreur correction:", correctionError.message);
+      return { ok: false, error: correctionError.message };
+    }
+
+    if (!correction) {
+      console.log("⚠️ Correction non trouvée pour submissionId:", submissionId);
+      return { ok: false, error: "Correction not found" };
+    }
+
+    console.log("✅ Correction trouvée:", correction.id);
+
+    // 3. Ajouter dans unlocked_corrections
+    const { error: insertError } = await supabaseAdmin
+      .from('unlocked_corrections')
+      .insert({
+        user_id: foundUser.id,
+        correction_id: correction.id
+      });
+
+    if (insertError) {
+      console.log("⚠️ Erreur insertion unlocked_corrections:", insertError.message);
+      return { ok: false, error: insertError.message };
+    }
+
+    console.log("✅ Correction débloquée avec succès!", { user_id: foundUser.id, correction_id: correction.id });
+    return { ok: true };
+
+  } catch (e: any) {
+    console.log("⚠️ Exception déverrouillage:", e?.message || e);
+    return { ok: false, error: e?.message || "Unknown error" };
+  }
+}
+
 export async function POST(req: Request) {
   console.log("WEBHOOK APPELÉ");
 
@@ -154,6 +221,19 @@ export async function POST(req: Request) {
 
       console.log("Email trouvé:", email);
       console.log("submissionId (metadata):", submissionId ?? "—");
+
+      // === NOUVEAU === Déverrouiller la correction si on a email + submissionId
+      if (email && submissionId) {
+        console.log("🔓 Déverrouillage de la correction...");
+        const unlockResult = await unlockCorrection(email, submissionId);
+        if (unlockResult.ok) {
+          console.log("✅ Correction débloquée avec succès !");
+        } else {
+          console.log("⚠️ Échec déverrouillage:", unlockResult.error);
+        }
+      } else {
+        console.log("⚠️ Email ou submissionId manquant → pas de déverrouillage");
+      }
 
       // === AJOUT === lancer la génération si on a la submission
       if (submissionId) {
@@ -191,7 +271,7 @@ export async function POST(req: Request) {
             console.log("Erreur Supabase:", error.message);
           }
         } else {
-          console.log("Invitation envoyée (nouveau client) → email d’invitation géré par Supabase");
+          console.log("Invitation envoyée (nouveau client) → email d'invitation géré par Supabase");
         }
       } else {
         console.log("Pas d'email dans la session");
