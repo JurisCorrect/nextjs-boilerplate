@@ -1,29 +1,49 @@
+// app/merci2/page.js
 'use client'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 
 export default function Merci2Page() {
-  const [corrLink, setCorrLink] = useState('/correction') // lien rendu immédiatement
-  const [accountLink] = useState('/login')                // tu m’as dit que /login marche, on garde
+  // Lien vers la correction (on le résout immédiatement si possible)
+  const [corrLink, setCorrLink] = useState('/correction')
+  // Ton bouton “Accéder à mon compte” doit conduire à la page login qui marche déjà
+  const [accountLink] = useState('/login')
   const [ver, setVer] = useState('')
 
   useEffect(() => {
     try {
       const q = new URLSearchParams(window.location.search)
 
-      // ✅ on récupère l’ID passé par Stripe (grâce à ton API checkout)
-      const subId =
+      // 1) Cas normal : on a l’ID de soumission directement (ajouté par /api/checkout)
+      const directId =
         q.get('submissionId') ||
-        q.get('submission_id') || // compat éventuelle
+        q.get('submission_id') ||
         q.get('id') ||
         q.get('correctionId')
 
-      // Lien direct vers /correction/[id] (l’attente éventuelle se fera là-bas)
-      if (subId) {
-        setCorrLink(`/correction/${encodeURIComponent(subId)}`)
+      if (directId) {
+        setCorrLink(`/correction/${encodeURIComponent(directId)}`)
       } else {
-        // Fallback très sûr : on renvoie à l’accueil si jamais pas d’ID
-        setCorrLink('/')
+        // 2) Fallback : on essaie de résoudre via l’ID de session Stripe (pas d’auth requise)
+        const sid = q.get('sid') || q.get('session_id') || q.get('sessionId')
+        if (sid) {
+          fetch(`/api/corrections/from-session?sid=${encodeURIComponent(sid)}`, { cache: 'no-store' })
+            .then(r => r.ok ? r.json() : null)
+            .then(d => {
+              if (d?.submissionId) {
+                setCorrLink(`/correction/${encodeURIComponent(d.submissionId)}`)
+              } else if (d?.correctionId) {
+                // au cas où ta route renverrait l'id de correction directement
+                setCorrLink(`/correction/${encodeURIComponent(d.correctionId)}`)
+              } else {
+                setCorrLink('/')
+              }
+            })
+            .catch(() => setCorrLink('/'))
+        } else {
+          // 3) Dernière sécurité : on envoie à l’accueil si aucun identifiant n’est présent
+          setCorrLink('/')
+        }
       }
     } catch {
       setCorrLink('/')
@@ -102,7 +122,7 @@ export default function Merci2Page() {
           </div>
 
           <div style={{ display:'flex', flexWrap:'wrap', gap:12, marginTop:18 }}>
-            {/* ✅ plus de “Préparation…” : lien direct */}
+            {/* Lien direct (sans état “Préparation…”) */}
             <a href={corrLink} style={cta}>Voir la correction</a>
             <Link href={accountLink} style={ghost}>Accéder à mon compte</Link>
           </div>
