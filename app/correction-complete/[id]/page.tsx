@@ -55,7 +55,7 @@ export default async function CorrectionCompletePage({ params }: Props) {
 
   // Ajouter des commentaires factices si pas de vrais commentaires
   if (inline.length === 0 && body.length > 0) {
-    const sentences = body.split(/[.!?]+/).filter(s => s.trim().length > 20).map(s => s.trim())
+    const sentences = body.split(/[.!?]+/).filter((s: string) => s.trim().length > 20).map((s: string) => s.trim())
     inline = [
       {
         tag: "red",
