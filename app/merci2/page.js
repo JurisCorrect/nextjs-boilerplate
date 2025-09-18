@@ -1,66 +1,40 @@
+// app/merci2/page.js
 'use client'
+
+export const dynamic = 'force-dynamic'   // ← pas de prerender
+export const revalidate = 0              // ← désactive l’ISR côté Vercel
 
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 
-// Empêche le pré-rendu statique et toute exécution au build
-export const dynamic = 'force-dynamic'
-export const revalidate = 0
-
 export default function Merci2Page() {
-  // pas de types TS dans un .js
-  const [corrLink, setCorrLink] = useState(null) // string | null
-  const accountLink = '/login'
+  // Lien vers la correction (résolu dès que possible)
+  const [corrLink, setCorrLink] = useState('/correction')
+  // Bouton “Accéder à mon compte” → ta page /login qui marche déjà
+  const [accountLink] = useState('/login')
   const [ver, setVer] = useState('')
 
   useEffect(() => {
-    (async () => {
-      try {
-        const q = new URLSearchParams(window.location.search)
+    try {
+      const q = new URLSearchParams(window.location.search)
 
-        // ✅ Cas normal : submissionId ajouté par /api/checkout dans success_url
-        const submissionId =
-          q.get('submissionId') ||
-          q.get('submission_id') ||
-          q.get('id') ||
-          q.get('correctionId')
+      // ID de la soumission ajouté par /api/checkout dans success_url
+      const directId =
+        q.get('submissionId') ||
+        q.get('submission_id') ||
+        q.get('id') ||
+        q.get('correctionId')
 
-        if (submissionId) {
-          setCorrLink(`/correction/${encodeURIComponent(submissionId)}`)
-          setVer(new Date().toLocaleString('fr-FR'))
-          return
-        }
-
-        // 🔁 Fallback : résolution par session Stripe (publique)
-        const sid = q.get('session_id') || q.get('sid') || q.get('sessionId')
-        if (sid) {
-          try {
-            const r = await fetch(`/api/corrections/from-session?sid=${encodeURIComponent(sid)}`, { cache: 'no-store' })
-            if (r.ok) {
-              const d = await r.json()
-              const subId = d?.submissionId || d?.submission_id
-              if (subId) {
-                setCorrLink(`/correction/${encodeURIComponent(subId)}`)
-                setVer(new Date().toLocaleString('fr-FR'))
-                return
-              }
-              if (d?.correctionId) {
-                setCorrLink(`/correction/${encodeURIComponent(d.correctionId)}`)
-                setVer(new Date().toLocaleString('fr-FR'))
-                return
-              }
-            }
-          } catch {}
-        }
-
-        // 🧯 Dernier filet : accueil
+      if (directId) {
+        setCorrLink(`/correction/${encodeURIComponent(directId)}`)
+      } else {
+        // En dernier recours, on renvoie à l’accueil (évite tout clignotement)
         setCorrLink('/')
-        setVer(new Date().toLocaleString('fr-FR'))
-      } catch {
-        setCorrLink('/')
-        setVer(new Date().toLocaleString('fr-FR'))
       }
-    })()
+    } catch {
+      setCorrLink('/')
+    }
+    setVer(new Date().toLocaleString('fr-FR'))
   }, [])
 
   const BRAND  = 'var(--brand)'
@@ -89,9 +63,7 @@ export default function Merci2Page() {
     border:'none',
     boxShadow:'0 12px 30px rgba(123,30,58,.35)',
     cursor:'pointer',
-    minWidth:220,
-    opacity: corrLink ? 1 : .6,
-    pointerEvents: corrLink ? 'auto' : 'none'
+    minWidth:220
   }
 
   const ghost = {
@@ -119,22 +91,24 @@ export default function Merci2Page() {
             Paiement réussi 🎉
           </h1>
           <p style={{ color:MUTED, margin:'0 0 18px' }}>
-            Merci pour ton achat. Ta correction est accessible immédiatement.
+            Merci pour ton achat. Ton paiement a bien été traité.
           </p>
 
           <div style={{ ...card, padding:'16px', boxShadow:'none', border:'1px dashed rgba(0,0,0,.08)', marginTop:8 }}>
-            <h3 style={{ color:'#222', fontWeight:900, margin:'0 0 8px' }}>Et maintenant&nbsp;?</h3>
+            <h3 style={{ color:'#222', fontWeight:900, margin:'0 0 8px' }}>Que se passe-t-il maintenant&nbsp;?</h3>
             <ul style={{ color:MUTED, margin:'0 0 8px 18px', lineHeight:1.7 }}>
-              <li>📬 Pense à vérifier tes spams (email de confirmation / création de mot de passe).</li>
-              <li>🧾 Aucun compte requis pour voir la correction payée.</li>
-              <li>🗝️ Tu peux créer un compte plus tard pour tout retrouver au même endroit.</li>
+              <li>📬 <strong>Pense à vérifier tes spams</strong>.</li>
+              <li>
+                Un email de confirmation <strong>ou</strong> un email de création de mot de passe t&apos;a été envoyé
+                <em> (si c&apos;est ta première fois)</em>.
+              </li>
+              <li>Ta correction est accessible immédiatement.</li>
+              <li>Besoin d&apos;aide ? <a href="mailto:marie.terki@icloud.com" style={{ color:BRAND, fontWeight:700 }}>marie.terki@icloud.com</a></li>
             </ul>
           </div>
 
           <div style={{ display:'flex', flexWrap:'wrap', gap:12, marginTop:18 }}>
-            <a href={corrLink || '#'} style={cta}>
-              {corrLink ? 'Voir la correction' : 'Préparation du lien…'}
-            </a>
+            <a href={corrLink} style={cta}>Voir la correction</a>
             <Link href={accountLink} style={ghost}>Accéder à mon compte</Link>
           </div>
 
