@@ -47,37 +47,27 @@ export async function POST(req: Request) {
       
       console.log("Email:", email, "SubmissionId:", submissionId);
       
-      // Insertion simplifiée dans unlocked_corrections
+      // TEST TEMPORAIRE - pas d'insertion pour éviter le crash
       if (email && submissionId) {
         try {
-          console.log("🔓 Déverrouillage simple...");
+          console.log("🔓 Test webhook sans insertion...");
           console.log("📋 Données reçues:", { email, submissionId, emailType: typeof email, submissionIdType: typeof submissionId });
           
           const supabaseAdmin = await getSupabaseAdmin();
           console.log("✅ Connexion Supabase OK");
           
-          // Vérification des données avant insertion
+          // Juste logger ce qu'on voudrait insérer
           const insertData = {
             submission_id: String(submissionId),
             email: String(email),
             user_id: null
           };
           
-          console.log("💾 Données à insérer:", JSON.stringify(insertData));
-          
-          const { data, error: insertError } = await supabaseAdmin
-            .from('unlocked_corrections')
-            .insert(insertData)
-            .select();
-          
-          if (insertError) {
-            console.log("❌ Erreur insertion complète:", JSON.stringify(insertError));
-          } else {
-            console.log("✅ Correction débloquée avec succès!", data);
-          }
+          console.log("💾 Données qu'on voudrait insérer:", JSON.stringify(insertData));
+          console.log("✅ Test terminé - pas d'insertion pour éviter le crash");
           
         } catch (e: any) {
-          console.log("⚠️ Exception complète:", e.message, e.stack);
+          console.log("⚠️ Exception:", e.message);
         }
       }
     }
