@@ -50,27 +50,33 @@ export async function POST(req: Request) {
       if (email && submissionId) {
         try {
           console.log("🔓 Déverrouillage simple...");
+          console.log("📋 Données reçues:", { email, submissionId, emailType: typeof email, submissionIdType: typeof submissionId });
+          
           const supabaseAdmin = await getSupabaseAdmin();
           console.log("✅ Connexion Supabase OK");
           
-          // Insertion directe avec submission_id + email
-          console.log("💾 Insertion dans unlocked_corrections:", { submissionId, email });
-          const { error: insertError } = await supabaseAdmin
+          // Vérification des données avant insertion
+          const insertData = {
+            submission_id: String(submissionId),
+            email: String(email),
+            user_id: null
+          };
+          
+          console.log("💾 Données à insérer:", JSON.stringify(insertData));
+          
+          const { data, error: insertError } = await supabaseAdmin
             .from('unlocked_corrections')
-            .insert({
-              submission_id: submissionId,
-              email: email,
-              user_id: null // on garde null pour l'instant
-            });
+            .insert(insertData)
+            .select();
           
           if (insertError) {
-            console.log("⚠️ Erreur insertion:", insertError.message);
+            console.log("❌ Erreur insertion complète:", JSON.stringify(insertError));
           } else {
-            console.log("✅ Correction débloquée avec succès!");
+            console.log("✅ Correction débloquée avec succès!", data);
           }
           
         } catch (e: any) {
-          console.log("⚠️ Exception déverrouillage:", e.message);
+          console.log("⚠️ Exception complète:", e.message, e.stack);
         }
       }
     }
