@@ -7,6 +7,7 @@ type InlineItem = { tag?: string; quote?: string; comment?: string }
 type StatusPayload = {
   submissionId: string
   status: "none" | "running" | "ready"
+  isUnlocked?: boolean
   result?: {
     normalizedBody?: string
     body?: string
@@ -56,6 +57,7 @@ export default function AnnotatedTeaser({ submissionId }: { submissionId: string
         
         if (mounted) {
           setData(result)
+          console.log('API response isUnlocked:', result.isUnlocked)
           if (result.status === "ready") {
             setLoading(false)
           } else {
@@ -121,6 +123,7 @@ export default function AnnotatedTeaser({ submissionId }: { submissionId: string
   }
 
   const result = data.result || {}
+  const isUnlocked = data.isUnlocked || false
   const body = result.normalizedBody ?? result.body ?? ""
   
   // Commentaires bien répartis sur TOUTE la longueur des parties visibles
@@ -234,7 +237,7 @@ export default function AnnotatedTeaser({ submissionId }: { submissionId: string
     lineHeight: 1.6,
     position: "relative" as const
   }
-  const blur = { 
+  const blur = isUnlocked ? {} : { 
     filter: "blur(6px)", 
     userSelect: "none" as const, 
     pointerEvents: "none" as const 
@@ -342,41 +345,43 @@ export default function AnnotatedTeaser({ submissionId }: { submissionId: string
       })}
 
       {/* Overlay paywall au centre */}
-      <div
-        style={{
-          position: "absolute",
-          inset: 0,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          pointerEvents: "none",
-          zIndex: 30
-        }}
-        aria-hidden
-      >
+      {!isUnlocked && (
         <div
           style={{
-            background: "#7b1e3a",
-            color: "#fff",
-            borderRadius: 12,
-            padding: "16px 18px",
-            boxShadow: "0 10px 30px rgba(10,26,61,.25)",
-            maxWidth: 420,
-            width: "92%",
-            textAlign: "center",
-            pointerEvents: "auto",
-            border: "1px solid rgba(255,255,255,0.08)"
+            position: "absolute",
+            inset: 0,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            pointerEvents: "none",
+            zIndex: 30
           }}
+          aria-hidden
         >
-          <div style={{ fontWeight: 900, marginBottom: 6, letterSpacing: ".3px" }}>
-            Débloquer la correction
+          <div
+            style={{
+              background: "#7b1e3a",
+              color: "#fff",
+              borderRadius: 12,
+              padding: "16px 18px",
+              boxShadow: "0 10px 30px rgba(10,26,61,.25)",
+              maxWidth: 420,
+              width: "92%",
+              textAlign: "center",
+              pointerEvents: "auto",
+              border: "1px solid rgba(255,255,255,0.08)"
+            }}
+          >
+            <div style={{ fontWeight: 900, marginBottom: 6, letterSpacing: ".3px" }}>
+              Débloquer la correction
+            </div>
+            <div style={{ opacity: 0.95, marginBottom: 12 }}>
+              Accède à l'intégralité de ta copie corrigée et à tous les commentaires.
+            </div>
+            <PaymentPanel refId={data.submissionId} />
           </div>
-          <div style={{ opacity: 0.95, marginBottom: 12 }}>
-            Accède à l'intégralité de ta copie corrigée et à tous les commentaires.
-          </div>
-          <PaymentPanel refId={data.submissionId} />
         </div>
-      </div>
+      )}
 
       {/* Styles pour les effets hover */}
       <style>{`
