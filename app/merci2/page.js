@@ -1,10 +1,16 @@
 'use client'
+
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 
+// Empêche le pré-rendu statique et toute exécution au build
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 export default function Merci2Page() {
-  const [corrLink, setCorrLink] = useState<string | null>(null)
-  const [accountLink] = useState('/login')
+  // pas de types TS dans un .js
+  const [corrLink, setCorrLink] = useState(null) // string | null
+  const accountLink = '/login'
   const [ver, setVer] = useState('')
 
   useEffect(() => {
@@ -12,11 +18,12 @@ export default function Merci2Page() {
       try {
         const q = new URLSearchParams(window.location.search)
 
-        // ✅ Cas normal : on reçoit submissionId via success_url (déjà géré dans /api/checkout)
+        // ✅ Cas normal : submissionId ajouté par /api/checkout dans success_url
         const submissionId =
           q.get('submissionId') ||
           q.get('submission_id') ||
-          q.get('id') // compat antérieure
+          q.get('id') ||
+          q.get('correctionId')
 
         if (submissionId) {
           setCorrLink(`/correction/${encodeURIComponent(submissionId)}`)
@@ -24,25 +31,26 @@ export default function Merci2Page() {
           return
         }
 
-        // 🔁 Fallback léger : on tente via session Stripe (aucune auth requise)
+        // 🔁 Fallback : résolution par session Stripe (publique)
         const sid = q.get('session_id') || q.get('sid') || q.get('sessionId')
         if (sid) {
-          const r = await fetch(`/api/corrections/from-session?sid=${encodeURIComponent(sid)}`, { cache: 'no-store' })
-          if (r.ok) {
-            const d = await r.json()
-            const subId = d?.submissionId || d?.submission_id
-            if (subId) {
-              setCorrLink(`/correction/${encodeURIComponent(subId)}`)
-              setVer(new Date().toLocaleString('fr-FR'))
-              return
+          try {
+            const r = await fetch(`/api/corrections/from-session?sid=${encodeURIComponent(sid)}`, { cache: 'no-store' })
+            if (r.ok) {
+              const d = await r.json()
+              const subId = d?.submissionId || d?.submission_id
+              if (subId) {
+                setCorrLink(`/correction/${encodeURIComponent(subId)}`)
+                setVer(new Date().toLocaleString('fr-FR'))
+                return
+              }
+              if (d?.correctionId) {
+                setCorrLink(`/correction/${encodeURIComponent(d.correctionId)}`)
+                setVer(new Date().toLocaleString('fr-FR'))
+                return
+              }
             }
-            // compat si l’API renvoie directement l’id de correction
-            if (d?.correctionId) {
-              setCorrLink(`/correction/${encodeURIComponent(d.correctionId)}`)
-              setVer(new Date().toLocaleString('fr-FR'))
-              return
-            }
-          }
+          } catch {}
         }
 
         // 🧯 Dernier filet : accueil
