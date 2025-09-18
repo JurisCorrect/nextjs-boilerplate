@@ -1,4 +1,6 @@
 // app/api/stripe/webhook/route.ts
+export async function POST(req: Request) {
+  console.log("=== WEBHOOK POST APPELÉ - DÉBUT ===");
 import Stripe from "stripe";
 import { Buffer } from "node:buffer";
 
