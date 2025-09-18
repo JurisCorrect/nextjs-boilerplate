@@ -77,6 +77,22 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             `,
           }}
         />
+        <script
+  dangerouslySetInnerHTML={{
+    __html: `
+      (function () {
+        try {
+          var isCallback = location.pathname === '/auth/callback';
+          var hasOAuthHash = location.hash && location.hash.indexOf('access_token=') !== -1;
+          if (!isCallback && hasOAuthHash) {
+            // on nettoie le hash pour éviter un détournement vers la page de callback
+            history.replaceState(null, '', location.pathname + location.search);
+          }
+        } catch (e) {}
+      })();
+    `,
+  }}
+/>
       </body>
     </html>
   );
