@@ -4,9 +4,9 @@ import Link from 'next/link'
 import { useEffect, useState } from 'react'
 
 export default function Merci2Page() {
-  // Lien vers la correction (on le résout immédiatement si possible)
+  // Lien vers la correction (résolu au chargement)
   const [corrLink, setCorrLink] = useState('/correction')
-  // Ton bouton “Accéder à mon compte” doit conduire à la page login qui marche déjà
+  // Ton bouton “Accéder à mon compte” → page de connexion existante
   const [accountLink] = useState('/login')
   const [ver, setVer] = useState('')
 
@@ -14,7 +14,7 @@ export default function Merci2Page() {
     try {
       const q = new URLSearchParams(window.location.search)
 
-      // 1) Cas normal : on a l’ID de soumission directement (ajouté par /api/checkout)
+      // 1) Cas normal : l’ID de soumission est dans l’URL (ajouté par /api/checkout)
       const directId =
         q.get('submissionId') ||
         q.get('submission_id') ||
@@ -24,16 +24,15 @@ export default function Merci2Page() {
       if (directId) {
         setCorrLink(`/correction/${encodeURIComponent(directId)}`)
       } else {
-        // 2) Fallback : on essaie de résoudre via l’ID de session Stripe (pas d’auth requise)
+        // 2) Fallback : essayer via l’ID de session Stripe (sans auth)
         const sid = q.get('sid') || q.get('session_id') || q.get('sessionId')
         if (sid) {
           fetch(`/api/corrections/from-session?sid=${encodeURIComponent(sid)}`, { cache: 'no-store' })
-            .then(r => r.ok ? r.json() : null)
+            .then(r => (r.ok ? r.json() : null))
             .then(d => {
               if (d?.submissionId) {
                 setCorrLink(`/correction/${encodeURIComponent(d.submissionId)}`)
               } else if (d?.correctionId) {
-                // au cas où ta route renverrait l'id de correction directement
                 setCorrLink(`/correction/${encodeURIComponent(d.correctionId)}`)
               } else {
                 setCorrLink('/')
@@ -41,7 +40,7 @@ export default function Merci2Page() {
             })
             .catch(() => setCorrLink('/'))
         } else {
-          // 3) Dernière sécurité : on envoie à l’accueil si aucun identifiant n’est présent
+          // 3) Ultime sécurité
           setCorrLink('/')
         }
       }
@@ -122,8 +121,25 @@ export default function Merci2Page() {
           </div>
 
           <div style={{ display:'flex', flexWrap:'wrap', gap:12, marginTop:18 }}>
-            {/* Lien direct (sans état “Préparation…”) */}
-            <a href={corrLink} style={cta}>Voir la correction</a>
+            {/* ✅ Navigation “propre” : on purge query & hash pour éviter /auth/callback */}
+            <button
+              type="button"
+              style={cta}
+              onClick={() => {
+                try {
+                  const u = new URL(window.location.origin)
+                  u.pathname = corrLink            // ex: /correction/xxxxxxxx-xxxx
+                  u.search = ''                   // pas de query parasite
+                  u.hash = ''                     // surtout : on supprime #access_token
+                  window.location.assign(u.toString())
+                } catch {
+                  window.location.href = corrLink
+                }
+              }}
+            >
+              Voir la correction
+            </button>
+
             <Link href={accountLink} style={ghost}>Accéder à mon compte</Link>
           </div>
 
