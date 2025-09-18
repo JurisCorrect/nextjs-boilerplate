@@ -1,8 +1,17 @@
 // app/api/corrections/from-session/route.ts
 import { NextResponse } from "next/server";
-import { getSupabaseServer } from "@/lib/supabase/server";
 
+export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+
+async function getAdmin() {
+  const { createClient } = await import("@supabase/supabase-js");
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { autoRefreshToken: false, persistSession: false } }
+  );
+}
 
 export async function GET(req: Request) {
   try {
@@ -10,26 +19,23 @@ export async function GET(req: Request) {
     const sid = searchParams.get("sid");
     if (!sid) return NextResponse.json({ error: "missing sid" }, { status: 400 });
 
-    const supabase = getSupabaseServer();
-    const { data: auth } = await supabase.auth.getUser();
-    if (!auth?.user) return NextResponse.json({ error: "unauthenticated" }, { status: 401 });
+    const supabase = await getAdmin();
 
-    // 1) retrouver la submission payée par CET utilisateur
+    // 1) Retrouver la submission par stripe_session_id (aucune auth requise)
     const { data: sub, error: subErr } = await supabase
       .from("submissions")
-      .select("id,user_id")
+      .select("id")
       .eq("stripe_session_id", sid)
       .maybeSingle();
 
     if (subErr) {
-      console.log("from-session submissions error:", subErr.message);
-      return NextResponse.json({ error: "not_found" }, { status: 404 });
+      return NextResponse.json({ error: "db_error", details: subErr.message }, { status: 500 });
     }
-    if (!sub || sub.user_id !== auth.user.id) {
+    if (!sub) {
       return NextResponse.json({ error: "not_found" }, { status: 404 });
     }
 
-    // 2) prendre la dernière correction liée
+    // 2) Dernière correction liée
     const { data: corr, error: corrErr } = await supabase
       .from("corrections")
       .select("id,status")
@@ -39,14 +45,20 @@ export async function GET(req: Request) {
       .maybeSingle();
 
     if (corrErr) {
-      console.log("from-session corrections error:", corrErr.message);
-      return NextResponse.json({ error: "not_found" }, { status: 404 });
+      return NextResponse.json({ error: "db_error", details: corrErr.message }, { status: 500 });
     }
-    if (!corr) return NextResponse.json({ ready: false }, { status: 200 });
 
-    return NextResponse.json({ ready: corr.status === "ready", correctionId: corr.id });
+    if (!corr) {
+      // pas encore générée
+      return NextResponse.json({ ready: false, submissionId: sub.id }, { status: 200 });
+    }
+
+    return NextResponse.json({
+      ready: corr.status === "ready",
+      correctionId: corr.id,
+      submissionId: sub.id,
+    });
   } catch (e: any) {
-    console.log("from-session exception:", e?.message || e);
-    return NextResponse.json({ error: "server_error" }, { status: 500 });
+    return NextResponse.json({ error: "server_error", details: e?.message || String(e) }, { status: 500 });
   }
 }
