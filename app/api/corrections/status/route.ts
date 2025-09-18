@@ -1,3 +1,4 @@
+// app/api/corrections/status/route.ts
 import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
@@ -22,8 +23,8 @@ export async function GET(req: Request) {
 
     const supabase = await getAdmin();
 
-    // 1) tentative avec la colonne status
-    let sel = await supabase
+    // 1. Récupérer la dernière correction
+    const { data: corr, error } = await supabase
       .from("corrections")
       .select("id,status,result_json,created_at")
       .eq("submission_id", submissionId)
@@ -31,46 +32,39 @@ export async function GET(req: Request) {
       .limit(1)
       .maybeSingle();
 
-    // 2) fallback si la colonne n'existe pas encore (anciens schémas)
-    if (sel.error && /column .*status/i.test(sel.error.message || "")) {
-      sel = await supabase
-        .from("corrections")
-        .select("id,result_json,created_at")
-        .eq("submission_id", submissionId)
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
-    }
-
-    const { data: corr, error } = sel;
-
     if (error) {
-      return NextResponse.json(
-        { error: "db_error", details: error.message },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "db_error", details: error.message }, { status: 500 });
     }
 
+    // 2. Vérifier si cette correction est débloquée
+    let isUnlocked = false;
+    if (corr) {
+      const { data: unlocked } = await supabase
+        .from("unlocked_corrections")
+        .select("id")
+        .eq("correction_id", corr.id)
+        .limit(1);
+
+      isUnlocked = Boolean(unlocked && unlocked.length > 0);
+    }
+
+    // 3. Réponse selon l'état de la correction
     if (!corr) {
-      return NextResponse.json(
-        { status: "none" },
-        { headers: { "Cache-Control": "no-store" } }
-      );
+      return NextResponse.json({
+        submissionId,
+        status: "none",
+        isUnlocked: false
+      });
     }
 
-    // Si status est nul/absent, déduire à partir du contenu
-    const computedStatus =
-      (corr as any).status ??
-      ((corr as any).result_json ? "ready" : "running");
+    return NextResponse.json({
+      submissionId,
+      correctionId: corr.id,
+      status: corr.status,
+      isUnlocked,
+      result: corr.status === "ready" ? corr.result_json : null,
+    });
 
-    return NextResponse.json(
-      {
-        correctionId: (corr as any).id,
-        status: computedStatus,
-        result: computedStatus === "ready" ? (corr as any).result_json : null,
-      },
-      { headers: { "Cache-Control": "no-store" } }
-    );
   } catch (e: any) {
     return NextResponse.json(
       { error: "server_error", details: e?.message || String(e) },
