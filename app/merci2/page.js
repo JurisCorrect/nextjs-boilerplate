@@ -154,9 +154,12 @@ export default function Merci2Page() {
             {/* Voir la correction */}
             <a
               href={corrLink || '#'}
-              style={{ ...cta, ...(loading ? disabledBtn : null) }}
+              style={{ ...cta, ...(loading ? disabledBtn : {}) }}
               aria-disabled={loading}
             >
+              {loading ? 'Chargement...' : 'Voir la correction'}
+            </a>
+            
             {/* Accéder à mon compte */}
             <Link href={accountLink} style={ghost}>
               Accéder à mon compte
