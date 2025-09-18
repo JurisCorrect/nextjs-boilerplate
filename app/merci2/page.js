@@ -4,48 +4,42 @@ import Link from 'next/link'
 import { useEffect, useState } from 'react'
 
 export default function Merci2Page() {
-  const [corrLink, setCorrLink] = useState('/correction-complete')
-  const [accountLink, setAccountLink] = useState('/dashboard') // Changé de /login vers /dashboard
+  // Lien vers la correction (résolu au chargement)
+  const [corrLink, setCorrLink] = useState('/correction')
+  // ✅ lien fixe vers la page de connexion qui existe déjà
+  const accountLink = '/login'
   const [ver, setVer] = useState('')
 
   useEffect(() => {
-    async function run() {
-      try {
-        const q = new URLSearchParams(window.location.search)
-        const directId = q.get('id') || q.get('submissionId') || q.get('correctionId')
-        const sid = q.get('sid') // renvoyé par success_url: ?sid={CHECKOUT_SESSION_ID}
+    try {
+      const q = new URLSearchParams(window.location.search)
+      const directId =
+        q.get('submissionId') ||
+        q.get('submission_id') ||
+        q.get('id') ||
+        q.get('correctionId')
 
-        // 1) si on a déjà un id dans l'URL, on le garde (comportement identique à avant)
-        if (directId) {
-          setCorrLink(`/correction/${encodeURIComponent(directId)}`)
-        }
-        // 2) sinon, on essaie de résoudre via l'ID de session Stripe
-        else if (sid) {
-          for (let i = 0; i < 15; i++) {
-            try {
-              const r = await fetch(`/api/corrections/from-session?sid=${encodeURIComponent(sid)}`, { cache: 'no-store' })
-              const data = await r.json()
-              if (data?.correctionId && data?.ready) {
-                setCorrLink(`/correction/${encodeURIComponent(data.correctionId)}`)
-                break
-              }
-            } catch {}
-            await new Promise(res => setTimeout(res, 1500))
-          }
-        }
-
-        // Définir le lien vers le compte selon le contexte
+      if (directId) {
+        setCorrLink(`/correction/${encodeURIComponent(directId)}`)
+      } else {
+        const sid = q.get('sid') || q.get('session_id') || q.get('sessionId')
         if (sid) {
-          // Si on vient d'un paiement Stripe, on peut aller vers login avec l'ID session
-          setAccountLink(`/dashboard`) // Ou garder /dashboard si pas besoin de l'ID session
+          fetch(`/api/corrections/from-session?sid=${encodeURIComponent(sid)}`, { cache: 'no-store' })
+            .then(r => (r.ok ? r.json() : null))
+            .then(d => {
+              if (d?.submissionId) setCorrLink(`/correction/${encodeURIComponent(d.submissionId)}`)
+              else if (d?.correctionId) setCorrLink(`/correction/${encodeURIComponent(d.correctionId)}`)
+              else setCorrLink('/')
+            })
+            .catch(() => setCorrLink('/'))
         } else {
-          // Sinon, vers le dashboard normal
-          setAccountLink('/dashboard')
+          setCorrLink('/')
         }
-      } catch {}
-      setVer(new Date().toLocaleString('fr-FR'))
+      }
+    } catch {
+      setCorrLink('/')
     }
-    run()
+    setVer(new Date().toLocaleString('fr-FR'))
   }, [])
 
   const BRAND  = 'var(--brand)'
@@ -108,11 +102,8 @@ export default function Merci2Page() {
           <div style={{ ...card, padding:'16px', boxShadow:'none', border:'1px dashed rgba(0,0,0,.08)', marginTop:8 }}>
             <h3 style={{ color:'#222', fontWeight:900, margin:'0 0 8px' }}>Que se passe-t-il maintenant&nbsp;?</h3>
             <ul style={{ color:MUTED, margin:'0 0 8px 18px', lineHeight:1.7 }}>
-              <li>📬 <strong>N&apos;oublie pas de regarder dans tes courriers indésirables (spam)</strong>.</li>
-              <li>
-                Un email de confirmation <strong>ou</strong> un email de création de mot de passe t&apos;a été envoyé
-                <em> (si c&apos;est ta première fois)</em>.
-              </li>
+              <li>📬 <strong>Pense à vérifier tes spams</strong>.</li>
+              <li>Un email de confirmation <strong>ou</strong> un email de création de mot de passe t&apos;a été envoyé <em>(si c&apos;est ta première fois)</em>.</li>
               <li>Ta correction est accessible immédiatement.</li>
               <li>Besoin d&apos;aide ? <a href="mailto:marie.terki@icloud.com" style={{ color:BRAND, fontWeight:700 }}>marie.terki@icloud.com</a></li>
             </ul>
@@ -120,6 +111,7 @@ export default function Merci2Page() {
 
           <div style={{ display:'flex', flexWrap:'wrap', gap:12, marginTop:18 }}>
             <a href={corrLink} style={cta}>Voir la correction</a>
+            {/* ✅ renvoie bien vers /login, comme avant */}
             <Link href={accountLink} style={ghost}>Accéder à mon compte</Link>
           </div>
 
