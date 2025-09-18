@@ -1,51 +1,79 @@
 'use client'
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 export default function Merci2Page() {
-  const [corrLink, setCorrLink] = useState('/correction-complete')
-  const [accountLink, setAccountLink] = useState('/dashboard') // Changé de /login vers /dashboard
+  const [corrLink, setCorrLink] = useState(null)     // lien "Voir la correction"
+  const [accountLink] = useState('/login')           // on garde /login comme tu veux
   const [ver, setVer] = useState('')
+  const [loading, setLoading] = useState(true)
+
+  const base = useMemo(() => {
+    const env = (process.env.NEXT_PUBLIC_SITE_URL || '').replace(/\/$/, '')
+    if (env) return env
+    if (typeof window !== 'undefined') return window.location.origin
+    return ''
+  }, [])
 
   useEffect(() => {
+    let cancelled = false
+
     async function run() {
       try {
         const q = new URLSearchParams(window.location.search)
-        const directId = q.get('id') || q.get('submissionId') || q.get('correctionId')
-        const sid = q.get('sid') // renvoyé par success_url: ?sid={CHECKOUT_SESSION_ID}
+        const directId =
+          q.get('id') || q.get('submissionId') || q.get('correctionId')
+        const sid = q.get('sid') || q.get('session_id') || ''
 
-        // 1) si on a déjà un id dans l'URL, on le garde (comportement identique à avant)
+        // 1) Déjà un ID → lien direct /correction/[id]
         if (directId) {
-          setCorrLink(`/correction/${encodeURIComponent(directId)}`)
+          if (!cancelled) {
+            setCorrLink(`/correction/${encodeURIComponent(directId)}`)
+            setLoading(false)
+          }
+          return
         }
-        // 2) sinon, on essaie de résoudre via l'ID de session Stripe
-        else if (sid) {
-          for (let i = 0; i < 15; i++) {
+
+        // 2) Sinon, on tente de résoudre par l'ID de session Stripe
+        if (sid) {
+          for (let i = 0; i < 20; i++) {
             try {
-              const r = await fetch(`/api/corrections/from-session?sid=${encodeURIComponent(sid)}`, { cache: 'no-store' })
-              const data = await r.json()
-              if (data?.correctionId && data?.ready) {
-                setCorrLink(`/correction/${encodeURIComponent(data.correctionId)}`)
-                break
+              const r = await fetch(
+                `/api/corrections/resolve?session_id=${encodeURIComponent(sid)}`,
+                { cache: 'no-store' }
+              )
+              const data = await r.json().catch(() => ({}))
+              if (r.ok && data && data.correctionId) {
+                if (!cancelled) {
+                  setCorrLink(`/correction/${encodeURIComponent(data.correctionId)}`)
+                  setLoading(false)
+                }
+                return
               }
             } catch {}
-            await new Promise(res => setTimeout(res, 1500))
+            // petite pause entre les tentatives
+            await new Promise(res => setTimeout(res, 1200))
           }
         }
 
-        // Définir le lien vers le compte selon le contexte
-        if (sid) {
-          // Si on vient d'un paiement Stripe, on peut aller vers login avec l'ID session
-          setAccountLink(`/dashboard`) // Ou garder /dashboard si pas besoin de l'ID session
-        } else {
-          // Sinon, vers le dashboard normal
-          setAccountLink('/dashboard')
+        // 3) Fallback si on ne peut rien déduire
+        if (!cancelled) {
+          setCorrLink('/')   // évite un 404
+          setLoading(false)
         }
-      } catch {}
-      setVer(new Date().toLocaleString('fr-FR'))
+      } catch {
+        if (!cancelled) {
+          setCorrLink('/')
+          setLoading(false)
+        }
+      } finally {
+        if (!cancelled) setVer(new Date().toLocaleString('fr-FR'))
+      }
     }
+
     run()
-  }, [])
+    return () => { cancelled = true }
+  }, [base])
 
   const BRAND  = 'var(--brand)'
   const BRAND2 = 'var(--brand-2)'
@@ -92,6 +120,11 @@ export default function Merci2Page() {
     minWidth:220
   }
 
+  const disabledBtn = {
+    opacity: 0.6,
+    pointerEvents: 'none'
+  }
+
   return (
     <main style={{ background:'#fff', minHeight:'100vh' }}>
       <div style={{ position:'fixed', inset:0, background:'#fff', zIndex:0 }} />
@@ -118,8 +151,19 @@ export default function Merci2Page() {
           </div>
 
           <div style={{ display:'flex', flexWrap:'wrap', gap:12, marginTop:18 }}>
-            <a href={corrLink} style={cta}>Voir la correction</a>
-            <Link href={accountLink} style={ghost}>Accéder à mon compte</Link>
+            {/* Voir la correction */}
+            <a
+              href={corrLink || '#'}
+              style={{ ...cta, ...(loading ? disabledBtn : null) }}
+              aria-disabled={loading}
+            >
+              {loading ? 'Préparation…' : 'Voir la correction'}
+            </a>
+
+            {/* Accéder à mon compte */}
+            <Link href={accountLink} style={ghost}>
+              Accéder à mon compte
+            </Link>
           </div>
 
           <div style={{ marginTop:12, color:MUTED, fontSize:12 }}>
