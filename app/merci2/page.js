@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 
 export default function Merci2Page() {
   const [corrLink, setCorrLink] = useState('/correction-complete')
+  const [accountLink, setAccountLink] = useState('/dashboard') // Changé de /login vers /dashboard
   const [ver, setVer] = useState('')
 
   useEffect(() => {
@@ -30,6 +31,15 @@ export default function Merci2Page() {
             } catch {}
             await new Promise(res => setTimeout(res, 1500))
           }
+        }
+
+        // Définir le lien vers le compte selon le contexte
+        if (sid) {
+          // Si on vient d'un paiement Stripe, on peut aller vers login avec l'ID session
+          setAccountLink(`/dashboard`) // Ou garder /dashboard si pas besoin de l'ID session
+        } else {
+          // Sinon, vers le dashboard normal
+          setAccountLink('/dashboard')
         }
       } catch {}
       setVer(new Date().toLocaleString('fr-FR'))
@@ -109,7 +119,7 @@ export default function Merci2Page() {
 
           <div style={{ display:'flex', flexWrap:'wrap', gap:12, marginTop:18 }}>
             <a href={corrLink} style={cta}>Voir la correction</a>
-            <Link href="/login" style={ghost}>Accéder à mon compte</Link>
+            <Link href={accountLink} style={ghost}>Accéder à mon compte</Link>
           </div>
 
           <div style={{ marginTop:12, color:MUTED, fontSize:12 }}>
