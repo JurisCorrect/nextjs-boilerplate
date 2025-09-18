@@ -7,8 +7,21 @@ export const dynamic = "force-dynamic";
 
 const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY!;
 const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET;
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 if (!STRIPE_SECRET_KEY) throw new Error("STRIPE_SECRET_KEY manquant");
+
+// --- Supabase admin client ---
+async function getSupabaseAdmin() {
+  if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
+    throw new Error("SUPABASE service role manquant");
+  }
+  const { createClient } = await import("@supabase/supabase-js");
+  return createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+    auth: { autoRefreshToken: false, persistSession: false },
+  });
+}
 
 const stripe = new Stripe(STRIPE_SECRET_KEY, { apiVersion: "2023-10-16" });
 
@@ -32,7 +45,17 @@ export async function POST(req: Request) {
       const submissionId = (session.metadata as any)?.submissionId;
       
       console.log("Email:", email, "SubmissionId:", submissionId);
-      // TODO: Ajouter unlockCorrection ici une fois qu'on a identifié l'erreur
+      
+      // Test simple de connexion Supabase
+      if (email && submissionId) {
+        try {
+          console.log("🔓 Test connexion Supabase...");
+          const supabaseAdmin = await getSupabaseAdmin();
+          console.log("✅ Connexion Supabase OK");
+        } catch (e: any) {
+          console.log("⚠️ Erreur Supabase:", e.message);
+        }
+      }
     }
 
     return new Response("ok", { status: 200 });
