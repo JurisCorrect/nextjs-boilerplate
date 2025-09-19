@@ -34,11 +34,11 @@ export async function POST(request: Request) {
     }
     console.log("✅ [GENERATE] Variables d'environnement OK");
 
-    // 1. Récupérer la soumission
+    // 1. Récupérer la soumission - découvrir la structure
     console.log("🔍 [GENERATE] Recherche soumission...");
     const { data: submission, error: fetchError } = await supabase
       .from("submissions")
-      .select("content")
+      .select("*")  // Récupérer toutes les colonnes pour voir la structure
       .eq("id", submissionId)
       .single();
 
@@ -47,8 +47,19 @@ export async function POST(request: Request) {
       throw new Error(`Erreur récupération: ${fetchError.message}`);
     }
 
-    if (!submission?.content) {
-      return NextResponse.json({ error: "Soumission introuvable" }, { status: 404 });
+    if (!submission) {
+      console.error("❌ [GENERATE] Soumission introuvable");
+      throw new Error("Soumission introuvable");
+    }
+
+    console.log("📊 [GENERATE] Structure soumission:", Object.keys(submission));
+    console.log("📄 [GENERATE] Données soumission:", JSON.stringify(submission, null, 2));
+
+    // Identifier le champ qui contient le contenu
+    const content = submission.content || submission.text || submission.body || submission.document || '';
+    if (!content) {
+      console.error("❌ [GENERATE] Aucun contenu trouvé dans:", Object.keys(submission));
+      throw new Error("Contenu de soumission introuvable");
     }
 
     console.log("✅ [GENERATE] Contenu récupéré:", submission.content.length, "caractères");
