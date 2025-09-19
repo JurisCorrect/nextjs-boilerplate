@@ -67,9 +67,12 @@ export default function AnnotatedTeaser({ submissionId }: { submissionId: string
 
   useEffect(() => {
     let mounted = true
+    let pollInterval: NodeJS.Timeout
 
     async function fetchStatus() {
       try {
+        console.log('🔍 Polling status for:', submissionId)
+        
         const response = await fetch(`/api/corrections/status?submissionId=${encodeURIComponent(submissionId)}`, {
           cache: "no-store"
         })
@@ -79,14 +82,14 @@ export default function AnnotatedTeaser({ submissionId }: { submissionId: string
         }
         
         const result = await response.json()
+        console.log('📊 Status result:', result)
         
         if (mounted) {
           setData(result)
-          console.log('API response isUnlocked:', result.isUnlocked)
           
           // Si pas de correction ou pas de commentaires inline, déclencher la génération
           if (result.status === "none" || !result.result || !result.result.inline || result.result.inline.length === 0) {
-            console.log('Aucun commentaire trouvé, déclenchement génération...')
+            console.log('🚀 Aucun commentaire trouvé, déclenchement génération...')
             
             // Déclencher la génération automatiquement
             fetch('/api/corrections/generate', {
@@ -94,32 +97,38 @@ export default function AnnotatedTeaser({ submissionId }: { submissionId: string
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ submissionId })
             }).then(r => {
-              console.log('Génération déclenchée, statut:', r.status)
-              // Reprendre le polling après avoir déclenché la génération
-              setTimeout(fetchStatus, 3000)
+              console.log('✅ Génération déclenchée, statut:', r.status)
             }).catch(err => {
-              console.error('Erreur génération:', err)
-              setTimeout(fetchStatus, 3000)
+              console.error('❌ Erreur génération:', err)
             })
-            return
           }
           
-          if (result.status === "ready") {
+          if (result.status === "ready" && result.result && result.result.inline && result.result.inline.length > 0) {
+            console.log('🎉 Correction prête avec', result.result.inline.length, 'commentaires')
             setLoading(false)
+            if (pollInterval) clearInterval(pollInterval)
+          } else if (result.status === "running") {
+            console.log('⏳ Génération en cours...')
+            // Continue polling
           } else {
-            setTimeout(fetchStatus, 2000)
+            console.log('⚠️ État inattendu:', result.status)
           }
         }
       } catch (err) {
-        console.error('Fetch error:', err)
-        if (mounted) {
-          setLoading(false)
-        }
+        console.error('❌ Erreur fetch status:', err)
       }
     }
 
+    // Poll initial
     fetchStatus()
-    return () => { mounted = false }
+    
+    // Poll every 3 seconds
+    pollInterval = setInterval(fetchStatus, 3000)
+
+    return () => { 
+      mounted = false
+      if (pollInterval) clearInterval(pollInterval)
+    }
   }, [submissionId])
 
   // Gestion des clics sur les surlignages
