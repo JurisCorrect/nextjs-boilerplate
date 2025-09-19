@@ -10,355 +10,300 @@ type StatusPayload = {
   isUnlocked?: boolean
   result?: {
     normalizedBody?: string
-    body?: string
     globalComment?: string
-    global_comment?: string
     inline?: InlineItem[]
-  } | null
-}
-
-function chipColor(tag?: string) {
-  const t = (tag || "").toLowerCase()
-  switch (t) {
-    case "green":  return { bg: "rgba(76, 175, 80, 0.3)", fg: "#2E7D32", border: "#4CAF50" }
-    case "red":    return { bg: "rgba(244, 67, 54, 0.3)", fg: "#C62828", border: "#F44336" }
-    case "orange": return { bg: "rgba(255, 152, 0, 0.3)", fg: "#E65100", border: "#FF9800" }
-    case "blue":   return { bg: "rgba(33, 150, 243, 0.3)", fg: "#1565C0", border: "#2196F3" }
-    default:       return { bg: "rgba(158, 158, 158, 0.3)", fg: "#424242", border: "#9E9E9E" }
+    score?: { overall?: number; out_of?: number }
   }
 }
 
-function replaceFirst(text: string, search: string, replace: string): string {
-  if (!search) return text
-  const index = text.indexOf(search)
-  if (index === -1) return text
-  return text.substring(0, index) + replace + text.substring(index + search.length)
+interface AnnotatedTeaserProps {
+  submissionId: string
 }
 
-export default function AnnotatedTeaser({ submissionId }: { submissionId: string }) {
-  const [data, setData] = useState<StatusPayload | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [openCommentId, setOpenCommentId] = useState<string | null>(null)
+export default function AnnotatedTeaser({ submissionId }: AnnotatedTeaserProps) {
+  const [payload, setPayload] = useState<StatusPayload>({ submissionId, status: "none" })
+  const [isLoading, setIsLoading] = useState(true)
+  
+  // États pour le timer de génération
+  const [generationStartTime, setGenerationStartTime] = useState<number | null>(null)
+  const [estimatedTimeRemaining, setEstimatedTimeRemaining] = useState(90) // 1:30 en secondes
+  const [progressPercentage, setProgressPercentage] = useState(0)
+
+  // Effet pour le timer en temps réel
+  useEffect(() => {
+    if (payload.status === "running" && !generationStartTime) {
+      setGenerationStartTime(Date.now())
+    }
+
+    if (payload.status === "running" && generationStartTime) {
+      const interval = setInterval(() => {
+        const elapsed = (Date.now() - generationStartTime) / 1000
+        const remaining = Math.max(0, 90 - elapsed)
+        const progress = Math.min(100, (elapsed / 90) * 100)
+        
+        setEstimatedTimeRemaining(Math.ceil(remaining))
+        setProgressPercentage(progress)
+        
+        if (remaining <= 0) {
+          clearInterval(interval)
+        }
+      }, 1000)
+
+      return () => clearInterval(interval)
+    }
+  }, [payload.status, generationStartTime])
 
   useEffect(() => {
-    let mounted = true
-
-    async function fetchStatus() {
+    const pollStatus = async () => {
       try {
-        const response = await fetch(`/api/corrections/status?submissionId=${encodeURIComponent(submissionId)}`, {
-          cache: "no-store"
+        const response = await fetch(`/api/corrections/status`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ submissionId })
         })
         
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}`)
+        if (response.ok) {
+          const data = await response.json()
+          setPayload(data)
         }
-        
-        const result = await response.json()
-        
-        if (mounted) {
-          setData(result)
-          console.log('API response isUnlocked:', result.isUnlocked)
-          
-          // Si pas de correction ou pas de commentaires inline, déclencher la génération
-          if (result.status === "none" || !result.result || !result.result.inline || result.result.inline.length === 0) {
-            console.log('Aucun commentaire trouvé, déclenchement génération...')
-            
-            // Déclencher la génération automatiquement
-            fetch('/api/corrections/generate', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ submissionId })
-            }).then(r => {
-              console.log('Génération déclenchée, statut:', r.status)
-              // Reprendre le polling après avoir déclenché la génération
-              setTimeout(fetchStatus, 3000)
-            }).catch(err => {
-              console.error('Erreur génération:', err)
-              setTimeout(fetchStatus, 3000)
-            })
-            return
-          }
-          
-          if (result.status === "ready") {
-            setLoading(false)
-          } else {
-            setTimeout(fetchStatus, 2000)
-          }
-        }
-      } catch (err) {
-        console.error('Fetch error:', err)
-        if (mounted) {
-          setLoading(false)
-        }
+      } catch (error) {
+        console.error("Error polling status:", error)
+      } finally {
+        setIsLoading(false)
       }
     }
 
-    fetchStatus()
-    return () => { mounted = false }
+    pollStatus()
+    const interval = setInterval(pollStatus, 3000)
+    return () => clearInterval(interval)
   }, [submissionId])
 
-  // Gestion des clics sur les surlignages
+  // Trigger generation if needed
   useEffect(() => {
-    function handleHighlightClick(e: MouseEvent) {
-      const target = e.target as HTMLElement
-      if (target.classList.contains('highlight-comment')) {
-        e.stopPropagation()
-        const commentId = target.getAttribute('data-comment-id')
-        setOpenCommentId(prev => prev === commentId ? null : commentId)
-      }
+    if (payload.status === "none") {
+      fetch("/api/corrections/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ submissionId })
+      })
     }
+  }, [payload.status, submissionId])
 
-    document.addEventListener('click', handleHighlightClick)
-    return () => document.removeEventListener('click', handleHighlightClick)
-  }, [])
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60)
+    const secs = seconds % 60
+    return `${mins}:${secs.toString().padStart(2, '0')}`
+  }
 
-  if (loading) {
+  if (isLoading) {
     return (
-      <section className="panel" style={{ display: "grid", placeItems: "center", minHeight: "26vh", padding: "20px" }}>
-        <div style={{ display: "grid", placeItems: "center", gap: 14, textAlign: "center" }}>
-          <div 
-            style={{
-              width: 32, 
-              height: 32, 
-              borderRadius: "50%", 
-              border: "3px solid rgba(123,30,58,.25)", 
-              borderTopColor: "#7b1e3a", 
-              animation: "spin 1s linear infinite" 
-            }} 
-          />
-          <p style={{ margin: 0, lineHeight: 1.5, fontSize: "clamp(18px, 2vw, 22px)" }}>
-            Votre correction est en cours de génération…
-          </p>
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      </div>
+    )
+  }
+
+  // Interface de génération avec timer
+  if (payload.status === "running") {
+    return (
+      <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-sm">
+        <div className="text-center space-y-6">
+          {/* Header avec titre */}
+          <div>
+            <h2 className="text-2xl font-bold text-gray-800 mb-2">
+              Correction en cours de génération
+            </h2>
+            <p className="text-gray-600">
+              Marie Terki analyse votre copie avec sa méthodologie experte
+            </p>
+          </div>
+
+          {/* Spinner central avec timer */}
+          <div className="relative inline-flex items-center justify-center">
+            <svg 
+              className="animate-spin -ml-1 mr-3 h-16 w-16 text-blue-600" 
+              xmlns="http://www.w3.org/2000/svg" 
+              fill="none" 
+              viewBox="0 0 24 24"
+            >
+              <circle 
+                className="opacity-25" 
+                cx="12" 
+                cy="12" 
+                r="10" 
+                stroke="currentColor" 
+                strokeWidth="4"
+              ></circle>
+              <path 
+                className="opacity-75" 
+                fill="currentColor" 
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              ></path>
+            </svg>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <span className="text-sm font-medium text-gray-700">
+                {formatTime(estimatedTimeRemaining)}
+              </span>
+            </div>
+          </div>
+
+          {/* Barre de progression */}
+          <div className="w-full max-w-md mx-auto">
+            <div className="flex justify-between text-sm text-gray-600 mb-2">
+              <span>Progression</span>
+              <span>{Math.round(progressPercentage)}%</span>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-2">
+              <div 
+                className="bg-blue-600 h-2 rounded-full transition-all duration-1000 ease-out"
+                style={{ width: `${progressPercentage}%` }}
+              ></div>
+            </div>
+          </div>
+
+          {/* Messages informatifs */}
+          <div className="space-y-3 text-center">
+            <p className="text-gray-700 font-medium">
+              🔍 Analyse méthodologique en cours...
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600 max-w-2xl mx-auto">
+              <div className="bg-blue-50 p-3 rounded-lg">
+                <div className="font-medium text-blue-800">✅ Génération de 25-35 commentaires détaillés</div>
+              </div>
+              <div className="bg-green-50 p-3 rounded-lg">
+                <div className="font-medium text-green-800">🎯 Correction avec ton professoral rigoureux</div>
+              </div>
+              <div className="bg-purple-50 p-3 rounded-lg">
+                <div className="font-medium text-purple-800">📝 Vérification méthodologie juridique</div>
+              </div>
+              <div className="bg-orange-50 p-3 rounded-lg">
+                <div className="font-medium text-orange-800">💡 Conseils personnalisés d'amélioration</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Estimation temps restant */}
+          <div className="bg-gray-50 p-4 rounded-lg max-w-md mx-auto">
+            <p className="text-sm text-gray-600">
+              <span className="font-medium">Temps estimé restant :</span> {formatTime(estimatedTimeRemaining)}
+            </p>
+            <p className="text-xs text-gray-500 mt-1">
+              La correction experte Marie Terki nécessite une analyse approfondie
+            </p>
+          </div>
         </div>
-        <style>{`@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}`}</style>
-      </section>
+      </div>
     )
   }
 
-  if (!data || data.status !== "ready") {
+  // Interface de paiement si correction prête mais non déverrouillée
+  if (payload.status === "ready" && !payload.isUnlocked) {
+    return <PaymentPanel submissionId={submissionId} />
+  }
+
+  // Affichage de la correction complète
+  if (payload.status === "ready" && payload.isUnlocked && payload.result) {
+    const { normalizedBody, globalComment, inline, score } = payload.result
+
     return (
-      <section className="panel" style={{ padding: "20px" }}>
-        <p>En attente de la correction...</p>
-      </section>
+      <div className="max-w-4xl mx-auto p-6 bg-white">
+        {/* En-tête avec score */}
+        {score && (
+          <div className="mb-6 text-center">
+            <div className="inline-flex items-center px-4 py-2 bg-blue-100 rounded-full">
+              <span className="text-lg font-bold text-blue-800">
+                Note : {score.overall}/{score.out_of}
+              </span>
+            </div>
+          </div>
+        )}
+
+        {/* Texte annoté */}
+        <div className="mb-8">
+          <h3 className="text-lg font-semibold mb-4 text-gray-800">
+            Votre copie avec commentaires de Marie Terki
+          </h3>
+          <div className="prose max-w-none">
+            <AnnotatedText text={normalizedBody || ""} comments={inline || []} />
+          </div>
+        </div>
+
+        {/* Commentaire global */}
+        {globalComment && (
+          <div className="border-t pt-6">
+            <h3 className="text-lg font-semibold mb-4 text-gray-800">
+              Commentaire général de Marie Terki
+            </h3>
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <p className="whitespace-pre-wrap text-gray-700">{globalComment}</p>
+            </div>
+          </div>
+        )}
+      </div>
     )
   }
 
-  const result = data.result || {}
-  const isUnlocked = data.isUnlocked || false
-  const body = result.normalizedBody ?? result.body ?? ""
+  // État par défaut si aucune correction
+  return (
+    <div className="text-center p-8">
+      <p className="text-gray-600">Préparation de votre correction...</p>
+    </div>
+  )
+}
+
+// Composant pour afficher le texte annoté avec commentaires cliquables
+function AnnotatedText({ text, comments }: { text: string; comments: InlineItem[] }) {
+  const [selectedComment, setSelectedComment] = useState<InlineItem | null>(null)
   
-  // Utiliser les vraies corrections générées par l'IA
-  let inline = result.inline || []
-
-  if (!body) {
-    return (
-      <section className="panel" style={{ padding: "20px" }}>
-        <p>Aucun contenu disponible.</p>
-      </section>
-    )
+  if (!comments?.length) {
+    return <div className="whitespace-pre-wrap">{text}</div>
   }
 
-  // Découpage du texte
-  const len = body.length
-  const part1 = body.slice(0, Math.floor(len * 0.2))
-  const part2 = body.slice(Math.floor(len * 0.2), Math.floor(len * 0.45))
-  const part3 = body.slice(Math.floor(len * 0.45), Math.floor(len * 0.55))
-  const part4 = body.slice(Math.floor(len * 0.55))
+  // Fonction pour trouver et remplacer les quotes par des spans colorés
+  let annotatedText = text
+  comments.forEach((comment, index) => {
+    if (comment.quote) {
+      const colorClass = {
+        red: "bg-red-200 hover:bg-red-300 cursor-pointer border-b-2 border-red-400",
+        orange: "bg-orange-200 hover:bg-orange-300 cursor-pointer border-b-2 border-orange-400",
+        blue: "bg-blue-200 hover:bg-blue-300 cursor-pointer border-b-2 border-blue-400",
+        green: "bg-green-200 hover:bg-green-300 cursor-pointer border-b-2 border-green-400",
+      }[comment.tag || "blue"]
 
-  // Injection des surlignages cliquables
-  let markedPart1 = part1
-  let markedPart3 = part3
-
-  inline.forEach((comment, index) => {
-    if (!comment.quote) return
-    
-    const color = chipColor(comment.tag)
-    const commentId = `comment-${index}`
-    
-    // Surlignage cliquable
-    const highlightedText = `<span 
-      class="highlight-comment" 
-      data-comment-id="${commentId}"
-      style="
-        background: ${color.bg};
-        border-radius: 3px;
-        padding: 1px 2px;
-        cursor: pointer;
-        border-bottom: 2px solid ${color.border};
-        transition: all 0.2s ease;
-      "
-      title="Cliquez pour voir le commentaire"
-    >${comment.quote}</span>`
-
-    // Remplace dans part1 d'abord
-    if (markedPart1.includes(comment.quote)) {
-      markedPart1 = replaceFirst(markedPart1, comment.quote, highlightedText)
-    }
-    // Sinon dans part3
-    else if (markedPart3.includes(comment.quote)) {
-      markedPart3 = replaceFirst(markedPart3, comment.quote, highlightedText)
+      const spanWithHandler = `<span class="${colorClass}" data-comment-index="${index}">${comment.quote}</span>`
+      annotatedText = annotatedText.replace(comment.quote, spanWithHandler)
     }
   })
 
-  const justify = { 
-    whiteSpace: "pre-wrap" as const, 
-    textAlign: "justify" as const, 
-    lineHeight: 1.6,
-    position: "relative" as const
-  }
-  const blur = isUnlocked ? {} : { 
-    filter: "blur(6px)", 
-    userSelect: "none" as const, 
-    pointerEvents: "none" as const 
-  }
-
   return (
-    <section className="panel" style={{ position: "relative" }}>
-      {/* Instruction d'utilisation */}
-      <div style={{
-        textAlign: "center",
-        fontSize: "16px",
-        color: "#333",
-        marginBottom: "20px",
-        fontStyle: "italic",
-        padding: "8px 12px",
-        background: "rgba(123, 30, 58, 0.05)",
-        borderRadius: "6px",
-        border: "1px solid rgba(123, 30, 58, 0.1)"
-      }}>
-        Il faut appuyer sur les parties surlignées pour voir les commentaires
-      </div>
-
-      {/* Texte avec surlignages cliquables */}
-      <div style={justify} dangerouslySetInnerHTML={{ __html: markedPart1 }} />
-      <div style={{ ...justify, ...blur }}>{part2}</div>
-      <div style={justify} dangerouslySetInnerHTML={{ __html: markedPart3 }} />
-      <div style={{ ...justify, ...blur }}>{part4}</div>
-
-      {/* Bulles de commentaires */}
-      {inline.map((comment, index) => {
-        const commentId = `comment-${index}`
-        const isOpen = openCommentId === commentId
-        const color = chipColor(comment.tag)
-
-        if (!isOpen) return null
-
-        return (
-          <div
-            key={commentId}
-            style={{
-              position: "fixed",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              background: "white",
-              border: `2px solid ${color.border}`,
-              borderRadius: 12,
-              padding: "18px 22px",
-              maxWidth: "500px",
-              width: "90vw",
-              boxShadow: "0 15px 35px rgba(0,0,0,0.3)",
-              zIndex: 1000
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
-              <span style={{
-                background: color.bg,
-                color: color.fg,
-                border: `1px solid ${color.border}`,
-                borderRadius: 999,
-                padding: "5px 14px",
-                fontSize: 11,
-                fontWeight: 800,
-                textTransform: "uppercase"
-              }}>
-                {comment.tag === "red" ? "ERREUR" : 
-                 comment.tag === "orange" ? "À AMÉLIORER" :
-                 comment.tag === "blue" ? "SUGGESTION" : "NOTE"}
-              </span>
-              <button
-                onClick={() => setOpenCommentId(null)}
-                style={{
-                  marginLeft: "auto",
-                  background: "none",
-                  border: "none",
-                  fontSize: 22,
-                  cursor: "pointer",
-                  color: "#666",
-                  lineHeight: 1
-                }}
-              >
-                ×
-              </button>
-            </div>
-            
-            <div style={{
-              fontSize: 13,
-              fontStyle: "italic",
-              color: "#666",
-              marginBottom: 12,
-              borderLeft: `4px solid ${color.border}`,
-              paddingLeft: 12,
-              background: color.bg,
-              padding: "10px 12px",
-              borderRadius: 6
-            }}>
-              « {comment.quote} »
-            </div>
-            
-            <div style={{ fontSize: 15, lineHeight: 1.6, color: "#333" }}>
-              {comment.comment}
-            </div>
-          </div>
-        )
-      })}
-
-      {/* Overlay paywall au centre */}
-      {!isUnlocked && (
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            pointerEvents: "none",
-            zIndex: 30
-          }}
-          aria-hidden
-        >
-          <div
-            style={{
-              background: "#7b1e3a",
-              color: "#fff",
-              borderRadius: 12,
-              padding: "16px 18px",
-              boxShadow: "0 10px 30px rgba(10,26,61,.25)",
-              maxWidth: 420,
-              width: "92%",
-              textAlign: "center",
-              pointerEvents: "auto",
-              border: "1px solid rgba(255,255,255,0.08)"
-            }}
-          >
-            <div style={{ fontWeight: 900, marginBottom: 6, letterSpacing: ".3px" }}>
-              Débloquer la correction
-            </div>
-            <div style={{ opacity: 0.95, marginBottom: 12 }}>
-              Accède à l'intégralité de ta copie corrigée et à tous les commentaires.
-            </div>
-            <PaymentPanel refId={data.submissionId} />
+    <div>
+      <div 
+        className="whitespace-pre-wrap"
+        dangerouslySetInnerHTML={{ __html: annotatedText }}
+        onClick={(e) => {
+          const target = e.target as HTMLElement
+          const commentIndex = target.getAttribute('data-comment-index')
+          if (commentIndex !== null) {
+            setSelectedComment(comments[parseInt(commentIndex)])
+          }
+        }}
+      />
+      
+      {/* Popup de commentaire */}
+      {selectedComment && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg max-w-md w-full m-4">
+            <h4 className="font-bold mb-2">Commentaire de Marie Terki</h4>
+            <p className="text-gray-700 mb-4">{selectedComment.comment}</p>
+            <button 
+              onClick={() => setSelectedComment(null)}
+              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            >
+              Fermer
+            </button>
           </div>
         </div>
       )}
-
-      {/* Styles pour les effets hover */}
-      <style>{`
-        .highlight-comment:hover {
-          transform: translateY(-1px);
-          box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-        }
-      `}</style>
-    </section>
+    </div>
   )
 }
