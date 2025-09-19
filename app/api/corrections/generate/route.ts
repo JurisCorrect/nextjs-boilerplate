@@ -56,13 +56,13 @@ export async function POST(request: Request) {
     console.log("📄 [GENERATE] Données soumission:", JSON.stringify(submission, null, 2));
 
     // Identifier le champ qui contient le contenu
-    const content = submission.content || submission.text || submission.body || submission.document || '';
+    const content = submission.copie || '';
     if (!content) {
-      console.error("❌ [GENERATE] Aucun contenu trouvé dans:", Object.keys(submission));
-      throw new Error("Contenu de soumission introuvable");
+      console.error("❌ [GENERATE] Aucun contenu dans copie");
+      throw new Error("Contenu de copie introuvable");
     }
 
-    console.log("✅ [GENERATE] Contenu récupéré:", submission.content.length, "caractères");
+    console.log("✅ [GENERATE] Contenu récupéré:", content.length, "caractères");
 
     // 2. Supprimer toute correction existante
     await supabase.from("corrections").delete().eq("submission_id", submissionId);
