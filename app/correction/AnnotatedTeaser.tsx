@@ -123,7 +123,7 @@ export default function AnnotatedTeaser({ submissionId }: { submissionId: string
     fetchStatus()
     
     // Poll every 3 seconds
-    pollInterval = setInterval(fetchStatus, 3000)
+    pollInterval = setInterval(fetchStatus, 5000) // 5 secondes au lieu de 3
 
     return () => { 
       mounted = false
