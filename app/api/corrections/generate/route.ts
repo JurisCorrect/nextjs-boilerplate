@@ -151,18 +151,23 @@ SUJET DONNÉ : ${sujet}
 COPIE À CORRIGER :
 ${copie.slice(0, 15000)}`;
 
-    // 7. Appel OpenAI avec votre qualité experte
+    // 7. Appel OpenAI avec configuration optimisée pour votre prompt expert
     console.log("🤖 [GENERATE] Appel OpenAI - génération correction experte...");
+    console.log("📏 [GENERATE] Taille prompt:", promptExpert.length, "caractères");
     const startTime = Date.now();
     
     const openai = getOpenAI();
+    
+    // Configuration optimisée pour prompts longs et détaillés
     const completion = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [{ role: "user", content: promptExpert }],
       temperature: 0.7,
       max_tokens: 4000,
+      stream: false, // Pas de streaming pour plus de stabilité
     }, {
-      timeout: 45000,
+      timeout: 90000, // 90 secondes pour votre prompt expert
+      maxRetries: 2,  // Retry automatique si échec
     });
 
     const endTime = Date.now();
