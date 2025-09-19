@@ -117,21 +117,21 @@ ${submission.content.slice(0, 12000)}`;
 
     console.log("✅ [GENERATE] OpenAI terminé");
 
-    const content = completion.choices?.[0]?.message?.content || "{}";
+    const responseContent = completion.choices?.[0]?.message?.content || "{}";
     let result;
     
     try {
-      result = JSON.parse(content);
+      result = JSON.parse(responseContent);
       console.log("✅ [GENERATE] JSON parsé, commentaires:", result.inline?.length || 0);
     } catch {
       console.log("❌ [GENERATE] JSON invalide, création fallback");
       result = {
-        normalizedBody: submission.content,
+        normalizedBody: content,
         globalComment: "Votre correction a été générée. Analyse méthodologique en cours.",
         inline: [
-          {tag: "red", quote: submission.content.slice(0, 100), comment: "Point à revoir selon la méthodologie Marie Terki"},
-          {tag: "orange", quote: submission.content.slice(200, 300), comment: "Amélioration suggérée"},
-          {tag: "blue", quote: submission.content.slice(400, 500), comment: "Conseil méthodologique"}
+          {tag: "red", quote: content.slice(0, 100), comment: "Point à revoir selon la méthodologie Marie Terki"},
+          {tag: "orange", quote: content.slice(200, 300), comment: "Amélioration suggérée"},
+          {tag: "blue", quote: content.slice(400, 500), comment: "Conseil méthodologique"}
         ]
       };
     }
