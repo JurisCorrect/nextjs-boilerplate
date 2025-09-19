@@ -198,7 +198,7 @@ export default function AnnotatedTeaser({ submissionId }: AnnotatedTeaserProps) 
 
   // Interface de paiement si correction prête mais non déverrouillée
   if (payload.status === "ready" && !payload.isUnlocked) {
-    return <PaymentPanel submissionId={submissionId} />
+    return <PaymentPanel />
   }
 
   // Affichage de la correction complète
