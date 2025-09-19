@@ -137,7 +137,8 @@ ${sourceText.slice(0, 12000)}`;
       messages: [{ role: "user", content: prompt }],
       temperature: 0.7,
       max_tokens: 4000,
-      timeout: 45000, // 45 secondes
+    }, {
+      timeout: 45000, // 45 secondes - dans les options
     });
 
     const endTime = Date.now();
