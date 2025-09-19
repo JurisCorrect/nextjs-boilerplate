@@ -58,6 +58,27 @@ export default function AnnotatedTeaser({ submissionId }: { submissionId: string
         if (mounted) {
           setData(result)
           console.log('API response isUnlocked:', result.isUnlocked)
+          
+          // Si pas de correction ou pas de commentaires inline, déclencher la génération
+          if (result.status === "none" || !result.result || !result.result.inline || result.result.inline.length === 0) {
+            console.log('Aucun commentaire trouvé, déclenchement génération...')
+            
+            // Déclencher la génération automatiquement
+            fetch('/api/corrections/generate', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ submissionId })
+            }).then(r => {
+              console.log('Génération déclenchée, statut:', r.status)
+              // Reprendre le polling après avoir déclenché la génération
+              setTimeout(fetchStatus, 3000)
+            }).catch(err => {
+              console.error('Erreur génération:', err)
+              setTimeout(fetchStatus, 3000)
+            })
+            return
+          }
+          
           if (result.status === "ready") {
             setLoading(false)
           } else {
