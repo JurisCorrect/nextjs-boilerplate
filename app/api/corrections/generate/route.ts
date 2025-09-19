@@ -5,9 +5,19 @@ import OpenAI from "openai";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-// Configuration OpenAI
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY!;
-const openai = new OpenAI({ apiKey: OPENAI_API_KEY });
+// Configuration OpenAI - Initialisation paresseuse pour éviter les erreurs de build
+let openai: OpenAI;
+
+function getOpenAI() {
+  if (!openai) {
+    const apiKey = process.env.OPENAI_API_KEY;
+    if (!apiKey) {
+      throw new Error("OPENAI_API_KEY environment variable is required");
+    }
+    openai = new OpenAI({ apiKey });
+  }
+  return openai;
+}
 
 // Configuration Supabase
 async function getSupabaseAdmin() {
@@ -132,7 +142,7 @@ ${sourceText.slice(0, 12000)}`;
     console.log("🤖 [GENERATE] Appel OpenAI en cours...");
     const startTime = Date.now();
     
-    const completion = await openai.chat.completions.create({
+    const completion = await getOpenAI().chat.completions.create({
       model: "gpt-4o-mini",
       messages: [{ role: "user", content: prompt }],
       temperature: 0.7,
