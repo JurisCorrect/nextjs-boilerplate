@@ -1,4 +1,4 @@
-// app/api/corrections/generate/route.ts - Test des connexions
+// app/api/corrections/generate/route.ts - Avec les bonnes colonnes
 import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
@@ -14,7 +14,7 @@ async function getSupabaseAdmin() {
 }
 
 export async function POST(req: Request) {
-  console.log("🚀 [GENERATE] Test des connexions");
+  console.log("🚀 [GENERATE] Test avec bonnes colonnes");
   
   try {
     const body = await req.json();
@@ -22,14 +22,11 @@ export async function POST(req: Request) {
     
     console.log("📋 [GENERATE] submissionId:", submissionId);
     
-    // Test 1: Connexion Supabase
+    // Test avec les vraies colonnes
     const supabase = await getSupabaseAdmin();
-    console.log("✅ [GENERATE] Supabase OK");
-    
-    // Test 2: Récupération soumission
     const { data: submission, error } = await supabase
       .from("submissions")
-      .select("subject, content, course, type")
+      .select("sujet, copie, matiere, exercise_kind")  // ✅ Bonnes colonnes
       .eq("id", submissionId)
       .single();
     
@@ -38,23 +35,27 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "submission_not_found" }, { status: 404 });
     }
     
-    console.log("✅ [GENERATE] Soumission trouvée, taille:", submission.content?.length);
+    console.log("✅ [GENERATE] Soumission trouvée:");
+    console.log("- Sujet:", submission.sujet);
+    console.log("- Matière:", submission.matiere);  
+    console.log("- Exercise:", submission.exercise_kind);
+    console.log("- Taille copie:", submission.copie?.length);
     
-    // Test 3: OpenAI (juste vérifier la clé)
+    // Test OpenAI
     const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey) {
       console.log("❌ [GENERATE] Clé OpenAI manquante");
       return NextResponse.json({ error: "openai_key_missing" }, { status: 500 });
     }
     
-    console.log("✅ [GENERATE] Clé OpenAI présente");
+    console.log("✅ [GENERATE] Tout est OK - prêt pour la génération");
     
     return NextResponse.json({ 
       ok: true, 
-      status: "connections_ok",
-      submissionFound: true,
-      contentLength: submission.content?.length,
-      hasSubject: !!submission.subject
+      status: "ready_for_generation",
+      hasSubject: !!submission.sujet,
+      hasContent: !!submission.copie,
+      exerciseType: submission.exercise_kind
     });
     
   } catch (error: any) {
