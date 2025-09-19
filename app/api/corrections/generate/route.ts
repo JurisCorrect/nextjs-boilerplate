@@ -20,6 +20,126 @@ async function getSupabaseAdmin() {
   });
 }
 
+// Fonction de recherche dans la base de connaissances
+async function searchKnowledgeBase(query: string, category?: string) {
+  try {
+    const openai = new OpenAI({ apiKey: OPENAI_API_KEY });
+    const embeddingResponse = await openai.embeddings.create({
+      model: "text-embedding-3-small",
+      input: query,
+      encoding_format: "float",
+    });
+    const queryEmbedding = embeddingResponse.data[0].embedding;
+
+    const supabase = await getSupabaseAdmin();
+    
+    // Recherche par similarité vectorielle
+    const { data: results } = await supabase.rpc('match_knowledge', {
+      query_embedding: queryEmbedding,
+      match_threshold: 0.7,
+      match_count: 10 // Plus de résultats pour corrections complètes
+    });
+
+    return results || [];
+  } catch (error) {
+    log('Erreur recherche knowledge base:', error);
+    return [];
+  }
+}
+
+// Détection de la matière juridique
+function detectLegalSubject(text: string): string {
+  const indicators = {
+    'constitutionnel': ['constitution', 'conseil constitutionnel', 'QPC', 'contrôle de constitutionnalité', 'bloc de constitutionnalité'],
+    'civil': ['code civil', 'obligation', 'contrat', 'responsabilité civile', 'cassation civile', 'cour de cassation'],
+    'penal': ['code pénal', 'infraction', 'crime', 'délit', 'contravention', 'cassation criminelle'],
+    'administratif': ['conseil d\'état', 'service public', 'acte administratif', 'recours', 'juridiction administrative'],
+    'europeen': ['CJUE', 'CEDH', 'droit européen', 'convention européenne', 'cour de justice']
+  };
+
+  const textLower = text.toLowerCase();
+  let maxMatches = 0;
+  let detectedSubject = 'general';
+
+  for (const [subject, keywords] of Object.entries(indicators)) {
+    const matches = keywords.filter(keyword => textLower.includes(keyword)).length;
+    if (matches > maxMatches) {
+      maxMatches = matches;
+      detectedSubject = subject;
+    }
+  }
+
+  return detectedSubject;
+}
+
+// Détection du type d'exercice
+function detectExerciseType(text: string): string {
+  const textLower = text.toLowerCase();
+  
+  if (textLower.includes('cas pratique') || 
+      (textLower.includes('jean') && textLower.includes('marie')) ||
+      textLower.includes('situation') && textLower.includes('conseil')) {
+    return 'cas_pratique';
+  }
+  
+  if (textLower.includes('cour de cassation') || 
+      textLower.includes('conseil d\'état') ||
+      textLower.includes('arrêt') && textLower.includes('commentaire')) {
+    return 'commentaire_arret';
+  }
+  
+  if (textLower.includes('dissertation') ||
+      (textLower.includes('?') && text.split(' ').length < 50)) {
+    return 'dissertation';
+  }
+  
+  return 'general';
+}
+
+// Validation sujet + copie
+function validateSubmission(text: string, exerciseType: string): { valid: boolean, error?: string } {
+  if (!text || text.trim().length < 100) {
+    return { 
+      valid: false, 
+      error: "Votre devoir est trop court. Vous devez inclure OBLIGATOIREMENT le sujet ET votre réalisation complète." 
+    };
+  }
+
+  // Vérifications spécifiques par type d'exercice
+  if (exerciseType === 'cas_pratique') {
+    if (!text.toLowerCase().includes('cas pratique') && 
+        !text.includes('situation') && 
+        !text.includes('jean') && !text.includes('marie') && !text.includes('pierre')) {
+      return { 
+        valid: false, 
+        error: "Pour un cas pratique, vous devez copier l'énoncé complet du cas puis votre résolution. L'énoncé du cas est indispensable pour une correction fiable." 
+      };
+    }
+  }
+  
+  if (exerciseType === 'commentaire_arret') {
+    if (!text.toLowerCase().includes('arrêt') && 
+        !text.includes('cour de cassation') && 
+        !text.includes('conseil d\'état')) {
+      return { 
+        valid: false, 
+        error: "Pour un commentaire d'arrêt, vous devez copier l'arrêt intégral puis votre commentaire/fiche d'arrêt. L'arrêt est indispensable pour une correction fiable." 
+      };
+    }
+  }
+
+  if (exerciseType === 'dissertation') {
+    if (!text.includes('?') && text.split('\n').length < 10) {
+      return { 
+        valid: false, 
+        error: "Pour une dissertation, vous devez donner le sujet (question posée) puis votre dissertation complète. Le sujet est indispensable pour une correction fiable." 
+      };
+    }
+  }
+
+  return { valid: true };
+}
+
 function pickSubmissionText(row: any): string | null {
   if (!row) return null;
   return (
@@ -31,8 +151,8 @@ function pickSubmissionText(row: any): string | null {
     (typeof row.payload === "string" ? row.payload : null) ??
     row.payload?.text ??
     row.payload?.content ??
-    row.sujet ?? // cas-pratique
-    row.copie ?? // si jamais
+    row.sujet ??
+    row.copie ??
     null
   );
 }
@@ -43,45 +163,6 @@ function safeJson(s: string) {
   } catch {
     return null;
   }
-}
-
-// --- Helpers nettoyage sujet/entêtes ----------------------------------------
-
-function escapeRegExp(s: string) {
-  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-
-function stripHeaderLabels(t: string) {
-  if (!t) return t;
-  // supprime lignes d’entêtes typiques au début de texte
-  t = t.replace(/^\s*(ÉNONCÉ|SUJET)\s*:\s*/i, "");
-  t = t.replace(/^\s*COPIE\s*\([^)]*\)\s*:\s*/i, "");
-  return t.trim();
-}
-
-function stripSubjectOnce(t: string, subject?: string) {
-  if (!t || !subject) return t;
-  const subj = subject.trim();
-  if (!subj) return t;
-
-  // 1) Pattern "ÉNONCÉ: <sujet>" au début
-  const p1 = new RegExp(
-    `^\\s*(?:ÉNONCÉ|SUJET)\\s*:\\s*${escapeRegExp(subj)}\\s*\\n+`,
-    "i"
-  );
-  if (p1.test(t)) return t.replace(p1, "").trim();
-
-  // 2) Sujet brut en tout début (ligne 1)
-  const p2 = new RegExp(`^\\s*${escapeRegExp(subj)}\\s*\\n+`, "i");
-  if (p2.test(t)) return t.replace(p2, "").trim();
-
-  // 3) Sujet seul suivi d’une ligne vide (robuste)
-  const firstBlock = t.split(/\n{2,}/)[0]?.trim() || "";
-  if (firstBlock.length && firstBlock.toLowerCase() === subj.toLowerCase()) {
-    return t.slice(firstBlock.length).replace(/^\s+/, "");
-  }
-
-  return t;
 }
 
 export async function POST(req: Request) {
@@ -102,17 +183,10 @@ export async function POST(req: Request) {
         { status: 400 }
       );
     }
-    if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
-      log("❌ missing Supabase env");
-      return NextResponse.json(
-        { error: "supabase_env_missing" },
-        { status: 500 }
-      );
-    }
 
     const supabase = await getSupabaseAdmin();
 
-    // 0) idempotence
+    // Vérification idempotence
     const { data: existing } = await supabase
       .from("corrections")
       .select("id,status")
@@ -130,29 +204,19 @@ export async function POST(req: Request) {
       });
     }
 
-    // 1) retrouver le texte (et le sujet s'il existe)
+    // Récupération du texte
     const { data: sub, error: subErr } = await supabase
       .from("submissions")
-      .select(
-        "id,user_id,text,content,body,essay,input_text,payload,sujet,copie"
-      )
+      .select("id,user_id,text,content,body,essay,input_text,payload,sujet,copie")
       .eq("id", submissionId)
       .maybeSingle();
 
     if (subErr) log("⚠️ select submissions error:", subErr.message);
 
-    const submissionSubject: string | undefined = (sub as any)?.sujet || payload?.sujet;
     let sourceText = pickSubmissionText(sub) ?? pickSubmissionText({ payload });
-
-    // Nettoyage en amont (au cas où le payload inclut encore des entêtes/sujet)
-    if (sourceText) {
-      sourceText = stripHeaderLabels(sourceText);
-      sourceText = stripSubjectOnce(sourceText, submissionSubject);
-    }
-
     log("📄 Source text length:", sourceText?.length || 0);
 
-    // 2) créer une correction "running" dès maintenant
+    // Création correction "running"
     const insertPayload: any = { submission_id: submissionId, status: "running" };
     if ((sub as any)?.user_id) insertPayload.user_id = (sub as any).user_id;
 
@@ -172,78 +236,152 @@ export async function POST(req: Request) {
     const correctionId = corrRow.id;
     log("✔️ corrections.running", correctionId);
 
-    // 3) si pas de texte → placeholder
-    if (!sourceText) {
-      log("⚠️ No source text found, creating placeholder");
+    // Validation du contenu
+    if (!sourceText || sourceText.length < 50) {
       const placeholder = {
         normalizedBody: "",
-        globalComment: "Aucun texte reçu pour cette soumission.",
-        inline: [
-          {
-            tag: "orange",
-            quote: "",
-            comment: "Veuillez renvoyer votre devoir ou réessayer.",
-          },
-        ],
+        globalComment: "❌ ERREUR : Vous devez obligatoirement fournir le SUJET complet de votre exercice ET votre réalisation. Sans le sujet, une correction fiable est impossible. Recommencez en copiant d'abord l'énoncé/sujet, puis votre travail à la suite.",
+        inline: [],
         score: { overall: 0, out_of: 20 },
-        error: "no_text_found",
+        error: "missing_subject_and_work",
       };
-      const { error: updErr } = await supabase
+      
+      await supabase
         .from("corrections")
         .update({ status: "ready", result_json: placeholder })
         .eq("id", correctionId);
-      if (updErr) {
-        log("❌ update corrections failed (placeholder):", updErr.message);
-        return NextResponse.json(
-          { error: "update_failed", details: updErr.message },
-          { status: 500 }
-        );
-      }
-      log("⚠️ no_text_found → placeholder ready", correctionId);
+      
       return NextResponse.json({
         ok: true,
         correctionId,
         status: "ready",
-        note: "placeholder",
+        note: "validation_error",
       });
     }
 
-    // 4) OpenAI
-    log("🤖 Calling OpenAI API...");
+    // Détection du type d'exercice et de la matière
+    const exerciseType = detectExerciseType(sourceText);
+    const legalSubject = detectLegalSubject(sourceText);
+    
+    // Validation sujet + copie
+    const validation = validateSubmission(sourceText, exerciseType);
+    if (!validation.valid) {
+      const errorResult = {
+        normalizedBody: sourceText.slice(0, 1000),
+        globalComment: `❌ ERREUR DE SOUMISSION : ${validation.error}\n\nRECOMMENCEZ en respectant ce format :\n1. Copiez le sujet/énoncé complet\n2. À la suite, ajoutez votre réalisation\n\nSans le sujet, je ne peux pas vous fournir une correction pertinente.`,
+        inline: [],
+        score: { overall: 0, out_of: 20 },
+        error: "invalid_submission",
+      };
+      
+      await supabase
+        .from("corrections")
+        .update({ status: "ready", result_json: errorResult })
+        .eq("id", correctionId);
+      
+      return NextResponse.json({
+        ok: true,
+        correctionId,
+        status: "ready",
+        note: "validation_failed",
+      });
+    }
+
+    // Recherche dans la base de connaissances
+    log("🔍 Recherche base de connaissances...", { exerciseType, legalSubject });
+    const relevantKnowledge = await searchKnowledgeBase(sourceText, legalSubject);
+    
+    // Construction du contexte enrichi
+    const knowledgeContext = relevantKnowledge
+      .map(k => `📚 ${k.title}: ${k.content?.slice(0, 800)}...`)
+      .join('\n\n');
+
+    // Prompt expert pour correction juridique
+    log("🤖 Calling OpenAI API avec contexte enrichi...");
     let resultJson: any = null;
+    
     try {
       if (!OPENAI_API_KEY) throw new Error("OPENAI_API_KEY is missing");
 
       const openai = new OpenAI({ apiKey: OPENAI_API_KEY });
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 28_000);
+      const timeout = setTimeout(() => controller.abort(), 45_000); // Plus de temps pour analyses complexes
 
-      const prompt = `
-Tu es un correcteur de copies de droit. Retourne STRICTEMENT un JSON compact avec ce schéma:
+      const prompt = `Tu es Marie Terki, experte en droit et correctrice de copies juridiques universitaires. Tu corriges un ${exerciseType === 'cas_pratique' ? 'cas pratique' : exerciseType === 'dissertation' ? 'dissertation' : 'commentaire/fiche d\'arrêt'} en ${legalSubject}.
+
+=== BASE DE CONNAISSANCES JURIDIQUE ===
+${knowledgeContext}
+
+=== CONSIGNES DE CORRECTION STRICTES ===
+Retourne UNIQUEMENT un JSON avec cette structure EXACTE :
 {
   "normalizedBody": "<texte reformatté>",
-  "globalComment": "<commentaire général>",
+  "globalComment": "<commentaire global détaillé>",
   "inline": [
-    { "tag": "green|red|orange|blue", "quote": "<extrait court>", "comment": "<remarque brève>" }
+    { "tag": "green|red|orange|blue", "quote": "<extrait précis du texte>", "comment": "<commentaire détaillé>" }
   ],
-  "score": { "overall": <nombre>, "out_of": 20 }
+  "score": { "overall": <note>, "out_of": 20 },
+  "methodology": "<analyse méthodologique>",
+  "exerciseType": "${exerciseType}",
+  "legalSubject": "${legalSubject}"
 }
-Consignes:
-- 3 à 6 éléments dans "inline", citations < 140 caractères.
-- "tag" = green (bien), red (erreur), orange (à améliorer), blue (style).
-- Pas de texte hors JSON.
-Texte à corriger:
-"""${sourceText.slice(0, 12000)}"""
-`;
+
+EXIGENCES MÉTHODOLOGIQUES ${exerciseType.toUpperCase()} :
+${exerciseType === 'dissertation' ? `
+- Phrase d'accroche pertinente
+- Définition précise des termes du sujet
+- Contexte historique/actualité
+- Intérêts et enjeux du sujet
+- Problématique claire et juridique
+- Annonce de plan équilibrée
+- Plan en 2 parties, 2 sous-parties chacune
+- Transitions entre parties
+` : exerciseType === 'cas_pratique' ? `
+- Identification des faits pertinents
+- Qualification juridique précise
+- Identification des problèmes de droit
+- Recherche des règles applicables
+- Application du droit aux faits
+- Solution motivée et complète
+` : `
+- Fiche d'arrêt complète (faits, procédure, prétentions, solution)
+- Identification des problèmes de droit
+- Analyse de la portée de l'arrêt
+- Critique constructive de la solution
+- Mise en perspective jurisprudentielle
+`}
+
+CORRECTION INLINE :
+- MINIMUM 20-40 commentaires détaillés (selon longueur du devoir)
+- Citations courtes mais précises du texte (max 100 caractères par quote)
+- Tags : green (très bien), red (erreur grave), orange (à améliorer), blue (suggestion)
+- Commentaires personnalisés et constructifs
+- Références à la base de connaissances quand pertinent
+
+COMMENTAIRE GLOBAL OBLIGATOIRE :
+1. Points forts identifiés
+2. Points faibles majeurs
+3. Analyse méthodologique détaillée
+4. Conseils d'amélioration précis
+5. Si note < 8/20 : recommander contact pour cours particuliers
+6. Références juridiques complémentaires suggérées
+
+DÉTECTION PROBLÈMES :
+- Si devoir incomplet : expliquer ce qui manque sans faire le devoir
+- Si syntaxe robotique : signaler "tournure peu naturelle" sans mentionner IA
+- Si méthodologie absente : expliquer la méthode attendue
+
+Texte à corriger (SUJET + RÉALISATION) :
+"""${sourceText.slice(0, 15000)}"""`;
 
       const resp = await openai.chat.completions.create(
         {
-          model: "gpt-4o-mini",
-          temperature: 0.3,
+          model: "gpt-4o",  // Modèle plus puissant pour corrections complexes
+          temperature: 0.2,  // Plus de précision, moins de créativité
           messages: [
             {
               role: "system",
-              content: "Tu rends uniquement du JSON valide conforme au schéma demandé.",
+              content: "Tu es Marie Terki, correctrice experte en droit. Tu rends uniquement du JSON valide conforme au schéma demandé avec des corrections détaillées et personnalisées.",
             },
             { role: "user", content: prompt },
           ],
@@ -254,56 +392,35 @@ Texte à corriger:
 
       clearTimeout(timeout);
       const content = resp.choices?.[0]?.message?.content || "";
-      resultJson =
-        typeof content === "string"
-          ? safeJson(content)
-          : safeJson(JSON.stringify(content));
-      log("✔️ OpenAI response received");
+      resultJson = safeJson(content);
+      log("✔️ OpenAI response received with", resultJson?.inline?.length || 0, "comments");
+      
     } catch (e: any) {
       log("⚠️ openai error:", e?.message || e);
-      // Fallback non bloquant
+      // Fallback robuste
       resultJson = {
         normalizedBody: sourceText,
-        globalComment: "Analyse en cours. Voici une première mise en forme.",
+        globalComment: `⚠️ Analyse technique temporairement indisponible. Votre devoir de ${exerciseType} en ${legalSubject} nécessite une correction personnalisée.\n\nPour une correction complète immédiate, contactez Marie Terki pour un cours particulier.\n\n📧 Contact : marie.terki@icloud.com`,
         inline: [
           {
-            tag: "green",
-            quote: sourceText.slice(0, 120),
-            comment: "Bon démarrage, continue ainsi.",
-          },
-          {
             tag: "orange",
-            quote: sourceText.slice(120, 240),
-            comment: "Clarifie l'argument et cite la source.",
-          },
+            quote: sourceText.slice(0, 80),
+            comment: "Analyse en cours - correction technique temporaire.",
+          }
         ],
-        score: { overall: 12, out_of: 20 },
+        score: { overall: null, out_of: 20 },
+        methodology: "Analyse méthodologique temporairement indisponible",
+        exerciseType,
+        legalSubject,
       };
-      log("🔄 Using fallback result");
     }
 
-    // --- Nettoyage sortie : on retire sujet/entêtes s'ils réapparaissent
-    if (resultJson) {
-      const body0: string =
-        resultJson?.normalizedBody ?? resultJson?.body ?? "";
-      let bodyClean = stripHeaderLabels(body0);
-      bodyClean = stripSubjectOnce(bodyClean, submissionSubject);
-
-      // recopie dans les deux champs possibles
-      if ("normalizedBody" in resultJson) resultJson.normalizedBody = bodyClean;
-      if ("body" in resultJson) resultJson.body = bodyClean;
-      // alias pour tes anciennes vues
-      if (!resultJson.body && resultJson.normalizedBody)
-        resultJson.body = resultJson.normalizedBody;
-      if (!resultJson.global_comment && resultJson.globalComment)
-        resultJson.global_comment = resultJson.globalComment;
-    }
-
-    // 5) sauvegarde "ready"
+    // Sauvegarde finale
     const { error: updErr } = await supabase
       .from("corrections")
       .update({ status: "ready", result_json: resultJson })
       .eq("id", correctionId);
+
     if (updErr) {
       log("❌ update corrections failed:", updErr.message);
       return NextResponse.json(
@@ -314,9 +431,9 @@ Texte à corriger:
 
     log("✅ corrections.ready", correctionId, `(${Date.now() - startedAt}ms)`);
     return NextResponse.json({ ok: true, correctionId, status: "ready" });
+    
   } catch (e: any) {
     log("❌ fatal error:", e?.message || e);
-    log("❌ stack trace:", e?.stack);
     return NextResponse.json({ error: "server_error" }, { status: 500 });
   }
 }
