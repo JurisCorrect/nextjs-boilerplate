@@ -53,13 +53,15 @@ export async function POST(request: Request) {
     }
 
     console.log("📊 [GENERATE] Structure soumission:", Object.keys(submission));
-    console.log("📄 [GENERATE] Données soumission:", JSON.stringify(submission, null, 2));
+    console.log("📄 [GENERATE] Valeur copie:", typeof submission.copie, submission.copie ? submission.copie.length : "null/undefined");
 
     // Identifier le champ qui contient le contenu
-    const content = submission.copie || '';
-    if (!content) {
-      console.error("❌ [GENERATE] Aucun contenu dans copie");
-      throw new Error("Contenu de copie introuvable");
+    const content = submission.copie || submission.sujet || '';
+    if (!content || typeof content !== 'string') {
+      console.error("❌ [GENERATE] Pas de contenu string valide");
+      console.error("❌ [GENERATE] copie:", submission.copie);
+      console.error("❌ [GENERATE] sujet:", submission.sujet);
+      throw new Error("Contenu de copie introuvable ou invalide");
     }
 
     console.log("✅ [GENERATE] Contenu récupéré:", content.length, "caractères");
