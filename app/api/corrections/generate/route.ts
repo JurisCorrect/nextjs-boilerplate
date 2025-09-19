@@ -85,7 +85,6 @@ export async function POST(req: Request) {
       .upsert({
         submission_id: submissionId,
         status: "running",
-        created_at: new Date().toISOString(),
       })
       .select("id")
       .single();
@@ -221,7 +220,6 @@ ${copie.slice(0, 15000)}`;
       .update({
         status: "ready",
         result_json: result,
-        updated_at: new Date().toISOString(),
       })
       .eq("id", correction.id);
 
