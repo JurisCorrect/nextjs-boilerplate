@@ -19,12 +19,33 @@ export async function POST(request: Request) {
     const { submissionId } = await request.json();
     console.log("📋 [GENERATE] submissionId:", submissionId);
 
+    // Vérification des variables d'environnement
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
+      console.error("❌ [GENERATE] NEXT_PUBLIC_SUPABASE_URL manquant");
+      throw new Error("Configuration Supabase manquante");
+    }
+    if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      console.error("❌ [GENERATE] SUPABASE_SERVICE_ROLE_KEY manquant");
+      throw new Error("Clé service Supabase manquante");
+    }
+    if (!process.env.OPENAI_API_KEY) {
+      console.error("❌ [GENERATE] OPENAI_API_KEY manquant");
+      throw new Error("Clé OpenAI manquante");
+    }
+    console.log("✅ [GENERATE] Variables d'environnement OK");
+
     // 1. Récupérer la soumission
-    const { data: submission } = await supabase
+    console.log("🔍 [GENERATE] Recherche soumission...");
+    const { data: submission, error: fetchError } = await supabase
       .from("submissions")
       .select("content")
       .eq("id", submissionId)
       .single();
+
+    if (fetchError) {
+      console.error("❌ [GENERATE] Erreur fetch soumission:", fetchError.message);
+      throw new Error(`Erreur récupération: ${fetchError.message}`);
+    }
 
     if (!submission?.content) {
       return NextResponse.json({ error: "Soumission introuvable" }, { status: 404 });
