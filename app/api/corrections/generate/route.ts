@@ -293,7 +293,7 @@ export async function POST(req: Request) {
     
     // Construction du contexte enrichi
     const knowledgeContext = relevantKnowledge
-      .map(k => `📚 ${k.title}: ${k.content?.slice(0, 800)}...`)
+      .map((k: any) => `📚 ${k.title}: ${k.content?.slice(0, 800)}...`)
       .join('\n\n');
 
     // Prompt expert pour correction juridique
@@ -336,6 +336,7 @@ ${exerciseType === 'dissertation' ? `
 - Annonce de plan équilibrée
 - Plan en 2 parties, 2 sous-parties chacune
 - Transitions entre parties
+- Conclusion avec ouverture
 ` : exerciseType === 'cas_pratique' ? `
 - Identification des faits pertinents
 - Qualification juridique précise
