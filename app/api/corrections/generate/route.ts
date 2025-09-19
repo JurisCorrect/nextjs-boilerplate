@@ -1,4 +1,28 @@
 // app/api/corrections/generate/route.ts - Version debug pour identifier le blocage
+import { NextResponse } from "next/server";
+import OpenAI from "openai";
+
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
+// Configuration OpenAI
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY!;
+const openai = new OpenAI({ apiKey: OPENAI_API_KEY });
+
+// Configuration Supabase
+async function getSupabaseAdmin() {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    throw new Error("SUPABASE service role manquant");
+  }
+  const { createClient } = await import("@supabase/supabase-js");
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL,
+    process.env.SUPABASE_SERVICE_ROLE_KEY,
+    {
+      auth: { autoRefreshToken: false, persistSession: false },
+    }
+  );
+}
 
 export async function POST(req: Request) {
   console.log("🚀 [GENERATE] Début de la génération");
