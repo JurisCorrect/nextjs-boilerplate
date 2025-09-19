@@ -66,21 +66,17 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "missing_subject_and_work" }, { status: 400 });
     }
 
-    // 4. Vérification si correction existe déjà
+    // 4. Suppression de toute correction existante pour forcer régénération
     const { data: existing } = await supabase
       .from("corrections")
       .select("id, status, result_json")
       .eq("submission_id", submissionId)
       .single();
 
-    if (existing && existing.status === "ready" && existing.result_json) {
-      console.log("✅ [GENERATE] Correction existante trouvée");
-      return NextResponse.json({
-        ok: true,
-        correctionId: existing.id,
-        status: "ready",
-        message: "Correction already exists"
-      });
+    if (existing) {
+      console.log("🔄 [GENERATE] Correction existante détectée - suppression pour régénération");
+      await supabase.from("corrections").delete().eq("id", existing.id);
+      console.log("✅ [GENERATE] Ancienne correction supprimée");
     }
 
     // 5. Création/mise à jour correction en cours
