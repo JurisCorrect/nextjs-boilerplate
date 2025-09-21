@@ -129,7 +129,7 @@ Règles:
 - Tags: red (erreur), orange (améliorer), blue (conseil), green (bien)
 
 Copie à corriger:
-${submission.content.slice(0, 12000)}`;
+${content.slice(0, 12000) || 'Pas de contenu disponible'}`;
 
     const completion = await Promise.race([
       openai.chat.completions.create({
