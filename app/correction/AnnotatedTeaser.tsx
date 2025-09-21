@@ -68,11 +68,21 @@ export default function AnnotatedTeaser({ submissionId }: { submissionId: string
   useEffect(() => {
     let mounted = true
     let pollInterval: NodeJS.Timeout
+    let pollCount = 0
+    const MAX_POLLS = 30 // Arrêter après 30 tentatives (2.5 minutes)
 
     async function fetchStatus() {
+      if (pollCount >= MAX_POLLS) {
+        console.log("⏹️ Arrêt du polling après", MAX_POLLS, "tentatives");
+        setLoading(false)
+        if (pollInterval) clearInterval(pollInterval)
+        return
+      }
+
+      pollCount++
+      console.log(`🔍 Polling ${pollCount}/${MAX_POLLS} pour:`, submissionId)
+      
       try {
-        console.log('🔍 Polling status for:', submissionId)
-        
         const response = await fetch(`/api/corrections/status?submissionId=${encodeURIComponent(submissionId)}`, {
           cache: "no-store"
         })
@@ -87,11 +97,10 @@ export default function AnnotatedTeaser({ submissionId }: { submissionId: string
         if (mounted) {
           setData(result)
           
-          // Si pas de correction ou pas de commentaires inline, déclencher la génération
-          if (result.status === "none" || !result.result || !result.result.inline || result.result.inline.length === 0) {
-            console.log('🚀 Aucun commentaire trouvé, déclenchement génération...')
+          // Si pas de correction, déclencher la génération UNE SEULE FOIS
+          if (pollCount === 1 && (result.status === "none" || !result.result || !result.result.inline || result.result.inline.length === 0)) {
+            console.log('🚀 Déclenchement génération (tentative unique)...')
             
-            // Déclencher la génération automatiquement
             fetch('/api/corrections/generate', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
@@ -107,11 +116,6 @@ export default function AnnotatedTeaser({ submissionId }: { submissionId: string
             console.log('🎉 Correction prête avec', result.result.inline.length, 'commentaires')
             setLoading(false)
             if (pollInterval) clearInterval(pollInterval)
-          } else if (result.status === "running") {
-            console.log('⏳ Génération en cours...')
-            // Continue polling
-          } else {
-            console.log('⚠️ État inattendu:', result.status)
           }
         }
       } catch (err) {
@@ -122,8 +126,8 @@ export default function AnnotatedTeaser({ submissionId }: { submissionId: string
     // Poll initial
     fetchStatus()
     
-    // Poll every 3 seconds
-    pollInterval = setInterval(fetchStatus, 5000) // 5 secondes au lieu de 3
+    // Poll every 5 seconds
+    pollInterval = setInterval(fetchStatus, 5000)
 
     return () => { 
       mounted = false
