@@ -77,7 +77,9 @@ export async function POST(req: Request) {
       joinedText = String(payloadText || sujet || "");
     }
 
-    // INSERT minimal conforme à ton schéma
+    console.log("[create] 📄 Contenu extrait:", joinedText.length, "caractères");
+
+    // INSERT minimal conforme à ton schéma - CORRECTION ICI
     const submissionId = crypto.randomUUID();
     const { error: insErr } = await supabase
       .from("submissions")
@@ -86,7 +88,7 @@ export async function POST(req: Request) {
         exercise_kind: exerciseKind,
         matiere,
         sujet,
-        copie: filename, // on stocke le nom (le texte part en payload pour la génération)
+        copie: joinedText, // CORRECTION: on stocke le contenu extrait, pas le filename
       }]);
 
     if (insErr) {
@@ -94,7 +96,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "insert_failed", details: insErr.message }, { status: 500 });
     }
 
-    console.log("[create] ✅ submission:", submissionId);
+    console.log("[create] ✅ submission:", submissionId, "avec", joinedText.length, "caractères sauvegardés");
 
     // Appel interne vers la génération (payload.text = joinedText)
     const base = baseUrl();
