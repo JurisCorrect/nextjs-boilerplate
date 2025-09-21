@@ -13,82 +13,24 @@ const openai = new OpenAI({
 });
 
 export async function POST(request: Request) {
-  console.log("🚀 [GENERATE] Début génération correction Marie Terki");
+  console.log("🚀 [GENERATE] Début génération");
   
   try {
     const { submissionId } = await request.json();
     console.log("📋 [GENERATE] submissionId:", submissionId);
 
-    // Vérification des variables d'environnement
-    if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
-      console.error("❌ [GENERATE] NEXT_PUBLIC_SUPABASE_URL manquant");
-      throw new Error("Configuration Supabase manquante");
-    }
-    if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
-      console.error("❌ [GENERATE] SUPABASE_SERVICE_ROLE_KEY manquant");
-      throw new Error("Clé service Supabase manquante");
-    }
-    if (!process.env.OPENAI_API_KEY) {
-      console.error("❌ [GENERATE] OPENAI_API_KEY manquant");
-      throw new Error("Clé OpenAI manquante");
-    }
-    console.log("✅ [GENERATE] Variables d'environnement OK");
-
     // 1. Récupérer la soumission
-    console.log("🔍 [GENERATE] Recherche soumission...");
-    const { data: submission, error: fetchError } = await supabase
+    const { data: submission } = await supabase
       .from("submissions")
-      .select("*")
+      .select("content")
       .eq("id", submissionId)
       .single();
 
-    if (fetchError) {
-      console.error("❌ [GENERATE] Erreur fetch soumission:", fetchError.message);
-      throw new Error(`Erreur récupération: ${fetchError.message}`);
+    if (!submission?.content) {
+      return NextResponse.json({ error: "Soumission introuvable" }, { status: 404 });
     }
 
-    if (!submission) {
-      console.error("❌ [GENERATE] Soumission introuvable");
-      throw new Error("Soumission introuvable");
-    }
-
-    console.log("📊 [GENERATE] Structure soumission:", Object.keys(submission));
-    console.log("📄 [GENERATE] Valeur copie:", typeof submission.copie, submission.copie ? submission.copie.length : "null/undefined");
-
-    // Identifier le champ qui contient le contenu
-    let content = '';
-    
-    if (submission.copie && typeof submission.copie === 'string') {
-      content = submission.copie;
-    } else if (submission.sujet && typeof submission.sujet === 'string') {
-      content = submission.sujet;
-    } else {
-      console.error("❌ [GENERATE] Aucun contenu string trouvé");
-      // Créer une correction factice pour débloquer l'interface
-      const fallbackResult = {
-        normalizedBody: "Contenu de test en attendant la correction de l'API",
-        globalComment: "Correction en cours d'optimisation technique. Version complète bientôt disponible.",
-        inline: [
-          {tag: "blue", quote: "Contenu de test", comment: "Commentaire de test Marie Terki"}
-        ]
-      };
-      
-      const { error: updateError } = await supabase
-        .from("corrections")
-        .update({
-          status: "ready",
-          result_json: fallbackResult,
-        })
-        .eq("submission_id", submissionId);
-      
-      return NextResponse.json({ 
-        ok: true, 
-        message: "Correction fallback créée",
-        commentsCount: 1
-      });
-    }
-
-    console.log("✅ [GENERATE] Contenu récupéré:", content.length, "caractères");
+    console.log("✅ [GENERATE] Contenu récupéré:", submission.content.length, "caractères");
 
     // 2. Supprimer toute correction existante
     await supabase.from("corrections").delete().eq("submission_id", submissionId);
@@ -106,8 +48,8 @@ export async function POST(request: Request) {
 
     console.log("⏳ [GENERATE] Correction créée, ID:", correction?.id);
 
-    // 4. Appel OpenAI avec retry
-    console.log("🤖 [GENERATE] Appel OpenAI - génération correction experte...");
+    // 4. Appel OpenAI simplifié avec timeout court
+    console.log("🤖 [GENERATE] Appel OpenAI...");
     
     const prompt = `Tu es Marie Terki, correctrice experte en droit. Analyse cette copie et retourne EXACTEMENT ce JSON :
 
@@ -127,52 +69,37 @@ Règles:
 - Tags: red (erreur), orange (améliorer), blue (conseil), green (bien)
 
 Copie à corriger:
-${content.slice(0, 12000) || 'Pas de contenu disponible'}`;
+${submission.content.slice(0, 12000)}`;
 
-    let completion;
-    for (let attempt = 1; attempt <= 3; attempt++) {
-      try {
-        console.log(`🔄 [GENERATE] Tentative ${attempt}/3`);
-        
-        completion = await Promise.race([
-          openai.chat.completions.create({
-            model: "gpt-3.5-turbo",
-            messages: [{ role: "user", content: prompt }],
-            temperature: 0.3,
-            max_tokens: 3000,
-          }),
-          new Promise((_, reject) => 
-            setTimeout(() => reject(new Error('Timeout')), 60000)
-          )
-        ]) as any;
-
-        console.log(`✅ [GENERATE] Succès tentative ${attempt}`);
-        break;
-        
-      } catch (error: any) {
-        console.log(`❌ [GENERATE] Échec tentative ${attempt}:`, error.message);
-        if (attempt === 3) throw error;
-        await new Promise(resolve => setTimeout(resolve, 5000));
-      }
-    }
+    const completion = await Promise.race([
+      openai.chat.completions.create({
+        model: "gpt-3.5-turbo",
+        messages: [{ role: "user", content: prompt }],
+        temperature: 0.3,
+        max_tokens: 3000,
+      }),
+      new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Timeout')), 45000)
+      )
+    ]) as any;
 
     console.log("✅ [GENERATE] OpenAI terminé");
 
-    const responseContent = completion.choices?.[0]?.message?.content || "{}";
+    const content = completion.choices?.[0]?.message?.content || "{}";
     let result;
     
     try {
-      result = JSON.parse(responseContent);
+      result = JSON.parse(content);
       console.log("✅ [GENERATE] JSON parsé, commentaires:", result.inline?.length || 0);
     } catch {
       console.log("❌ [GENERATE] JSON invalide, création fallback");
       result = {
-        normalizedBody: content,
+        normalizedBody: submission.content,
         globalComment: "Votre correction a été générée. Analyse méthodologique en cours.",
         inline: [
-          {tag: "red", quote: content.slice(0, 100), comment: "Point à revoir selon la méthodologie Marie Terki"},
-          {tag: "orange", quote: content.slice(200, 300), comment: "Amélioration suggérée"},
-          {tag: "blue", quote: content.slice(400, 500), comment: "Conseil méthodologique"}
+          {tag: "red", quote: submission.content.slice(0, 100), comment: "Point à revoir selon la méthodologie Marie Terki"},
+          {tag: "orange", quote: submission.content.slice(200, 300), comment: "Amélioration suggérée"},
+          {tag: "blue", quote: submission.content.slice(400, 500), comment: "Conseil méthodologique"}
         ]
       };
     }
@@ -189,7 +116,7 @@ ${content.slice(0, 12000) || 'Pas de contenu disponible'}`;
     if (updateError) {
       console.error("❌ [GENERATE] Erreur sauvegarde:", updateError.message);
     } else {
-      console.log("✅ [GENERATE] Correction Marie Terki sauvegardée avec succès");
+      console.log("✅ [GENERATE] Correction sauvegardée avec succès");
     }
 
     return NextResponse.json({ 
