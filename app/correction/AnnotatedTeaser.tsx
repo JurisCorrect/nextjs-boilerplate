@@ -14,10 +14,10 @@ export default function AnnotatedTeaser({ submissionId }: { submissionId: string
       body: JSON.stringify({ submissionId })
     })
 
-    // Arrêter le loading après 2 minutes
+    // Passer automatiquement à la correction après 90 secondes
     const timer = setTimeout(() => {
       setLoading(false)
-    }, 120000)
+    }, 90000) // 1 minute 30
 
     return () => clearTimeout(timer)
   }, [submissionId])
@@ -39,20 +39,15 @@ export default function AnnotatedTeaser({ submissionId }: { submissionId: string
           <p style={{ margin: 0, lineHeight: 1.5, fontSize: "clamp(18px, 2vw, 22px)" }}>
             Votre correction est en cours de génération…
           </p>
-          <button 
-            onClick={() => setLoading(false)}
-            style={{
-              background: "#7b1e3a",
-              color: "white",
-              border: "none",
-              padding: "8px 16px",
-              borderRadius: "4px",
-              cursor: "pointer",
-              fontSize: "14px"
-            }}
-          >
-            Voir correction (test)
-          </button>
+          <p style={{ 
+            margin: 0, 
+            fontSize: "16px", 
+            color: "#7b1e3a", 
+            fontWeight: "600",
+            opacity: 0.9 
+          }}>
+            Temps restant : environ 1 minute
+          </p>
         </div>
         <style>{`@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}`}</style>
       </section>
