@@ -13,7 +13,7 @@ const openai = new OpenAI({
 });
 
 export async function POST(request: Request) {
-  console.log("🚀 [GENERATE] Début génération");
+  console.log("🚀 [GENERATE] Début génération correction Marie Terki");
   
   try {
     const { submissionId } = await request.json();
@@ -34,11 +34,11 @@ export async function POST(request: Request) {
     }
     console.log("✅ [GENERATE] Variables d'environnement OK");
 
-    // 1. Récupérer la soumission - découvrir la structure
+    // 1. Récupérer la soumission
     console.log("🔍 [GENERATE] Recherche soumission...");
     const { data: submission, error: fetchError } = await supabase
       .from("submissions")
-      .select("*")  // Récupérer toutes les colonnes pour voir la structure
+      .select("*")
       .eq("id", submissionId)
       .single();
 
@@ -53,9 +53,7 @@ export async function POST(request: Request) {
     }
 
     console.log("📊 [GENERATE] Structure soumission:", Object.keys(submission));
-    console.log("📄 [GENERATE] Valeur copie brute:", submission.copie);
-    console.log("📄 [GENERATE] Type copie:", typeof submission.copie);
-    console.log("📄 [GENERATE] Valeur sujet:", submission.sujet);
+    console.log("📄 [GENERATE] Valeur copie:", typeof submission.copie, submission.copie ? submission.copie.length : "null/undefined");
 
     // Identifier le champ qui contient le contenu
     let content = '';
@@ -108,8 +106,8 @@ export async function POST(request: Request) {
 
     console.log("⏳ [GENERATE] Correction créée, ID:", correction?.id);
 
-    // 4. Appel OpenAI simplifié avec timeout court
-    console.log("🤖 [GENERATE] Appel OpenAI...");
+    // 4. Appel OpenAI avec retry
+    console.log("🤖 [GENERATE] Appel OpenAI - génération correction experte...");
     
     const prompt = `Tu es Marie Terki, correctrice experte en droit. Analyse cette copie et retourne EXACTEMENT ce JSON :
 
@@ -131,17 +129,32 @@ Règles:
 Copie à corriger:
 ${content.slice(0, 12000) || 'Pas de contenu disponible'}`;
 
-    const completion = await Promise.race([
-      openai.chat.completions.create({
-        model: "gpt-3.5-turbo",
-        messages: [{ role: "user", content: prompt }],
-        temperature: 0.3,
-        max_tokens: 3000,
-      }),
-      new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Timeout')), 45000)
-      )
-    ]) as any;
+    let completion;
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      try {
+        console.log(`🔄 [GENERATE] Tentative ${attempt}/3`);
+        
+        completion = await Promise.race([
+          openai.chat.completions.create({
+            model: "gpt-3.5-turbo",
+            messages: [{ role: "user", content: prompt }],
+            temperature: 0.3,
+            max_tokens: 3000,
+          }),
+          new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Timeout')), 60000)
+          )
+        ]) as any;
+
+        console.log(`✅ [GENERATE] Succès tentative ${attempt}`);
+        break;
+        
+      } catch (error: any) {
+        console.log(`❌ [GENERATE] Échec tentative ${attempt}:`, error.message);
+        if (attempt === 3) throw error;
+        await new Promise(resolve => setTimeout(resolve, 5000));
+      }
+    }
 
     console.log("✅ [GENERATE] OpenAI terminé");
 
@@ -176,7 +189,7 @@ ${content.slice(0, 12000) || 'Pas de contenu disponible'}`;
     if (updateError) {
       console.error("❌ [GENERATE] Erreur sauvegarde:", updateError.message);
     } else {
-      console.log("✅ [GENERATE] Correction sauvegardée avec succès");
+      console.log("✅ [GENERATE] Correction Marie Terki sauvegardée avec succès");
     }
 
     return NextResponse.json({ 
