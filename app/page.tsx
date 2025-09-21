@@ -13,19 +13,28 @@ const supabase = createClient(
 export default function Home() {
   const router = useRouter();
   const [isMobile, setIsMobile] = useState(false);
+  const [authChecked, setAuthChecked] = useState(false);
 
   useEffect(() => {
     const checkUserNeedsPassword = async () => {
+      // Éviter la boucle infinie avec une vérification unique
+      if (authChecked) return;
+      
       try {
         const { data: { session } } = await supabase.auth.getSession();
         if (session) {
           console.log("Utilisateur connecté détecté, redirection vers /auth/callback");
+          setAuthChecked(true);
           router.push("/auth/callback");
+        } else {
+          setAuthChecked(true);
         }
       } catch (error) {
         console.log("Erreur vérification session:", error);
+        setAuthChecked(true);
       }
     };
+    
     checkUserNeedsPassword();
 
     // Détecter mobile
@@ -33,7 +42,7 @@ export default function Home() {
     checkMobile();
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
-  }, [router]);
+  }, [router, authChecked]);
 
   // Styles pill / cta (desktop)
   const pill = {
