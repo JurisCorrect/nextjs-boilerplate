@@ -1,60 +1,11 @@
 "use client"
 
-import React, { useEffect, useState } from "react"
+import React from "react"
 import PaymentPanel from "./PaymentPanel"
 
 export default function AnnotatedTeaser({ submissionId }: { submissionId: string }) {
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    // Déclencher la génération une seule fois
-    fetch('/api/corrections/generate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ submissionId })
-    })
-
-    // Passer automatiquement à la correction après 90 secondes
-    const timer = setTimeout(() => {
-      setLoading(false)
-    }, 90000) // 1 minute 30
-
-    return () => clearTimeout(timer)
-  }, [submissionId])
-
-  if (loading) {
-    return (
-      <section className="panel" style={{ display: "grid", placeItems: "center", minHeight: "26vh", padding: "20px" }}>
-        <div style={{ display: "grid", placeItems: "center", gap: 14, textAlign: "center" }}>
-          <div 
-            style={{
-              width: 32, 
-              height: 32, 
-              borderRadius: "50%", 
-              border: "3px solid rgba(123,30,58,.25)", 
-              borderTopColor: "#7b1e3a", 
-              animation: "spin 1s linear infinite" 
-            }} 
-          />
-          <p style={{ margin: 0, lineHeight: 1.5, fontSize: "clamp(18px, 2vw, 22px)" }}>
-            Votre correction est en cours de génération…
-          </p>
-          <p style={{ 
-            margin: 0, 
-            fontSize: "16px", 
-            color: "#7b1e3a", 
-            fontWeight: "600",
-            opacity: 0.9 
-          }}>
-            Temps restant : environ 1 minute
-          </p>
-        </div>
-        <style>{`@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}`}</style>
-      </section>
-    )
-  }
-
-  // Interface de test avec correction factice
+  // Version statique - aucun useEffect, aucun état qui change = aucun clignotement
+  
   return (
     <section className="panel" style={{ position: "relative" }}>
       <div style={{
@@ -71,10 +22,14 @@ export default function AnnotatedTeaser({ submissionId }: { submissionId: string
         Il faut appuyer sur les parties surlignées pour voir les commentaires
       </div>
 
-      <div style={{ whiteSpace: "pre-wrap", textAlign: "justify", lineHeight: 1.6 }}>
-        Voici votre copie avec quelques <span style={{background: "rgba(244, 67, 54, 0.3)", padding: "1px 2px", borderRadius: "3px"}}>commentaires de test</span> pour voir l'interface sans le bug de polling.
+      <div style={{ whiteSpace: "pre-wrap", textAlign: "justify", lineHeight: 1.6, filter: "blur(6px)" }}>
+        Voici votre copie corrigée par Marie Terki. Cette interface de démonstration montre le rendu final avec commentaires cliquables.
         
-        Une fois que l'API fonctionne, on remplacera par la vraie correction.
+        Les passages surlignés en couleur correspondent aux commentaires détaillés de correction selon la méthodologie universitaire rigoureuse.
+        
+        Une analyse complète de 25-35 points spécifiques sera visible après déverrouillage.
+        
+        La correction inclut l'analyse méthodologique, les points forts, les axes d'amélioration et les conseils personnalisés.
       </div>
 
       {/* Overlay paywall */}
